@@ -1,0 +1,6 @@
+@DocentesApp.API_HostAddress = http://localhost:5147
+
+GET {{DocentesApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
