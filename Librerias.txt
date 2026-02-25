@@ -7,3 +7,17 @@ Seq: https://datalust.co/ logs and traces
 CONCEPTOS IMPORTANTES
 
 CORS policy: restrict the machines that are allowed to acces our api
+
+The project that contains your DbContext needs the NuGet package Microsoft.EntityFrameworkCore.SqlServer or another database provider if you are using a different database.
+
+The ASP.NET Core project needs the following NuGet packages:
+
+Microsoft.EntityFrameworkCore.SqlServer (or same database provider as in step 1)
+
+Microsoft.EntityFrameworkCore.Tools
+
+In the PMC window, make sure that the default project is your ASP.NET Core project.
+
+In PMC, run the command Add-Migration MyMigrationName -Project DataLayer. This command creates a set of classes that migrate the database from its current state to a state that matches your application’s DbContext and the entity classes at the time that you run your command. (The MyMigrationName shown in the command is the name that will be used for the migration.)
+
+Run the command Update-Database to apply the commands created by the Add-Migration command to your database. If no database exists, Update-Database will create one. If a database exists, the command checks whether that database has this database migration applied to it, and if any database migrations are missing, this command applies them to the database. (See chapter 9 for more on migration commands.)
