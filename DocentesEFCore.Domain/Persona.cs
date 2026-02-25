@@ -1,6 +1,8 @@
-﻿namespace DocentesEFCore.Domain
+﻿using Domain.Model;
+
+namespace DocentesEFCore.Domain
 {
-    public class Persona
+    public class Persona : BaseDomainModel
     {
         public int Id { get; set; }
         public string Dni { get; set; }

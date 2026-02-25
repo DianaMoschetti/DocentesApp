@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Usuario : Persona 
+    internal class Turno
     {
-        public string NombreUsuario { get; set; }
-        public string Password { get; set; }
+        public int Id { get; set; }
+        public string Descripcion { get; set; }
+
+        //modulos
     }
 }

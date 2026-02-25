@@ -9,9 +9,8 @@ namespace DocentesEFCore.Domain
     internal class Condicion
     {
         public int Id { get; set; }
-        public string Descripcion { get; set; } // Regular (Ordinario) / Interino / Licencia
-        public bool? TieneSuplente { get; set; } = false; // Solo para Licencia
-
-        public string? TipoLicencia { get; set; } // // Licencia por enfermedad (con)
+        public string Descripcion { get; set; } = string.Empty; // Regular (Ordinario) / Interino / Licencia
+        public bool? TieneSuplente { get; set; } = false; // Solo para Licencia sin goce de sueldo
+        public string? TipoLicencia { get; set; } // Licencia por enfermedad (con)
     }
 }

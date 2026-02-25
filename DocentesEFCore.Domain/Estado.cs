@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Estado
+    internal class Estado // ver si es necesario
     {
         public int Id { get; set; }
         public string Descripcion { get; set; }

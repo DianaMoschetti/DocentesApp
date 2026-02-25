@@ -12,10 +12,12 @@ namespace DocentesEFCore.Domain
         public string Descripcion { get; set; } // Profesor / Jefe de Trabajos Prácticos / Ayudante de Primera / Ayudante de Segunda
 
         public float Puntos { get; set; }
-        // tipo cargo
 
-        // condicion
+        // Navigation properties
 
-        // dedicacion
+        public TipoCargo TipoCargo { get; set; } // 1:1 (un cargo tiene un tipo de cargo)
+        public Condicion Condicion { get; set; }
+        public Dedicacion? Dedicacion { get; set; }
+
     }
 }
