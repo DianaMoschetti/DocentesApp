@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Domain.Model;
+using Domain.Model.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,18 +8,29 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Cargo
+    internal class Cargo : BaseDomainModel
     {
         public int Id { get; set; }
-        public string Descripcion { get; set; } // Profesor / Jefe de Trabajos Prácticos / Ayudante de Primera / Ayudante de Segunda
+        public DenominacionCargo Denominacion { get; set; } // Profesor / Jefe de Trabajos Prácticos / Ayudante de Primera / Ayudante de Segunda / Becario / Administrativo
+        public TipoCargo TipoCargo { get; set; } // Adjunto / Asociado / Titular
+        public EspecificacionCargo DetalleCargo { get; set; } // Docencia / Gestion
+        public Condicion Condicion { get; set; } // Regular / Interino / Suplente / LicenciaConHaberes / LicenciaSinHaberes / Otros
+        public string? NroResolucion { get; set; }
+        public string? NroNota { get; set; } // Ver si es necesario
+        public DateOnly FechaDesignacion { get; set; } // Ver si es necesario
+        public DateOnly FechaInicio { get; set; }
+        public float Puntos { get; set; } // Ver si es necesario
+        public float PuntosUtilizados { get; set; }
+        public float PuntosLibres { get; set; }
+        public Estado EstadoDesignacion { get; set; } // Activa, Finalizada, Otros
+        public string? Observaciones { get; set; }
 
-        public float Puntos { get; set; }
 
         // Navigation properties
 
-        public TipoCargo TipoCargo { get; set; } // 1:1 (un cargo tiene un tipo de cargo)
-        public Condicion Condicion { get; set; }
-        public Dedicacion? Dedicacion { get; set; }
+        public List<Dedicacion>? Dedicacion { get; set; } // Relación uno a uno con Dedicacion
+        public List<Asignatura>? Materias { get; set; } // n:n -> Un cargo puede estar asociado a muchas materias y una materia puede tener muchos cargos
 
     }
 }
+
