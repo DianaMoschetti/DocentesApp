@@ -17,5 +17,6 @@ namespace Domain.Model.Enums
         Legislacion = 7,
         InglesI = 8,
         IngenieriaYSociedad = 9,
+        Taller = 10
     }
 }

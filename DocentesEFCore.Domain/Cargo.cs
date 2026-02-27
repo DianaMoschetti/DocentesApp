@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Cargo : BaseDomainModel
+    public class Cargo : BaseDomainModel
     {
         public int Id { get; set; }
         public DenominacionCargo Denominacion { get; set; } // Profesor / Jefe de Trabajos Prácticos / Ayudante de Primera / Ayudante de Segunda / Becario / Administrativo
         public TipoCargo TipoCargo { get; set; } // Adjunto / Asociado / Titular
-        public EspecificacionCargo DetalleCargo { get; set; } // Docencia / Gestion
+        public EspecificacionCargo DetalleCargo { get; set; } // Docencia / Gestion / Investigacion
         public Condicion Condicion { get; set; } // Regular / Interino / Suplente / LicenciaConHaberes / LicenciaSinHaberes / Otros
         public string? NroResolucion { get; set; }
         public string? NroNota { get; set; } // Ver si es necesario

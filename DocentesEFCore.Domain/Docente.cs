@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Docente : Persona
+    public class Docente : Persona
     {
         public int Legajo { get; set; }
         public Titulo Titulo { get; set; } // terciario / universitario / posgrado

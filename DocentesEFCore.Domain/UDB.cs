@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Model
 {
-    internal class UDB : BaseDomainModel 
+    public class UDB : BaseDomainModel 
     {
         public int Id { get; set; }
         public string Nombre { get; set; }

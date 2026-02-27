@@ -10,6 +10,7 @@ namespace Domain.Model.Enums
     {
         Docencia = 1,
         Gestion = 2,
-        DocenciaYGestion = 3
+        Investigación = 3,
+        DocenciaYGestion = 4
     }
 }

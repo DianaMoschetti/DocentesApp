@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Model
 {
-    internal class Curso //Comision
+    public class Curso //Comision
     {
         public int Id { get; set; }
         public Turno Turno { get; set; } = new Turno() { };

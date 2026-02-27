@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DocentesEFCore.Domain
 {
-    internal class Dedicacion 
+    public class Dedicacion 
     {
         public int Id { get; set; }
         public TipoDedicacion DescTipo { get; set; } // Simples (10hs) Exclusiva (40)        

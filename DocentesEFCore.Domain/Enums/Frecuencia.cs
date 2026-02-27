@@ -9,6 +9,8 @@ namespace Domain.Model.Enums
     public enum Frecuencia
     {
         Anual = 1,
-        Cuatrimestral = 2
+        Cuatrimestral = 2,
+        ElectivaAnual = 3,
+        ElectivaCuatrimestral = 4
     }
 }
