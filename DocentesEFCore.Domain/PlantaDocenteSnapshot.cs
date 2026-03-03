@@ -29,6 +29,6 @@ namespace DocentesApp.Model
         public string? Observaciones { get; set; }
 
         // Opcional: clave natural / hash para detectar duplicates
-        public string RowKey { get; set; }
+        public string? RowKey { get; set; }
     }
 }
