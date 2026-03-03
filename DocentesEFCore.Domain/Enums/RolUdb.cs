@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Model.Enums
 {
-    public enum EspecificacionCargo
+    public enum RolUdb
     {
-        Docencia = 1,
-        Gestion = 2,
-        Investigación = 3,
-        DocenciaYGestion = 4,
-        JefeDeCatedra = 5
+        Director = 1,
+        Secretario = 2,
+        Becario = 3,
+        Apoyo = 4
     }
 }

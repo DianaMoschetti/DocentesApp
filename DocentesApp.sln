@@ -7,10 +7,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.API", "Docentes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2348B22-E0F1-4A74-8A5F-410A48FEB86D}"
 	ProjectSection(SolutionItems) = preProject
+		Estructura.txt = Estructura.txt
 		Librerias.txt = Librerias.txt
+		ToDo.txt = ToDo.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Model", "DocentesEFCore.Domain\Domain.Model.csproj", "{0CD045F8-9083-4C79-AB88-45FAF7794272}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Domain", "DocentesEFCore.Domain\DocentesApp.Domain.csproj", "{0CD045F8-9083-4C79-AB88-45FAF7794272}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Data", "DocentesApp.Data\DocentesApp.Data.csproj", "{F523BBA1-2FD1-46FF-A2E7-A0EBB318B6CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Application", "DocentesApp.Application\DocentesApp.Application.csproj", "{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +32,14 @@ Global
 		{0CD045F8-9083-4C79-AB88-45FAF7794272}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CD045F8-9083-4C79-AB88-45FAF7794272}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CD045F8-9083-4C79-AB88-45FAF7794272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F523BBA1-2FD1-46FF-A2E7-A0EBB318B6CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F523BBA1-2FD1-46FF-A2E7-A0EBB318B6CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F523BBA1-2FD1-46FF-A2E7-A0EBB318B6CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F523BBA1-2FD1-46FF-A2E7-A0EBB318B6CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

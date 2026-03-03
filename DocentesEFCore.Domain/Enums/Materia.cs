@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Model.Enums
+namespace DocentesApp.Model.Enums
 {
     public enum Materia
     {
@@ -14,9 +14,10 @@ namespace Domain.Model.Enums
         QuimicaGeneral = 4,
         AnalisisMatematicoI = 5,
         AnalisisMatematicoII = 6,
-        Legislacion = 7,
-        InglesI = 8,
-        IngenieriaYSociedad = 9,
+        AlgebraYGeometria = 7,
+        Legislacion = 8,
+        InglesI = 9,
+        IngenieriaYSociedad = 10,
         Taller = 10
     }
 }

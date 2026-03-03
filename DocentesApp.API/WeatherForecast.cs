@@ -1,4 +1,4 @@
-namespace DocentesApp.API
+﻿namespace DocentesApp.API
 {
     public class WeatherForecast
     {
@@ -11,3 +11,17 @@ namespace DocentesApp.API
         public string? Summary { get; set; }
     }
 }
+
+/*
+ * 
+ * Referencias recomendadas:
+
+✅ DocentesApp.Application
+
+✅ DocentesApp.Data (para registrar DbContext/DI)
+
+✅ DocentesEFCore.Domain (opcional; idealmente el API habla con DTOs, pero no pasa nada si lo referencia)
+
+
+
+ * */

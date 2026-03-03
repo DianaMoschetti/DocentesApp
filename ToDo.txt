@@ -1,0 +1,23 @@
+﻿Application layer (servicios/casos de uso)
+Para encapsular:
+
+“cambiar cargo/materia de docente” = cerrar designación + crear nueva
+
+importar excel = crear snapshot + filas
+
+
+Reglas rápidas de dependencias (para que quede prolijo)
+
+Domain ← Application ← API
+Domain ← Data ← API
+
+Idealmente:
+
+Application no depende de Data.
+
+Data implementa interfaces de Application.
+
+API referencia a ambos para configurar DI.
+
+
+-- identity para usuarios

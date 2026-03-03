@@ -4,16 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Model
+namespace DocentesApp.Model
 {
-    public class UDB : BaseDomainModel 
+    public class Udb : BaseDomainModel 
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
 
         // Navigation Properties
-        public int IdDirector { get; set; }
-        public int IdSecretario { get; set; }
+        public int? DirectorDocenteId { get; set; }
+        public Docente? Director { get; set; }
+        public int? SecretarioDocenteId { get; set; }
+        public Docente? Secretario { get; set; }
+        public ICollection<Asignatura> Asignaturas { get; set; } = new HashSet<Asignatura>();
+        public ICollection<DocenteUdb> DocenteUdbs { get; set; } = new HashSet<DocenteUdb>();
 
     }
 }

@@ -1,0 +1,61 @@
+﻿Estructura recomendada (limpia y escalable)
+
+A) Domain (DocentesEFCore.Domain)
+
+Solo entidades + enums + lógica de dominio simple.
+
+Sin EF Core (sin DbContext, sin migraciones).
+
+Navegaciones: sí, pero sin cosas duplicadas.
+
+B) Application (nuevo proyecto: DocentesApp.Application)
+
+Casos de uso / servicios (ej: AsignarDesignacion, FinalizarDesignacion, GenerarSnapshotDesdeExcel)
+
+DTOs de entrada/salida (Request/Response)
+
+Validaciones (FluentValidation si querés)
+
+C) Infrastructure / Data (DocentesApp.Data)
+
+DbContext
+
+Configuraciones Fluent (IEntityTypeConfiguration<T>)
+
+Migraciones EF Core
+
+Repositorios (si decidís usarlos)
+
+Seeders (cargos base, dedicaciones base, etc.)
+
+D) API (DocentesApp.API)
+
+Controllers
+
+Mappeo DTO ↔ dominio (AutoMapper opcional)
+
+Auth (si aplica)
+
+E) Extensions
+
+O dentro de Domain en un folder Extensions (si son puros y no dependen de infraestructura)
+
+o en un proyecto DocentesApp.Shared si lo van a usar API + UI + otros.
+
+Configuración EF Core recomendada (cuando lleguemos al DbContext)
+
+Usar configuraciones por entidad:
+
+DocenteConfig : IEntityTypeConfiguration<Docente>
+
+DesignacionConfig, etc.
+
+Enums persistidos como int (como ya hablamos) y display en extension methods.
+
+Índices clave:
+
+Docente.Legajo unique
+
+(DocenteId, FechaInicio) en Designacion
+
+PlantaSnapshot.IsCurrent, PlantaSnapshot.SnapshotDate

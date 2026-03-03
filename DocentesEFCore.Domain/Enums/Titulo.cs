@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Model.Enums
+namespace DocentesApp.Model.Enums
 {
     public enum Titulo
     {
