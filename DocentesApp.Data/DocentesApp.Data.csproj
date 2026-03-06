@@ -23,8 +23,4 @@
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Configurations\" />
-  </ItemGroup>
-
 </Project>
