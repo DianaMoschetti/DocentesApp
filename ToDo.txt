@@ -21,3 +21,11 @@ API referencia a ambos para configurar DI.
 
 
 -- identity para usuarios
+
+
+MIGRACIONES 
+en la raiz del proy
+dotnet ef migrations add InitialCreate --project DocentesApp.Data --startup-project DocentesApp.API
+
+luego la aplico
+dotnet ef database update --project DocentesApp.Data --startup-project DocentesApp.API
