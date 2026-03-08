@@ -35,7 +35,7 @@ namespace DocentesApp.Data.Configurations
             // en Asignatura porque no es necesario navegar desde Asignatura a Designacion
             // igual probar y ver si es necesario agregar la propiedad de navegacion en Asignatura
             builder.HasOne(d => d.Asignatura)
-               .WithMany()
+               .WithMany(a => a.Designaciones)
                .HasForeignKey(d => d.AsignaturaId)
                .OnDelete(DeleteBehavior.Restrict);
 

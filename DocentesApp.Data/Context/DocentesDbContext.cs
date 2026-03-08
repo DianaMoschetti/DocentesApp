@@ -1,7 +1,7 @@
 ﻿using DocentesApp.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocentesApp.Data
+namespace DocentesApp.Data.Context
 {
     public class DocentesDbContext : DbContext
     {
