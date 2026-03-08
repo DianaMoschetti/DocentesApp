@@ -1,11 +1,6 @@
 ﻿using DocentesApp.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocentesApp.Data.Configurations
 {
@@ -29,7 +24,7 @@ namespace DocentesApp.Data.Configurations
 
             // Para listar docentes por udb
             builder.HasIndex(du => du.UdbId);
-            builder.HasIndex(du => du.DocenteId); //ver
+            
         }
     }
 }

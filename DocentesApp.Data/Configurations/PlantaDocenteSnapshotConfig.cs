@@ -25,7 +25,7 @@ namespace DocentesApp.Data.Configurations
                 .HasDefaultValue("");
             
             builder.HasIndex(p => p.PlantaSnapshotId);
-            builder.HasIndex(p => p.RowKey);
+            builder.HasIndex(p => new { p.PlantaSnapshotId, p.RowKey }).IsUnique();
             builder.HasIndex(p => p.DocenteId);
             builder.HasIndex(p => p.AsignaturaId);
             builder.HasIndex(p => p.UdbId);

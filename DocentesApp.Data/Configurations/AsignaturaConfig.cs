@@ -21,7 +21,7 @@ namespace DocentesApp.Data.Configurations
             builder.HasOne(x => x.Udb)
              .WithMany(u => u.Asignaturas)
              .HasForeignKey(x => x.UdbId)
-             .OnDelete(DeleteBehavior.SetNull);
+             .OnDelete(DeleteBehavior.Restrict);
 
             // Unicidad lógica: una asignatura no se puede repetir en una misma udb con el mismo nombre y nivel
             builder.HasIndex(x => new { x.UdbId, x.NombreAsignatura, x.Nivel })

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DocentesApp.Data.Configurations
 {
-    internal class AsignaturaModuloConfig : IEntityTypeConfiguration<AsignaturaModulo>
+    public class AsignaturaModuloConfig : IEntityTypeConfiguration<AsignaturaModulo>
     {
         public void Configure(EntityTypeBuilder<AsignaturaModulo> builder)
         {

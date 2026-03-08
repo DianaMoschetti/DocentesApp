@@ -1,11 +1,6 @@
 ﻿using DocentesApp.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocentesApp.Data.Configurations
 {
@@ -38,13 +33,14 @@ namespace DocentesApp.Data.Configurations
 
             // asi se hace la relacion con asignatura, no es necesario agregar una propiedad de navegacion
             // en Asignatura porque no es necesario navegar desde Asignatura a Designacion
+            // igual probar y ver si es necesario agregar la propiedad de navegacion en Asignatura
             builder.HasOne(d => d.Asignatura)
                .WithMany()
                .HasForeignKey(d => d.AsignaturaId)
                .OnDelete(DeleteBehavior.Restrict);
 
             // curso es opcional
-            builder.HasIndex(d => d.CursoId);
+            //builder.HasIndex(d => d.CursoId);
 
             // Indices para consultar planta actual o planta historica
             builder.HasIndex(d => new { d.DocenteId, d.FechaFin });
@@ -55,7 +51,8 @@ namespace DocentesApp.Data.Configurations
             // Evita “dos activas iguales” (heurístico): mismas claves con FechaFin null
             // (SQL Server soporta índice filtrado; EF lo genera)
             builder.HasIndex(d => new { d.DocenteId, d.CargoId, d.AsignaturaId, d.CursoId })
-             .HasFilter("[FechaFin] IS NULL");
+                .IsUnique()
+                .HasFilter("[FechaFin] IS NULL");
 
         }
     }

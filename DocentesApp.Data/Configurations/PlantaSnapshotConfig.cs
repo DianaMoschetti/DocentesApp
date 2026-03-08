@@ -15,7 +15,6 @@ namespace DocentesApp.Data.Configurations
             builder.Property(ps => ps.Fuente).IsRequired().HasMaxLength(200);
 
             builder.HasIndex(ps => ps.SnapshotDate);
-            builder.HasIndex(ps => ps.IsCurrent);
            
             builder.HasIndex(ps => ps.IsCurrent)
                 .IsUnique()

@@ -10,7 +10,7 @@ namespace DocentesApp.Model
         public string? Email { get; set; }
         public string? EmailAlternativo { get; set; }
         public string? Celular { get; set; }
-        public string? FechaNacimiento { get; set; }
+        public DateOnly? FechaNacimiento { get; set; }
         public string? Direccion { get; set; }
 
     }
