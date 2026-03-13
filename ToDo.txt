@@ -29,3 +29,28 @@ dotnet ef migrations add InitialCreate --project DocentesApp.Data --startup-proj
 
 luego la aplico
 dotnet ef database update --project DocentesApp.Data --startup-project DocentesApp.API
+
+---
+Después de esto, el orden ideal sería:
+
+ajustar los configs con las correcciones finales,
+
+crear el DocentesDbContext,
+
+registrar el contexto en API,
+
+correr InitialCreate,
+
+revisar la migración generada,
+
+crear la base.
+
+Y recién después:
+
+seed de catálogos,
+
+DTOs,
+
+servicios,
+
+importación desde Excel.

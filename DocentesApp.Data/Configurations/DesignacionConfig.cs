@@ -15,6 +15,12 @@ namespace DocentesApp.Data.Configurations
             builder.Property(d => d.NroResolucion).HasMaxLength(50);
             builder.Property(d => d.NroNota).HasMaxLength(50);
             builder.Property(d => d.Observaciones).HasMaxLength(500);
+            
+            
+            // Defino la precision para los puntos para que sql no redondee.
+            builder.Property(d => d.PuntosLibres).HasPrecision(10, 2);
+            builder.Property(d => d.PuntosUtilizados).HasPrecision(10, 2);
+
 
             builder.HasOne(d => d.Docente)
                 .WithMany(doc => doc.Designaciones)

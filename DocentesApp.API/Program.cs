@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connString = builder.Configuration.GetConnectionString("DocentesAppDbDavaConnection");
+builder.Services.AddDbContext<DocentesDbContext>(options =>
+    options.UseSqlServer(connString));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<DocentesDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // VER EL NOMBRE
 
 //ctx: for configuration file, lc: for logger configuration
 builder.Host.UseSerilog((ctx, lc) =>
