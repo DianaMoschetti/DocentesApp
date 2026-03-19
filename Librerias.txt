@@ -2,6 +2,12 @@ Serilog.AspNetCore
 Serilog.Expressions
 Serilog.Sinks.Seq
 
+Automapper
+
+Microsoft.AspNetCore.Identity.
+
+
+
 Seq: https://datalust.co/ logs and traces
 
 CONCEPTOS IMPORTANTES
