@@ -4,7 +4,8 @@ Serilog.Sinks.Seq
 
 Automapper
 
-Microsoft.AspNetCore.Identity.
+Microsoft.AspNetCore.Identity
+Microsoft.AspNetCore.Identity.EntityFrameworkCore
 
 
 

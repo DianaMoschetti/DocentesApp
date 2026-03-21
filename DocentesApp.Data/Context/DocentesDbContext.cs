@@ -1,9 +1,11 @@
-﻿using DocentesApp.Model;
+﻿using DocentesApp.Data.Identity;
+using DocentesApp.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocentesApp.Data.Context
 {
-    public class DocentesDbContext : DbContext
+    public class DocentesDbContext : IdentityDbContext<ApplicationUser>
     {
         public DocentesDbContext(DbContextOptions<DocentesDbContext> options) : base(options)
         {

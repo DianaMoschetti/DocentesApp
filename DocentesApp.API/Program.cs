@@ -2,6 +2,8 @@ using Serilog;
 using DocentesApp.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using DocentesApp.API.Configuraciones;
+using Microsoft.AspNetCore.Identity;
+using DocentesApp.Data.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("DocentesAppDbDavaConnection");
 builder.Services.AddDbContext<DocentesDbContext>(options =>
     options.UseSqlServer(connString));
+
+builder.Services.AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<DocentesDbContext>();
 
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
