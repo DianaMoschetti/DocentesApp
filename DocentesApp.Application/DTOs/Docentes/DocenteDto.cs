@@ -11,7 +11,9 @@ namespace DocentesApp.Application.DTOs.Docentes
         public int Id { get; set; }
         public int Legajo { get; set; }
         public string NombreCompleto { get; set; }
+        public string? Dni { get; set; }
         public string? Email { get; set; }
+        public string? Celular { get; set; }
 
     }
 }

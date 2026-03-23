@@ -1,0 +1,28 @@
+﻿tener un DTO completo (PUT) → no acepta nulls
+
+tener uno o más DTOs parciales (PATCH) → aceptan nulls
+
+configurar AutoMapper distinto para cada uno
+
+
+configurar campos nulleables para los dtos
+CreateMap<UpdateDocenteDatosAcademicosDto, Docente>()
+    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+DTO completo → reemplazo (PUT)
+
+👉 representa el estado completo del objeto
+
+no debería tener nulls (salvo que el campo realmente sea opcional en el modelo)
+
+si falta algo → es error
+
+DTO parcial → actualización (PATCH)
+
+👉 representa solo los campos que querés modificar
+
+acepta nulls
+
+AutoMapper ignora nulls
+
+no toca el resto

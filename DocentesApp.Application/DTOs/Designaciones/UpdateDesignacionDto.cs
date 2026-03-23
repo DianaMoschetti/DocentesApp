@@ -6,7 +6,22 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Designaciones
 {
-    internal class UpdateDesignacionDto
+    public class UpdateDesignacionDto
     {
+        //public int DocenteId { get; set; }
+        public int CargoId { get; set; }
+        public int DedicacionId { get; set; }
+        public int? AsignaturaId { get; set; }
+        public int? CursoId { get; set; }
+
+        public DateTime FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+
+        public string? NroResolucion { get; set; }
+        public string? NroNota { get; set; }
+        public decimal? PuntosUtilizados { get; set; }
+        public decimal? PuntosLibres { get; set; }
+        public int EstadoDesignacion { get; set; }
+        public string? Observaciones { get; set; }
     }
 }
