@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DocentesApp.Data.Context;
 using DocentesApp.Model;
 using AutoMapper;
-using DocentesApp.Application.DTOs;
+using DocentesApp.Application.DTOs.Docentes;
 
 namespace DocentesApp.API.Controllers
 {

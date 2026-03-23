@@ -1,0 +1,8 @@
+﻿Controllers 
+
+DI 
+
+Mapping (AutoMapper) 
+
+IDENTITY (usuarios) Y JWT
+configuración de JWT, controllers y servicios de token. 

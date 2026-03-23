@@ -1,0 +1,47 @@
+﻿
+Qué va adentro (carpetas sugeridas): 
+
+UseCases/ (por ejemplo: Designaciones/Asignar, Designaciones/Finalizar, Planta/GenerarSnapshot) 
+
+DTOs/ (Requests/Responses) 
+
+Interfaces/ (por ejemplo IDocentesRepository, IPlantaSnapshotWriter, etc.) 
+
+Validation/ 
+
+IDENTITY (usuarios) Y JWT
+
+DTOs de autenticación e interfaces reutilizables.
+
+
+
+
+ acá van los casos de uso/servicios, interfaces y DTOs.
+ No debe “ejecutarse” sola.
+
+DTOs (Requests/Responses) 
+
+Use cases / Services (ej: DesignacionService) 
+
+Interfaces (ej: IPlantaSnapshotService, IDesignacionRepository) 
+
+         * 
+         * Referencia a DocentesEFCore.Domain
+         * 
+         * Paquetes típicos
+
+            FluentValidation (si vas a validar requests)
+
+            MediatR (si preferís CQRS/handlers, opcional)
+
+            AutoMapper (si querés mapear DTOs↔entidades, opcional)
+
+         * Estructura de carpetas:
+         *  UseCases/ (por ejemplo: Designaciones/Asignar, Designaciones/Finalizar, Planta/GenerarSnapshot)
+
+            DTOs/ (Requests/Responses)
+
+            Interfaces/ (por ejemplo IDocentesRepository, IPlantaSnapshotWriter, etc.)
+
+            Validation/
+         * */

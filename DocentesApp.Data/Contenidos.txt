@@ -1,0 +1,27 @@
+﻿Entidades + Enums 
+
+(Opcional) Extensions de enums (DisplayName) en carpeta Extensions/ (solo lógica pura, sin EF) 
+
+DbContext 
+
+EntityTypeConfigurations/ (IEntityTypeConfiguration<T>) 
+
+Migrations/ 
+
+Implementaciones concretas de repos/servicios (si decidís usarlos) 
+
+Seed (cargos base, dedicaciones base, etc.) 
+
+--
+DocentesDbContext 
+
+Configurations/ (clases IEntityTypeConfiguration<T>) 
+
+Migrations/ 
+
+Repositories/ (implementaciones EF de interfaces) 
+
+Seed/ (datos iniciales: cargos base, dedicaciones base, etc.) 
+
+IDENTITY (usuarios) Y JWT
+Identity, ApplicationUser, ApplicationRole, DbContext y persistencia.

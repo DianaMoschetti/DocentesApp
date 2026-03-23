@@ -1,0 +1,6 @@
+﻿Entidades + Enums 
+
+(Opcional) Extensions de enums (DisplayName) en carpeta Extensions/ (solo lógica pura, sin EF) 
+
+IDENTITY (usuarios) Y JWT
+entidades del dominio académico, separadas del modelo de autenticación. 

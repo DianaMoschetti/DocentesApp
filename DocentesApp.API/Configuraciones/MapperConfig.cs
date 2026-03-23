@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DocentesApp.Application.DTOs;
+using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Model;
 
 namespace DocentesApp.API.Configuraciones

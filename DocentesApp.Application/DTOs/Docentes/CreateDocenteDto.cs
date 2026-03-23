@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs
+namespace DocentesApp.Application.DTOs.Docentes
 {
     public class CreateDocenteDto
     {
@@ -14,11 +14,16 @@ namespace DocentesApp.Application.DTOs
         public string Dni { get; set; }
         [Required]
         public int Legajo { get; set; }
-        [Required]
-        [MaxLength(100)]
+        [Required]        
         public string Nombre { get; set; }
         [Required]
-        [MaxLength(100)]
         public string Apellido { get; set; }
+        public string? Email { get; set; }
+        public string? EmailAlternativo { get; set; }
+        public string? Celular { get; set; }
+        public string? FechaNacimiento { get; set; }
+        public string? Direccion { get; set; }
+        public string? MaxNivelAcademico { get; set; }
+        public string? Observaciones { get; set; }
     }
 }
