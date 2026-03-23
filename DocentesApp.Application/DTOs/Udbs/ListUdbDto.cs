@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Udbs
 {
-    internal class ListUdbDto
+    public class ListUdbDto
     {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
     }
 }

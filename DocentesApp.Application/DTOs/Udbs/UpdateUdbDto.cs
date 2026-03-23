@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Udbs
 {
-    internal class UpdateUdbDto
+    public class UpdateUdbDto
     {
+        public string Nombre { get; set; } = string.Empty;
+        public int? DirectorDocenteId { get; set; }
+        public int? SecretarioDocenteId { get; set; }
     }
 }

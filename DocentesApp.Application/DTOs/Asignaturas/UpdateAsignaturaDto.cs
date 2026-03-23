@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Asignaturas
 {
-    internal class UpdateAsignaturaDto
+    public class UpdateAsignaturaDto
     {
+        public int Id { get; set; }
+        public int NombreAsignatura { get; set; } // enum 
+        public int Frecuencia { get; set; } // enum
+        public int Nivel { get; set; } // enum Primer año, segundo, tercero             
+        public int? UdbId { get; set; }
     }
 }

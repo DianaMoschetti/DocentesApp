@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Cursos
 {
-    internal class UpdateCursoDto
+    public class UpdateCursoDto
     {
+        public int Turno { get; set; } // enum
+        public int Año { get; set; }
+        public int Carrera { get; set; } // enum
+        public int NroComision { get; set; }
     }
 }
