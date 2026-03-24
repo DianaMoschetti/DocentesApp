@@ -14,6 +14,6 @@ namespace DocentesApp.Application.DTOs.Udbs
         public int? DirectorDocenteId { get; set; }
         public string? DirectorNombreCompleto { get; set; }
         public int? SecretarioDocenteId { get; set; }
-        public string? SecretarioNombreComleto { get; set; }
+        public string? SecretarioNombreCompleto { get; set; }
     }
 }

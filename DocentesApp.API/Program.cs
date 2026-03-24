@@ -1,9 +1,9 @@
 using Serilog;
 using DocentesApp.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using DocentesApp.API.Configuraciones;
 using Microsoft.AspNetCore.Identity;
 using DocentesApp.Data.Identity;
+using DocentesApp.Application.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +16,12 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DocentesDbContext>();
 
-builder.Services.AddAutoMapper(typeof(MapperConfig));
+// Mappers
+// Agrega AutoMapper y registra los perfiles de mapeo.
+// El método AddAutoMapper escanea el ensamblado especificado (en este caso, donde se encuentra DocenteProfile)
+// en busca de clases que hereden de Profile y las registra automáticamente.
+//el .Assebly busca en todos los profile q esten dentro del mismo proy donde esta docenteProfile
+builder.Services.AddAutoMapper(typeof(DocenteProfile).Assembly); 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

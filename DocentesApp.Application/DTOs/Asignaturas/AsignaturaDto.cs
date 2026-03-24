@@ -16,6 +16,6 @@ namespace DocentesApp.Application.DTOs.Asignaturas
         public int Nivel { get; set; } // enum Primer año, segundo, tercero
         public string NivelTexto { get; set; } = string.Empty;
         public int? UdbId { get; set; }
-        public string? UdbTexto { get; set; }
+        public string? NombreUdb { get; set; }
     }
 }

@@ -15,4 +15,5 @@ namespace DocentesApp.Application.DTOs.Asignaturas
         public int Frecuencia { get; set; } // enum
         public int Nivel { get; set; } // enum Primer año, segundo, tercero             
         public int? UdbId { get; set; }
+    }
 }

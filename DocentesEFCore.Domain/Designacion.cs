@@ -32,7 +32,8 @@ namespace DocentesApp.Model
         public decimal PuntosUtilizados { get; set; }
         public decimal PuntosLibres { get; set; }     
         public Estado EstadoDesignacion { get; set; } // Activa, Finalizada
-        public int? CursoId { get; set; }
+        public int CursoId { get; set; }
+        public Curso? Curso { get; set; }
 
         // Navigation Properties
 
