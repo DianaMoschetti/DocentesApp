@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using DocentesApp.Data.Identity;
 using DocentesApp.Application.Mappings;
+using DocentesApp.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,12 @@ builder.Services.AddIdentityCore<ApplicationUser>()
 // El método AddAutoMapper escanea el ensamblado especificado (en este caso, donde se encuentra DocenteProfile)
 // en busca de clases que hereden de Profile y las registra automáticamente.
 //el .Assebly busca en todos los profile q esten dentro del mismo proy donde esta docenteProfile
-builder.Services.AddAutoMapper(typeof(DocenteProfile).Assembly); 
+//builder.Services.AddAutoMapper(typeof(DocenteProfile).Assembly); 
+builder.Services.AddAutoMapper(cfg =>
+{
+    // esta version de automapper quiere licencia, pero trabaja igual
+    // loguea que falta la licencia y listo
+}, typeof(DocenteProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -51,6 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseGlobalExceptionHandling(); // para utilizar el middleware de las excepciones
 
 app.UseHttpsRedirection();
 

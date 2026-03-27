@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using DocentesApp.Application.Common.Constants;
+using DocentesApp.Application.Common.Exceptions;
+using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Data.Context;
 using DocentesApp.Model;
-using AutoMapper;
-using DocentesApp.Application.DTOs.Docentes;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocentesApp.API.Controllers
 {
@@ -17,76 +14,85 @@ namespace DocentesApp.API.Controllers
     public class DocentesController : ControllerBase
     {
         private readonly DocentesDbContext _context;
-        private readonly IMapper mapper;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public DocentesController(DocentesDbContext context, IMapper mapper)
+        public DocentesController(DocentesDbContext context, IMapper mapper, ILogger logger)
         {
             _context = context;
-            this.mapper = mapper;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         // GET: api/Docentes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Docente>>> GetDocentes()
+        public async Task<ActionResult<IEnumerable<ListDocenteDto>>> GetDocentes()
         {
-            return await _context.Docentes.ToListAsync();
+            var docentes = await _context.Docentes.ToListAsync();
+            var docentesDto = _mapper.Map<List<ListDocenteDto>>(docentes);
+
+            return Ok(docentesDto);
         }
 
         // GET: api/Docentes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Docente>> GetDocente(int id)
+        public async Task<ActionResult<DocenteDto>> GetDocente(int id)
+        {
+            var docente = await _context.Docentes
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (docente == null)
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
+
+            var docenteDto = _mapper.Map<DocenteDto>(docente);
+
+            return Ok(docenteDto);
+        }
+
+        // PUT: api/Docentes/5
+        // Los campos que no mande van a quedar en null
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutDocente(int id, UpdateDocenteDto docenteDto)
         {
             var docente = await _context.Docentes.FindAsync(id);
 
             if (docente == null)
-            {
                 return NotFound();
-            }
 
-            return docente;
-        }
-
-        // PUT: api/Docentes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDocente(int id, Docente docente)
-        {
-            if (id != docente.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(docente).State = EntityState.Modified;
+            _mapper.Map(docenteDto, docente);
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!await DocenteExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+               _logger.LogError(ex,
+                    "{Message} Controller: {Controller}, Action: {Action}, TraceId: {TraceId}",
+                    LogMessages.ErrorLogUnhandled
+                    );
+                return StatusCode(500);
             }
-
+            
             return NoContent();
         }
 
         // POST: api/Docentes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CreateDocenteDto>> PostDocente(CreateDocenteDto docenteDto)
+        public async Task<ActionResult<DocenteDto>> PostDocente(CreateDocenteDto docenteDto)
         {
-            var docente = mapper.Map<Docente>(docenteDto);
+            var yaExisteLegajo = await _context.Docentes.AnyAsync(d => d.Legajo == docenteDto.Legajo);
+            if (yaExisteLegajo)
+                throw new BadRequestException("Ya existe un docente con ese legajo.");
+
+            var docente = _mapper.Map<Docente>(docenteDto);
+
             _context.Docentes.Add(docente);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetDocente), new { id = docente.Id }, docente);
+            var docenteCreado= _mapper.Map<DocenteDto>(docente);
+
+            return CreatedAtAction(nameof(GetDocente), new { id = docente.Id }, docenteCreado);
         }
 
         // DELETE: api/Docentes/5
@@ -95,9 +101,11 @@ namespace DocentesApp.API.Controllers
         {
             var docente = await _context.Docentes.FindAsync(id);
             if (docente == null)
-            {
-                return NotFound();
-            }
+                throw new NotFoundException($"No se encontró el docente con Id {id}.");
+
+            var tieneDesignaciones = await _context.Designaciones.AnyAsync(d => d.DocenteId == id); // ver si esta activa
+            if (tieneDesignaciones)
+                throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
 
             _context.Docentes.Remove(docente);
             await _context.SaveChangesAsync();
