@@ -30,7 +30,7 @@ namespace DocentesApp.Application.Mappings
                     opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // UPDATE PARCIAL - OBSERVACIONES (ignora nulls, deja como estaba)
-            CreateMap<UpdateContactoDocenteDto, Docente>()
+            CreateMap<UpdateObservacionesDocenteDto, Docente>()
                 .ForAllMembers(opts =>
                     opts.Condition((src, dest, srcMember) => srcMember != null));
 

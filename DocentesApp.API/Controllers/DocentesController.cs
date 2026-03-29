@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DocentesApp.Application.Common.Constants;
 using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Data.Context;
@@ -15,13 +14,10 @@ namespace DocentesApp.API.Controllers
     {
         private readonly DocentesDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
-
-        public DocentesController(DocentesDbContext context, IMapper mapper, ILogger logger)
+        public DocentesController(DocentesDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _logger = logger;
         }
 
         // GET: api/Docentes
@@ -49,6 +45,31 @@ namespace DocentesApp.API.Controllers
             return Ok(docenteDto);
         }
 
+        // GET: api/Docentes/5/detalle
+        [HttpGet("{id}/detalle")]
+        public async Task<ActionResult<DetalleDocenteDto>> GetDocenteDetalle(int id)
+        {
+            var docente = await _context.Docentes
+                .Include(d => d.Designaciones)
+                    .ThenInclude(des => des.Docente)
+                .Include(d => d.Designaciones)
+                    .ThenInclude(des => des.Cargo)
+                .Include(d => d.Designaciones)
+                    .ThenInclude(des => des.Dedicacion)
+                .Include(d => d.Designaciones)
+                    .ThenInclude(des => des.Asignatura)
+                .Include(d => d.Designaciones)
+                    .ThenInclude(des => des.Curso)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (docente == null)
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
+
+            var docenteDetalleDto = _mapper.Map<DetalleDocenteDto>(docente);
+
+            return Ok(docenteDetalleDto);
+        }
+
         // PUT: api/Docentes/5
         // Los campos que no mande van a quedar en null
         [HttpPut("{id}")]
@@ -57,23 +78,57 @@ namespace DocentesApp.API.Controllers
             var docente = await _context.Docentes.FindAsync(id);
 
             if (docente == null)
-                return NotFound();
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
             _mapper.Map(docenteDto, docente);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-               _logger.LogError(ex,
-                    "{Message} Controller: {Controller}, Action: {Action}, TraceId: {TraceId}",
-                    LogMessages.ErrorLogUnhandled
-                    );
-                return StatusCode(500);
-            }
-            
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PATCH: api/Docentes/5/academico
+        [HttpPatch("{id}/academico")]
+        public async Task<IActionResult> PatchDocenteAcademico(int id, UpdateAcademicoDocenteDto docenteDto)
+        {
+            var docente = await _context.Docentes.FindAsync(id);
+
+            if (docente == null)
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
+
+            _mapper.Map(docenteDto, docente);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PATCH: api/Docentes/5/contacto
+        [HttpPatch("{id}/contacto")]
+        public async Task<IActionResult> PatchDocenteContacto(int id, UpdateContactoDocenteDto docenteDto)
+        {
+            var docente = await _context.Docentes.FindAsync(id);
+
+            if (docente == null)
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
+
+            _mapper.Map(docenteDto, docente);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PATCH: api/Docentes/5/observaciones
+        [HttpPatch("{id}/observaciones")]
+        public async Task<IActionResult> PatchDocenteObservaciones(int id, UpdateObservacionesDocenteDto docenteDto)
+        {
+            var docente = await _context.Docentes.FindAsync(id);
+
+            if (docente == null)
+                throw new NotFoundException($"No se encontró el docente con ID {id}.");
+
+            _mapper.Map(docenteDto, docente);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
 
@@ -113,9 +168,5 @@ namespace DocentesApp.API.Controllers
             return NoContent();
         }
 
-        private async Task<bool> DocenteExists(int id)
-        {
-            return await _context.Docentes.AnyAsync(e => e.Id == id);
-        }
     }
 }

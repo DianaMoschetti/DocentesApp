@@ -48,8 +48,35 @@ namespace DocentesApp.Application.Mappings
                             : null));
 
             // ENTITY -> DTO DETALLE (el include base me mete los campos de list para no repetir tanto
+            //CreateMap<Designacion, DesignacionDto>()
+            //    .IncludeBase<Designacion, ListDesignacionDto>();
+
             CreateMap<Designacion, DesignacionDto>()
-                .IncludeBase<Designacion, ListDesignacionDto>();
+                .ForMember(dest => dest.NombreCompletoDocente,
+                    opt => opt.MapFrom(src =>
+                        src.Docente != null
+                            ? $"{src.Docente.Apellido}, {src.Docente.Nombre}"
+                            : string.Empty))
+                .ForMember(dest => dest.DescripcionCargo,
+                    opt => opt.MapFrom(src =>
+                        src.Cargo != null
+                            ? src.Cargo.Denominacion.ToString()
+                            : string.Empty))
+                .ForMember(dest => dest.DescripcionDedicacion,
+                    opt => opt.MapFrom(src =>
+                        src.Dedicacion != null
+                            ? src.Dedicacion.DescTipo.ToString()
+                            : string.Empty))
+                .ForMember(dest => dest.NombreAsignatura,
+                    opt => opt.MapFrom(src =>
+                        src.Asignatura != null
+                            ? src.Asignatura.NombreAsignatura.ToString()
+                            : null))
+                .ForMember(dest => dest.DescripcionCurso,
+                    opt => opt.MapFrom(src =>
+                        src.Curso != null
+                            ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}"
+                            : null));
         }       
     }
 }
