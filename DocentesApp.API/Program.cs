@@ -6,11 +6,19 @@ using DocentesApp.Data.Identity;
 using DocentesApp.Application.Mappings;
 using DocentesApp.API.Middleware;
 using Mapster;
+using DocentesApp.Application.Services;
+using DocentesApp.Application.Interfaces.Services;
+using DocentesApp.Application.Interfaces.Repositories;
+using DocentesApp.Data.Repositories;
+using MapsterMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var connString = builder.Configuration.GetConnectionString("DocentesAppDbDavaConnection");
+// Mappers
+var config = TypeAdapterConfig.GlobalSettings;
+MapsterConfig.Register(config);
+
 builder.Services.AddDbContext<DocentesDbContext>(options =>
     options.UseSqlServer(connString));
 
@@ -20,6 +28,12 @@ builder.Services.AddIdentityCore<ApplicationUser>()
 
 // Mappers
 MapsterConfig.Register(TypeAdapterConfig.GlobalSettings);
+
+// Interfaces
+builder.Services.AddScoped<IDocenteService, DocenteService>();
+
+//builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -40,6 +54,9 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
+
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, ServiceMapper>();
 
 var app = builder.Build();
 

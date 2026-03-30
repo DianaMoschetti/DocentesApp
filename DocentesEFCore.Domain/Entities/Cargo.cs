@@ -1,4 +1,4 @@
-﻿using DocentesApp.Model;
+﻿using DocentesApp.Domain.Base;
 using DocentesApp.Model.Enums;
 using System;
 using System.Collections.Generic;

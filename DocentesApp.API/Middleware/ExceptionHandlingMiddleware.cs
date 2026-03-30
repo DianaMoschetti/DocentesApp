@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
-using Azure;
 using DocentesApp.Application.Common.Constants;
 using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.Common.Responses;

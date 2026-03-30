@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Model
+namespace DocentesApp.Domain.Base
 {
-    public abstract class BaseDomainModel 
+    public abstract class BaseDomainModel
     {
         //public int Id { get; set; }
         public DateTimeOffset CreatedDate { get; set; }

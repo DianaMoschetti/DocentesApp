@@ -12,10 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Mapster" Version="10.0.6" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="10.0.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DocentesApp.Data\DocentesApp.Data.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.Interfaces
+namespace DocentesApp.Application.Interfaces.Auth
 {
-    internal class ITokenService
+    public interface ITokenService
     {
     }
 }

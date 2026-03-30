@@ -1,4 +1,4 @@
-﻿using DocentesApp.Model;
+﻿using DocentesApp.Domain.Base;
 
 namespace DocentesApp.Model
 {
