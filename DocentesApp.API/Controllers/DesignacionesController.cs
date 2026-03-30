@@ -32,7 +32,7 @@ namespace DocentesApp.API.Controllers
     .FirstOrDefaultAsync(d => d.Id == id);
 
         y recien despues:
-        var dto = _mapper.Map<DesignacionDto>(designacion);
+        var dto = designacion.Adapt<DesignacionDto>();
          */
         // GET: api/Designaciones
         [HttpGet]

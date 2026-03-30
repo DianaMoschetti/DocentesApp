@@ -34,7 +34,7 @@ Interfaces (ej: IPlantaSnapshotService, IDesignacionRepository)
 
             MediatR (si preferís CQRS/handlers, opcional)
 
-            AutoMapper (si querés mapear DTOs↔entidades, opcional)
+            Mapster (si querés mapear DTOs↔entidades, opcional)
 
          * Estructura de carpetas:
          *  UseCases/ (por ejemplo: Designaciones/Asignar, Designaciones/Finalizar, Planta/GenerarSnapshot)

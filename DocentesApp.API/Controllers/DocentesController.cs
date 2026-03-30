@@ -1,8 +1,8 @@
-﻿using AutoMapper;
 using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Data.Context;
 using DocentesApp.Model;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +13,10 @@ namespace DocentesApp.API.Controllers
     public class DocentesController : ControllerBase
     {
         private readonly DocentesDbContext _context;
-        private readonly IMapper _mapper;
-        public DocentesController(DocentesDbContext context, IMapper mapper)
+
+        public DocentesController(DocentesDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Docentes
@@ -25,7 +24,7 @@ namespace DocentesApp.API.Controllers
         public async Task<ActionResult<IEnumerable<ListDocenteDto>>> GetDocentes()
         {
             var docentes = await _context.Docentes.ToListAsync();
-            var docentesDto = _mapper.Map<List<ListDocenteDto>>(docentes);
+            var docentesDto = docentes.Adapt<List<ListDocenteDto>>();
 
             return Ok(docentesDto);
         }
@@ -40,7 +39,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            var docenteDto = _mapper.Map<DocenteDto>(docente);
+            var docenteDto = docente.Adapt<DocenteDto>();
 
             return Ok(docenteDto);
         }
@@ -65,7 +64,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            var docenteDetalleDto = _mapper.Map<DetalleDocenteDto>(docente);
+            var docenteDetalleDto = docente.Adapt<DetalleDocenteDto>();
 
             return Ok(docenteDetalleDto);
         }
@@ -80,7 +79,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            _mapper.Map(docenteDto, docente);
+            docenteDto.Adapt(docente);
 
             await _context.SaveChangesAsync();
 
@@ -96,7 +95,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            _mapper.Map(docenteDto, docente);
+            docenteDto.Adapt(docente);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -111,7 +110,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            _mapper.Map(docenteDto, docente);
+            docenteDto.Adapt(docente);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -126,7 +125,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            _mapper.Map(docenteDto, docente);
+            docenteDto.Adapt(docente);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -140,12 +139,12 @@ namespace DocentesApp.API.Controllers
             if (yaExisteLegajo)
                 throw new BadRequestException("Ya existe un docente con ese legajo.");
 
-            var docente = _mapper.Map<Docente>(docenteDto);
+            var docente = docenteDto.Adapt<Docente>();
 
             _context.Docentes.Add(docente);
             await _context.SaveChangesAsync();
 
-            var docenteCreado= _mapper.Map<DocenteDto>(docente);
+            var docenteCreado = docente.Adapt<DocenteDto>();
 
             return CreatedAtAction(nameof(GetDocente), new { id = docente.Id }, docenteCreado);
         }
@@ -158,7 +157,7 @@ namespace DocentesApp.API.Controllers
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con Id {id}.");
 
-            var tieneDesignaciones = await _context.Designaciones.AnyAsync(d => d.DocenteId == id); // ver si esta activa
+            var tieneDesignaciones = await _context.Designaciones.AnyAsync(d => d.DocenteId == id);
             if (tieneDesignaciones)
                 throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
 
@@ -167,6 +166,5 @@ namespace DocentesApp.API.Controllers
 
             return NoContent();
         }
-
     }
 }

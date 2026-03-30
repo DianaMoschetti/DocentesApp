@@ -1,0 +1,10 @@
+﻿Mapper no va mas porque es pago, se puede usar pero sale constantemente un error de licencia en los logs
+https://medium.com/codenx/mapster-high-performance-mapper-for-net-767a3f361043
+https://www.youtube.com/watch?v=TMS7U6O-kxA&t=197s
+
+
+con adapt mapster hace el mapeo auotmaticamente si las propiedades tienen el mismo nombre y tipo
+objetos de configuracion - TypeAdapterConfig: se usan cuando el nombre de la propiedad no coincide con el nombre del dto, por ejemplo nombre y apellido -> nombre completo
+Por ejemplo:
+TypeAdapterConfig<User, UserDto>.NewConfig()
+	.Map(dest => dest.FullName, src =>src.Name);

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using DocentesApp.Data.Identity;
 using DocentesApp.Application.Mappings;
 using DocentesApp.API.Middleware;
+using Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,16 +19,7 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<DocentesDbContext>();
 
 // Mappers
-// Agrega AutoMapper y registra los perfiles de mapeo.
-// El método AddAutoMapper escanea el ensamblado especificado (en este caso, donde se encuentra DocenteProfile)
-// en busca de clases que hereden de Profile y las registra automáticamente.
-//el .Assebly busca en todos los profile q esten dentro del mismo proy donde esta docenteProfile
-//builder.Services.AddAutoMapper(typeof(DocenteProfile).Assembly); 
-builder.Services.AddAutoMapper(cfg =>
-{
-    // esta version de automapper quiere licencia, pero trabaja igual
-    // loguea que falta la licencia y listo
-}, typeof(DocenteProfile));
+MapsterConfig.Register(TypeAdapterConfig.GlobalSettings);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

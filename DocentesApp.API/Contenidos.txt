@@ -2,7 +2,7 @@
 
 DI 
 
-Mapping (AutoMapper) 
+Mapping (Mapster) 
 
 IDENTITY (usuarios) Y JWT
 configuración de JWT, controllers y servicios de token. 
