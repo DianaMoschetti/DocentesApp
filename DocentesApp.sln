@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Data", "Docente
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Application", "DocentesApp.Application\DocentesApp.Application.csproj", "{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocentesApp.Tests", "DocentesApp.Tests\DocentesApp.Tests.csproj", "{7FBEDD7D-BD6B-4D04-A712-BF5E8631CB50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C4B2ABF-9670-4A83-A1CC-4C46D998E46F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FBEDD7D-BD6B-4D04-A712-BF5E8631CB50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FBEDD7D-BD6B-4D04-A712-BF5E8631CB50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FBEDD7D-BD6B-4D04-A712-BF5E8631CB50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FBEDD7D-BD6B-4D04-A712-BF5E8631CB50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
