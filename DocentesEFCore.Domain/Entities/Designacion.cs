@@ -1,5 +1,5 @@
 ﻿using DocentesApp.Domain.Base;
-using DocentesApp.Model.Enums;
+using DocentesApp.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Model
+namespace DocentesApp.Domain.Entities
 {
     public class Designacion : BaseDomainModel
     {

@@ -1,21 +1,26 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
-using DocentesApp.Model;
+using DocentesApp.Data.Context;
+using DocentesApp.Data.Repositories;
+using DocentesApp.Domain.Entities;
 using DocentesApp.Tests.Helpers;
 using FluentAssertions;
 
 public class DocenteServiceTests
 {
-    private readonly DocentesApp.Data.Context.DocentesDbContext _context;
+    private readonly DocentesDbContext _context;
     private readonly MapsterMapper.IMapper _mapper;
     private readonly DocenteService _service;
+    private readonly IDocenteRepository _docenteRepository;
 
     public DocenteServiceTests()
     {
+        _docenteRepository = new DocenteRepository(_context);
         _context = DbContextFactory.Create();
         _mapper = MapperFactory.Create();
-        _service = new DocenteService(_context, _mapper);
+        _service = new DocenteService(_docenteRepository, _mapper);
     }
 
     [Fact]

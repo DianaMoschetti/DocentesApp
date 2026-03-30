@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DocentesApp.Application\DocentesApp.Application.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>
 

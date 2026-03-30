@@ -4,7 +4,7 @@ using DocentesApp.Application.DTOs.Designaciones;
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.DTOs.Snapshots;
 using DocentesApp.Application.DTOs.Udbs;
-using DocentesApp.Model;
+using DocentesApp.Domain.Entities;
 using Mapster;
 using System.Globalization;
 

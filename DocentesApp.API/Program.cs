@@ -32,7 +32,7 @@ MapsterConfig.Register(TypeAdapterConfig.GlobalSettings);
 // Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
 
-//builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
+builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
 
 
 builder.Services.AddControllers();

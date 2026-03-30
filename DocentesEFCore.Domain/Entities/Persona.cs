@@ -1,6 +1,6 @@
 ﻿using DocentesApp.Domain.Base;
 
-namespace DocentesApp.Model
+namespace DocentesApp.Domain.Entities
 {
     public class Persona : BaseDomainModel
     {

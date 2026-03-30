@@ -1,38 +1,32 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Interfaces.Services;
-using DocentesApp.Data.Context;
-using DocentesApp.Model;
+using DocentesApp.Domain.Entities;
 using MapsterMapper;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocentesApp.Application.Services
 {
     public class DocenteService : IDocenteService
     {
-        private readonly DocentesDbContext _context;
+        private readonly IDocenteRepository _docenteRepository; //_context
         private readonly IMapper _mapper;
 
-        public DocenteService(DocentesDbContext context, IMapper mapper)
+        public DocenteService(IDocenteRepository docenteRepository, IMapper mapper)
         {
-            _context = context;
+            _docenteRepository = docenteRepository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<ListDocenteDto>> GetAllAsync()
         {
-            var docentes = await _context.Docentes.ToListAsync();
+            var docentes = await _docenteRepository.GetAllAsync();
             return _mapper.Map<List<ListDocenteDto>>(docentes);
         }
 
         public async Task<DocenteDto> GetByIdAsync(int id)
         {
-            var docente = await _context.Docentes.FirstOrDefaultAsync(d => d.Id == id);
+            var docente = await _docenteRepository.GetByIdAsync(id);
 
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
@@ -42,45 +36,46 @@ namespace DocentesApp.Application.Services
 
         public async Task<DocenteDto> CreateAsync(CreateDocenteDto dto)
         {
-            var yaExisteLegajo = await _context.Docentes.AnyAsync(d => d.Legajo == dto.Legajo);
+            var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
 
             if (yaExisteLegajo)
                 throw new BadRequestException("Ya existe un docente con ese legajo.");
 
             var docente = _mapper.Map<Docente>(dto);
 
-            _context.Docentes.Add(docente);
-            await _context.SaveChangesAsync();
+            await _docenteRepository.AddAsync(docente);
+            await _docenteRepository.SaveChangesAsync();
 
             return _mapper.Map<DocenteDto>(docente);
         }
 
         public async Task UpdateAsync(int id, UpdateDocenteDto dto)
         {
-            var docente = await _context.Docentes.FindAsync(id);
+            var docente = await _docenteRepository.GetByIdAsync(id);
 
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
             _mapper.Map(dto, docente);
 
-            await _context.SaveChangesAsync();
+            _docenteRepository.Update(docente);
+            await _docenteRepository.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var docente = await _context.Docentes.FindAsync(id);
+            var docente = await _docenteRepository.GetByIdAsync(id);
 
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            var tieneDesignaciones = await _context.Designaciones.AnyAsync(d => d.DocenteId == id);
+            var tieneDesignaciones = await _docenteRepository.HasDesignacionesAsync(id);
 
             if (tieneDesignaciones)
                 throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
 
-            _context.Docentes.Remove(docente);
-            await _context.SaveChangesAsync();
+            _docenteRepository.Delete(docente);
+            await _docenteRepository.SaveChangesAsync();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Model.Enums
+namespace DocentesApp.Domain.Enums
 {
     public enum TipoCargo
     {

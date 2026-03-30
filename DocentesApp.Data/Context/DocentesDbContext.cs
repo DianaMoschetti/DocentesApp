@@ -1,5 +1,5 @@
 ﻿using DocentesApp.Data.Identity;
-using DocentesApp.Model;
+using DocentesApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

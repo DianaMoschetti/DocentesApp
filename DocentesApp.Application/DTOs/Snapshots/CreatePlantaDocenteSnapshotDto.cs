@@ -1,10 +1,10 @@
-﻿using DocentesApp.Model.Enums;
-using DocentesApp.Model;
+﻿using DocentesApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Application.DTOs.Snapshots
 {

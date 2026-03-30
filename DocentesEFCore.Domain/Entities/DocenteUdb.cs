@@ -1,6 +1,6 @@
-﻿using DocentesApp.Model.Enums;
+﻿using DocentesApp.Domain.Enums;
 
-namespace DocentesApp.Model
+namespace DocentesApp.Domain.Entities
 {
     public class DocenteUdb
     {

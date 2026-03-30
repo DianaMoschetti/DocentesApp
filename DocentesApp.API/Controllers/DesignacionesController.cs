@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DocentesApp.Data.Context;
-using DocentesApp.Model;
+using DocentesApp.Domain.Entities;
 
 namespace DocentesApp.API.Controllers
 {
