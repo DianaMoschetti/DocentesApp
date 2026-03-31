@@ -1,7 +1,7 @@
 ﻿using DocentesApp.Data.Context;
 using DocentesApp.Application.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
 using DocentesApp.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocentesApp.Data.Repositories
 {
@@ -30,6 +30,7 @@ namespace DocentesApp.Data.Repositories
         public async Task<Docente?> GetByLegajoAsync(int legajo)
         {
             return await _context.Docentes
+                .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Legajo == legajo);
         }
 
@@ -37,6 +38,16 @@ namespace DocentesApp.Data.Repositories
         {
             return await _context.Docentes
                 .AnyAsync(d => d.Legajo == legajo);
+        }
+        public async Task<bool> ExistsByDniAsync(string dni)
+        {
+            return await _context.Docentes
+                .AnyAsync(d => d.Dni == dni);
+        }
+
+        public async Task<bool> ExistsAnotherByDniAsync(string dni, int docenteId)
+        {
+            return await _context.Docentes.AnyAsync(d => d.Dni == dni && d.Id != docenteId);
         }
 
         public async Task AddAsync(Docente docente)

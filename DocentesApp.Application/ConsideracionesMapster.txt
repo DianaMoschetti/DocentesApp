@@ -8,3 +8,6 @@ objetos de configuracion - TypeAdapterConfig: se usan cuando el nombre de la pro
 Por ejemplo:
 TypeAdapterConfig<User, UserDto>.NewConfig()
 	.Map(dest => dest.FullName, src =>src.Name);
+
+IgnoreNullvalues(true) - ignora las propiedades nulas, no las mapea PERO, si llega "" sí pisa con cadena vacia, util para vaciar 
+un campo

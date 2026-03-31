@@ -73,7 +73,7 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<UpdateObservacionesDocenteDto, Docente>()
                 .IgnoreNullValues(true);
 
-            config.NewConfig<Docente, DetalleDocenteDto>()
+            config.NewConfig<Docente, DocenteConDesignacionesDto>()
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
 
             config.NewConfig<Docente, DocenteDto>()

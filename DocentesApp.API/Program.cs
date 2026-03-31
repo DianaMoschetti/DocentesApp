@@ -29,9 +29,8 @@ builder.Services.AddIdentityCore<ApplicationUser>()
 // Mappers
 MapsterConfig.Register(TypeAdapterConfig.GlobalSettings);
 
-// Interfaces
+// DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
-
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
 
 

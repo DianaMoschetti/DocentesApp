@@ -1,13 +1,8 @@
 ﻿using DocentesApp.Application.DTOs.Designaciones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocentesApp.Application.DTOs.Docentes
 {
-    public class DetalleDocenteDto
+    public class DocenteConDesignacionesDto
     {
         public int Id { get; set; }
         public int Legajo { get; set; }
