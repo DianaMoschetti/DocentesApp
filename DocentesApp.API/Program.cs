@@ -39,11 +39,12 @@ builder.Services.AddScoped<IDocenteService, DocenteService>();
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
 
 // Fluent
-//builder.Services.AddValidatorsFromAssemblyContaining<CreateDocenteDtoValidator>();
+
 builder.Services.AddFluentValidationAutoValidation(config =>
 {
     config.DisableDataAnnotationsValidation = true;
 });
+builder.Services.AddValidatorsFromAssemblyContaining<CreateDocenteDtoValidator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
