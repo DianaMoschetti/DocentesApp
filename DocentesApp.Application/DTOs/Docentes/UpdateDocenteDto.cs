@@ -10,7 +10,7 @@ namespace DocentesApp.Application.DTOs.Docentes
         public string Apellido { get; set; } = null!;
         [MaxLength(15)]
         public string? Dni { get; set; }
-        [MaxLength(15)]
+       
         [Range(1, int.MaxValue)]
         public int Legajo { get; set; }
         [EmailAddress]

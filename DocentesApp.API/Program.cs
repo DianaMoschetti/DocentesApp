@@ -11,28 +11,39 @@ using DocentesApp.Application.Interfaces.Services;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Data.Repositories;
 using MapsterMapper;
+using FluentValidation;
+using DocentesApp.Application.Validators.Docentes;
+using FluentValidation.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connString = builder.Configuration.GetConnectionString("DocentesAppDbDavaConnection");
+
 // Mappers
 var config = TypeAdapterConfig.GlobalSettings;
 MapsterConfig.Register(config);
 
+//Context
 builder.Services.AddDbContext<DocentesDbContext>(options =>
     options.UseSqlServer(connString));
 
+// Identity
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DocentesDbContext>();
 
-// Mappers
-MapsterConfig.Register(TypeAdapterConfig.GlobalSettings);
 
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
 
+// Fluent
+//builder.Services.AddValidatorsFromAssemblyContaining<CreateDocenteDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation(config =>
+{
+    config.DisableDataAnnotationsValidation = true;
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
