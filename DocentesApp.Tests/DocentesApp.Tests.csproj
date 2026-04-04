@@ -11,7 +11,9 @@
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="FluentAssertions" Version="8.9.0" />
     <PackageReference Include="Mapster" Version="10.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.14" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -22,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DocentesApp.API\DocentesApp.API.csproj" />
     <ProjectReference Include="..\DocentesApp.Application\DocentesApp.Application.csproj" />
     <ProjectReference Include="..\DocentesApp.Data\DocentesApp.Data.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />

@@ -18,7 +18,7 @@ using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connString = builder.Configuration.GetConnectionString("DocentesAppDbDavaConnection");
+var connString = builder.Configuration.GetConnectionString("DocentesAppDbConnection");
 
 // Mappers
 var config = TypeAdapterConfig.GlobalSettings;
@@ -88,3 +88,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { } // para que el WebApplicationFactory<Program> del proyecto de pruebas pueda acceder a program.cs y ejecutar la aplicación en memoria

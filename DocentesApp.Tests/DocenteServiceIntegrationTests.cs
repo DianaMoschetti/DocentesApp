@@ -8,14 +8,14 @@ using DocentesApp.Domain.Entities;
 using DocentesApp.Tests.Helpers;
 using FluentAssertions;
 
-public class DocenteServiceTests
+public class DocenteServiceIntegrationTests
 {
     private readonly DocentesDbContext _context;
     private readonly MapsterMapper.IMapper _mapper;
     private readonly DocenteService _service;
     private readonly IDocenteRepository _docenteRepository;
 
-    public DocenteServiceTests()
+    public DocenteServiceIntegrationTests()
     {
         _context = DbContextFactory.Create();
         _mapper = MapperFactory.Create();
@@ -71,7 +71,7 @@ public class DocenteServiceTests
             Nombre = "Juan",
             Apellido = "Perez",
             Legajo = 12345,
-            Dni= "11.111.111"
+            Dni = "11.111.111"
         };
 
         _context.Docentes.Add(docente);
@@ -334,7 +334,7 @@ public class DocenteServiceTests
     {
         // Arrange
         var dto = new UpdateAcademicoDocenteDto
-        {          
+        {
             MaxNivelAcademico = "Universitario"
         };
 

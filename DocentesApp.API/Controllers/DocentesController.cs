@@ -15,6 +15,7 @@ namespace DocentesApp.API.Controllers
             _docenteService = docenteService;
         }
 
+        #region GET
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ListDocenteDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ListDocenteDto>>> GetDocentes()
@@ -32,6 +33,9 @@ namespace DocentesApp.API.Controllers
             return Ok(result);
         }
 
+        #endregion
+
+        #region Create
         [HttpPost]
         [ProducesResponseType(typeof(DocenteDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,7 +44,9 @@ namespace DocentesApp.API.Controllers
             var result = await _docenteService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetDocente), new { id = result.Id }, result);
         }
+        #endregion
 
+        #region Update
         [HttpPut("{id}")] // reemplaza todo, si va en null se pisa con null.
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -81,6 +87,7 @@ namespace DocentesApp.API.Controllers
             await _docenteService.UpdateObservacionesAsync(id, dto);
             return NoContent();
         }
+        #endregion
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
