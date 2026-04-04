@@ -34,3 +34,5 @@ dotnet ef database update --project DocentesApp.Data --startup-project DocentesA
 Se recomienda usar OpenID Connect 1.0 o un estándar de OAuth para crear tokens de acceso diseñados para el acceso a la API.
 https://learn.microsoft.com/es-es/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-10.0&utm_source=chatgpt.com&source=docs
 https://rafaelneto.dev/blog/autenticacion-autorizacion-jwt-bearer-aspnet-core/?utm_source=chatgpt.com
+
+test git vs code
