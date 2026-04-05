@@ -4,6 +4,7 @@ using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
 using DocentesApp.Domain.Entities;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using MapsterMapper;
 using Moq;
 
@@ -292,6 +293,43 @@ public class DocenteServiceUnitTests
         _mapperMock.Verify(m => m.Map<DocenteDto>(docente), Times.Once);
     }
 
+    [Fact]
+    public async Task CreateAsync_WhenUniqueConstraintFailsOnSave_ThrowsBadRequestException()
+    {
+        // Arrange
+        var dto = new CreateDocenteDto
+        {
+            Dni = "12.345.678",
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Legajo = 12345
+        };
+
+        var docente = new Docente
+        {
+            Dni = dto.Dni,
+            Nombre = dto.Nombre,
+            Apellido = dto.Apellido,
+            Legajo = dto.Legajo
+        };
+
+        _docenteRepositoryMock.Setup(r => r.ExistsByLegajoAsync(dto.Legajo)).ReturnsAsync(false);
+        _docenteRepositoryMock.Setup(r => r.ExistsByDniAsync(dto.Dni)).ReturnsAsync(false);
+        _mapperMock.Setup(m => m.Map<Docente>(dto)).Returns(docente);
+        _docenteRepositoryMock.Setup(r => r.AddAsync(docente)).Returns(Task.CompletedTask);
+        _docenteRepositoryMock
+            .Setup(r => r.SaveChangesAsync())
+            .ThrowsAsync(new DbUpdateException("Error", new Exception("UNIQUE constraint failed: Docentes.Legajo")));
+
+        // Act
+        Func<Task> act = async () => await _service.CreateAsync(dto);
+
+        // Assert
+        await act.Should()
+            .ThrowAsync<BadRequestException>()
+            .WithMessage("Ya existe un docente con ese legajo.");
+    }
+
     #endregion
 
     #region Update
@@ -467,6 +505,41 @@ public class DocenteServiceUnitTests
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenUniqueConstraintFailsOnSave_ThrowsBadRequestException()
+    {
+        // Arrange
+        var docente = new Docente
+        {
+            Id = 1,
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Dni = "11.111.111",
+            Legajo = 12345
+        };
+
+        var dto = new UpdateDocenteDto
+        {
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Dni = "22.222.222",
+            Legajo = 12345
+        };
+
+        _docenteRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(docente);
+        _docenteRepositoryMock
+            .Setup(r => r.SaveChangesAsync())
+            .ThrowsAsync(new DbUpdateException("Error", new Exception("UNIQUE constraint failed: Docentes.Dni")));
+
+        // Act
+        Func<Task> act = async () => await _service.UpdateAsync(1, dto);
+
+        // Assert
+        await act.Should()
+            .ThrowAsync<BadRequestException>()
+            .WithMessage("Ya existe un docente con ese DNI.");
     }
 
     [Fact]
@@ -742,6 +815,34 @@ public class DocenteServiceUnitTests
         _docenteRepositoryMock.Verify(r => r.HasDesignacionesAsync(1), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Delete(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenSaveChangesFailsByRelation_ThrowsConflictException()
+    {
+        // Arrange
+        var docente = new Docente
+        {
+            Id = 1,
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Legajo = 12345,
+            Dni = "11.111.111"
+        };
+
+        _docenteRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(docente);
+        _docenteRepositoryMock.Setup(r => r.HasDesignacionesAsync(1)).ReturnsAsync(false);
+        _docenteRepositoryMock
+            .Setup(r => r.SaveChangesAsync())
+            .ThrowsAsync(new DbUpdateException("Error", new Exception("FK_Designaciones_Docentes")));
+
+        // Act
+        Func<Task> act = async () => await _service.DeleteAsync(1);
+
+        // Assert
+        await act.Should()
+            .ThrowAsync<ConflictException>()
+            .WithMessage("No se puede eliminar el docente porque tiene designaciones asociadas.");
     }
 
     #endregion

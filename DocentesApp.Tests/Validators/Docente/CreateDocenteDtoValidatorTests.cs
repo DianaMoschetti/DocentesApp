@@ -54,6 +54,30 @@ public class CreateDocenteDtoValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
+    [Fact]
+    public void Should_Have_Error_When_FechaNacimiento_Has_Invalid_Format()
+    {
+        var dto = BuildValidDto();
+        dto.FechaNacimiento = "20/01/1990";
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.FechaNacimiento)
+            .WithErrorMessage("La fecha de nacimiento debe tener un formato válido (yyyy-MM-dd).");
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_FechaNacimiento_Is_Future()
+    {
+        var dto = BuildValidDto();
+        dto.FechaNacimiento = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)).ToString("yyyy-MM-dd");
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.FechaNacimiento)
+            .WithErrorMessage("La fecha de nacimiento no puede ser futura.");
+    }
+
     private static CreateDocenteDto BuildValidDto() => new()
     {
         Dni = "33.333.333",

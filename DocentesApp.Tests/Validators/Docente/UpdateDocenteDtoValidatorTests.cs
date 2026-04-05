@@ -54,6 +54,18 @@ public class UpdateDocenteDtoValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
+    [Fact]
+    public void Should_Have_Error_When_FechaNacimiento_Has_Invalid_Format()
+    {
+        var dto = BuildValidDto();
+        dto.FechaNacimiento = "31-12-2000";
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.FechaNacimiento)
+            .WithErrorMessage("La fecha de nacimiento debe tener un formato válido (yyyy-MM-dd).");
+    }
+
     private static UpdateDocenteDto BuildValidDto() => new()
     {
         Nombre = "Juan",

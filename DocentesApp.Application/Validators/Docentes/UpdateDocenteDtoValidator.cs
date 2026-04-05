@@ -1,5 +1,6 @@
-﻿using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Application.DTOs.Docentes;
 using FluentValidation;
+using System.Globalization;
 
 namespace DocentesApp.Application.Validators.Docentes
 {
@@ -45,6 +46,25 @@ namespace DocentesApp.Application.Validators.Docentes
             RuleFor(x => x.Observaciones)
                 .MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Observaciones))
                 .WithMessage("Las observaciones no pueden superar los 500 caracteres.");
+
+            RuleFor(x => x.FechaNacimiento)
+                .Must(BeAValidDate)
+                .When(x => !string.IsNullOrWhiteSpace(x.FechaNacimiento))
+                .WithMessage("La fecha de nacimiento debe tener un formato válido (yyyy-MM-dd).");
+
+            RuleFor(x => x.FechaNacimiento)
+                .Must(NotBeFutureDate)
+                .When(x => !string.IsNullOrWhiteSpace(x.FechaNacimiento))
+                .WithMessage("La fecha de nacimiento no puede ser futura.");
+        }
+
+        private static bool BeAValidDate(string? fechaNacimiento) =>
+            DateOnly.TryParseExact(fechaNacimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
+
+        private static bool NotBeFutureDate(string? fechaNacimiento)
+        {
+            var isValid = DateOnly.TryParseExact(fechaNacimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fecha);
+            return !isValid || fecha <= DateOnly.FromDateTime(DateTime.UtcNow.Date);
         }
     }
 }

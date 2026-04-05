@@ -116,6 +116,118 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         error!.Message.Should().Be("Ya existe un docente con ese legajo.");
     }
 
+    [Fact]
+    public async Task PostDocente_WhenDniExists_ReturnsBadRequest()
+    {
+        // Arrange
+        var dto = new CreateDocenteDto
+        {
+            Nombre = "Duplicado",
+            Apellido = "Dni",
+            Dni = "11.111.111",
+            Legajo = 88888
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
+
+        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        error.Should().NotBeNull();
+        error!.Message.Should().Be("Ya existe un docente con ese DNI.");
+    }
+
+    [Fact]
+    public async Task PostDocente_WhenFechaNacimientoIsInvalid_ReturnsBadRequest()
+    {
+        // Arrange
+        var dto = new CreateDocenteDto
+        {
+            Nombre = "Fecha",
+            Apellido = "Invalida",
+            Dni = $"{Random.Shared.Next(30000000, 39999999)}",
+            Legajo = Random.Shared.Next(70000, 79999),
+            FechaNacimiento = "31/12/2000"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
+    }
+
+    [Fact]
+    public async Task PutDocente_WhenValid_ReturnsNoContent_AndUpdatesDocente()
+    {
+        // Arrange
+        var createDto = new CreateDocenteDto
+        {
+            Nombre = "Actualizar",
+            Apellido = "Docente",
+            Dni = $"{Random.Shared.Next(41000000, 49999999)}",
+            Legajo = Random.Shared.Next(81000, 89999),
+            Email = "antes@test.com",
+            MaxNivelAcademico = "Secundario",
+            Observaciones = "Antes"
+        };
+
+        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var created = await createResponse.Content.ReadFromJsonAsync<DocenteDto>();
+        created.Should().NotBeNull();
+
+        var updateDto = new UpdateDocenteDto
+        {
+            Nombre = "Actualizado",
+            Apellido = "Docente",
+            Dni = createDto.Dni,
+            Legajo = createDto.Legajo,
+            Email = "despues@test.com",
+            MaxNivelAcademico = "Universitario",
+            Observaciones = "Después"
+        };
+
+        // Act
+        var putResponse = await _client.PutAsJsonAsync($"/api/docentes/{created!.Id}", updateDto);
+        var putBody = await putResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        putResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, putBody);
+
+        var getResponse = await _client.GetAsync($"/api/docentes/{created.Id}");
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var updated = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
+        updated.Should().NotBeNull();
+        updated!.NombreCompleto.Should().Contain("Actualizado");
+        updated.Email.Should().Be("despues@test.com");
+        updated.MaxNivelAcademico.Should().Be("Universitario");
+    }
+
+    [Fact]
+    public async Task PutDocente_WhenDocenteDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var updateDto = new UpdateDocenteDto
+        {
+            Nombre = "No",
+            Apellido = "Existe",
+            Dni = "33.333.333",
+            Legajo = 99991,
+            Email = "noexiste@test.com"
+        };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/docentes/99999", updateDto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
    
     [Fact]
     public async Task DeleteDocente_WhenExistsAndHasNoDesignaciones_ReturnsNoContent()

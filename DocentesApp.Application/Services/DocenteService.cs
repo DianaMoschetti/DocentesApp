@@ -52,7 +52,14 @@ namespace DocentesApp.Application.Services
             var docente = _mapper.Map<Docente>(dto);
 
             await _docenteRepository.AddAsync(docente);
-            await _docenteRepository.SaveChangesAsync();
+            try
+            {
+                await _docenteRepository.SaveChangesAsync();
+            }
+            catch (Exception ex) when (TryMapUniqueConstraint(ex, out var mappedException))
+            {
+                throw mappedException;
+            }
 
             return _mapper.Map<DocenteDto>(docente);
         }
@@ -82,7 +89,14 @@ namespace DocentesApp.Application.Services
             _mapper.Map(dto, docente);
 
             _docenteRepository.Update(docente);
-            await _docenteRepository.SaveChangesAsync();
+            try
+            {
+                await _docenteRepository.SaveChangesAsync();
+            }
+            catch (Exception ex) when (TryMapUniqueConstraint(ex, out var mappedException))
+            {
+                throw mappedException;
+            }
         }
 
         public async Task UpdateContactoAsync(int id, UpdateContactoDocenteDto dto)
@@ -137,9 +151,41 @@ namespace DocentesApp.Application.Services
                 throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
 
             _docenteRepository.Delete(docente);
-            await _docenteRepository.SaveChangesAsync();
+            try
+            {
+                await _docenteRepository.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
+            }
         }
 
-       
+        private static bool TryMapUniqueConstraint(Exception ex, out AppException mappedException)
+        {
+            if (ex.GetType().Name != "DbUpdateException")
+            {
+                mappedException = null!;
+                return false;
+            }
+
+            var message = ex.InnerException?.Message ?? ex.Message;
+            var normalized = message.ToLowerInvariant();
+
+            if ((normalized.Contains("ix_docentes_legajo") || normalized.Contains("legajo")) && normalized.Contains("unique"))
+            {
+                mappedException = new BadRequestException("Ya existe un docente con ese legajo.");
+                return true;
+            }
+
+            if ((normalized.Contains("ix_docentes_dni") || normalized.Contains("dni")) && normalized.Contains("unique"))
+            {
+                mappedException = new BadRequestException("Ya existe un docente con ese DNI.");
+                return true;
+            }
+
+            mappedException = null!;
+            return false;
+        }
     }
 }
