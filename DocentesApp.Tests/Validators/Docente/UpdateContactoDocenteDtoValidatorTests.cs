@@ -103,6 +103,20 @@ public class UpdateContactoDocenteDtoValidatorTests
     }
 
     [Fact]
+    public void Should_Have_Error_When_Celular_Exceeds_Max_Length()
+    {
+        var dto = new UpdateContactoDocenteDto
+        {
+            Celular = new string('1', 31)
+        };
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.Celular)
+            .WithErrorMessage("El celular no puede superar los 30 caracteres.");
+    }
+
+    [Fact]
     public void Should_Not_Have_Error_When_Multiple_Valid_Fields_Are_Sent()
     {
         var dto = new UpdateContactoDocenteDto

@@ -33,9 +33,19 @@ namespace DocentesApp.Application.Validators.Docentes
                 .Must(value => value is null || !string.IsNullOrWhiteSpace(value))
                 .WithMessage("El celular no puede estar vacío.");
 
+            RuleFor(x => x.Celular)
+                .MaximumLength(30)
+                .When(x => !string.IsNullOrWhiteSpace(x.Celular))
+                .WithMessage("El celular no puede superar los 30 caracteres.");
+
             RuleFor(x => x.Direccion)
                 .Must(value => value is null || !string.IsNullOrWhiteSpace(value))
                 .WithMessage("La dirección no puede estar vacía.");
+
+            RuleFor(x => x.Direccion)
+                .MaximumLength(250)
+                .When(x => !string.IsNullOrWhiteSpace(x.Direccion))
+                .WithMessage("La dirección no puede superar los 250 caracteres.");
 
             RuleFor(x => x)
                 .Must(x => !AreSameEmails(x.Email, x.EmailAlternativo))

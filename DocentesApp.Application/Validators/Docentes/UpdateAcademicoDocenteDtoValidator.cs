@@ -14,6 +14,11 @@ namespace DocentesApp.Application.Validators.Docentes
             RuleFor(x => x.MaxNivelAcademico)
                 .Must(value => value is null || !string.IsNullOrWhiteSpace(value))
                 .WithMessage("El máximo nivel académico no puede estar vacío.");
+
+            RuleFor(x => x.MaxNivelAcademico)
+                .MaximumLength(120)
+                .When(x => !string.IsNullOrWhiteSpace(x.MaxNivelAcademico))
+                .WithMessage("El máximo nivel académico no puede superar los 120 caracteres.");
         }
     }
 }

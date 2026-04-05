@@ -45,4 +45,18 @@ public class UpdateObservacionesDocenteDtoValidatorTests
 
         result.ShouldNotHaveAnyValidationErrors();
     }
+
+    [Fact]
+    public void Should_Have_Error_When_Observaciones_Exceeds_Max_Length()
+    {
+        var dto = new UpdateObservacionesDocenteDto
+        {
+            Observaciones = new string('a', 501)
+        };
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.Observaciones)
+            .WithErrorMessage("Las observaciones no pueden superar los 500 caracteres.");
+    }
 }

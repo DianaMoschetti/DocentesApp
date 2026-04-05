@@ -29,6 +29,22 @@ namespace DocentesApp.Application.Validators.Docentes
             RuleFor(x => x.EmailAlternativo)
                 .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.EmailAlternativo))
                 .WithMessage("El email alternativo no tiene un formato válido.");
+
+            RuleFor(x => x.Celular)
+                .MaximumLength(30).When(x => !string.IsNullOrWhiteSpace(x.Celular))
+                .WithMessage("El celular no puede superar los 30 caracteres.");
+
+            RuleFor(x => x.Direccion)
+                .MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Direccion))
+                .WithMessage("La dirección no puede superar los 250 caracteres.");
+
+            RuleFor(x => x.MaxNivelAcademico)
+                .MaximumLength(120).When(x => !string.IsNullOrWhiteSpace(x.MaxNivelAcademico))
+                .WithMessage("El máximo nivel académico no puede superar los 120 caracteres.");
+
+            RuleFor(x => x.Observaciones)
+                .MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Observaciones))
+                .WithMessage("Las observaciones no pueden superar los 500 caracteres.");
         }
     }
 }

@@ -14,6 +14,11 @@ namespace DocentesApp.Application.Validators.Docentes
             RuleFor(x => x.Observaciones)
                 .Must(value => value is null || !string.IsNullOrWhiteSpace(value))
                 .WithMessage("Las observaciones no pueden estar vacías.");
+
+            RuleFor(x => x.Observaciones)
+                .MaximumLength(500)
+                .When(x => !string.IsNullOrWhiteSpace(x.Observaciones))
+                .WithMessage("Las observaciones no pueden superar los 500 caracteres.");
         }
     }
 }

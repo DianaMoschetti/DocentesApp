@@ -45,4 +45,18 @@ public class UpdateAcademicoDocenteDtoValidatorTests
 
         result.ShouldNotHaveAnyValidationErrors();
     }
+
+    [Fact]
+    public void Should_Have_Error_When_MaxNivelAcademico_Exceeds_Max_Length()
+    {
+        var dto = new UpdateAcademicoDocenteDto
+        {
+            MaxNivelAcademico = new string('a', 121)
+        };
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
+            .WithErrorMessage("El máximo nivel académico no puede superar los 120 caracteres.");
+    }
 }

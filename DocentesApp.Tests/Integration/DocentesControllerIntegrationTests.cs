@@ -199,7 +199,7 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<UpdateContactoDocenteDto>();
+        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
         updatedDocente.Should().NotBeNull();
         updatedDocente!.Email.Should().Be(patchDto.Email);
         updatedDocente.EmailAlternativo.Should().Be(patchDto.EmailAlternativo);
@@ -250,7 +250,7 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<UpdateAcademicoDocenteDto>();
+        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
         updatedDocente.Should().NotBeNull();
         updatedDocente!.MaxNivelAcademico.Should().Be("Universitario");
     }
@@ -298,7 +298,7 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<UpdateObservacionesDocenteDto>();
+        var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
         updatedDocente.Should().NotBeNull();
         updatedDocente!.Observaciones.Should().Be("Observación actualizada desde integration test");
     }
