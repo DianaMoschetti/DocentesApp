@@ -15,7 +15,11 @@ namespace DocentesApp.Application.DTOs.Docentes
         [MaxLength(15)]
         public string? Dni { get; set; }
         public string? Email { get; set; }
+        public string? EmailAlternativo { get; set; }
         public string? Celular { get; set; }
+        public string? Direccion { get; set; }
+        public string? MaxNivelAcademico { get; set; }
+        public string? Observaciones { get; set; }
 
     }
 }

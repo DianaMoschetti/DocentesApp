@@ -77,7 +77,13 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
 
             config.NewConfig<Docente, DocenteDto>()
-                .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
+                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}")
+                 .Map(dest => dest.Email, src => src.Email)
+                 .Map(dest => dest.EmailAlternativo, src => src.EmailAlternativo)
+                 .Map(dest => dest.Celular, src => src.Celular)
+                 .Map(dest => dest.Direccion, src => src.Direccion)
+                 .Map(dest => dest.MaxNivelAcademico, src => src.MaxNivelAcademico)
+                 .Map(dest => dest.Observaciones, src => src.Observaciones);
 
             config.NewConfig<Docente, ListDocenteDto>()
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
