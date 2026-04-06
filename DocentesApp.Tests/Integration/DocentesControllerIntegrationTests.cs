@@ -1,20 +1,30 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using DocentesApp.Application.Common.Responses;
+﻿using DocentesApp.Application.Common.Responses;
 using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Data.Context;
+using DocentesApp.Domain.Entities;
+using DocentesApp.Domain.Enums;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace DocentesApp.Tests.Integration;
 
 public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
+    private readonly CustomWebApplicationFactory _factory;
 
     public DocentesControllerIntegrationTests(CustomWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
+
     }
 
+    #region Get
     [Fact]
     public async Task GetDocentes_ReturnsOkAndList()
     {
@@ -58,6 +68,10 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         error.Should().NotBeNull();
         error!.Message.Should().Be("No se encontró el docente con ID 999.");
     }
+
+    #endregion
+
+    #region Post
 
     [Fact]
     public async Task PostDocente_WhenValid_ReturnsCreated()
@@ -160,7 +174,9 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
     }
+    #endregion
 
+    #region Put
     [Fact]
     public async Task PutDocente_WhenValid_ReturnsNoContent_AndUpdatesDocente()
     {
@@ -227,8 +243,9 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+    #endregion
 
-   
+    #region Delete
     [Fact]
     public async Task DeleteDocente_WhenExistsAndHasNoDesignaciones_ReturnsNoContent()
     {
@@ -264,6 +281,50 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task DeleteDocente_WhenHasDesignaciones_ReturnsConflict()
+    {
+        // Arrange
+        var random = Random.Shared.Next(50000000, 59999999);
+        var dni = random.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("es-AR"));
+        var legajo = Random.Shared.Next(70000, 79999);
+        var email = $"delete-conflict-{Guid.NewGuid():N}@test.com";
+
+        var createDto = new CreateDocenteDto
+        {
+            Nombre = "Docente",
+            Apellido = "ConDesignacion",
+            Dni = dni,
+            Legajo = legajo,
+            Email = email,
+            MaxNivelAcademico = "Universitario",
+            Observaciones = "Creado para test de delete con designaciones"
+        };
+
+        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        var createBody = await createResponse.Content.ReadAsStringAsync();
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
+
+        var createdDocente = await createResponse.Content.ReadFromJsonAsync<DocenteDto>();
+        createdDocente.Should().NotBeNull();
+
+        await SeedDesignacionForDocenteAsync(createdDocente!.Id);
+
+        // Act
+        var deleteResponse = await _client.DeleteAsync($"/api/docentes/{createdDocente.Id}");
+        var deleteBody = await deleteResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.Conflict, deleteBody);
+
+        var error = await deleteResponse.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        error.Should().NotBeNull();
+        error!.Message.Should().Be("No se puede eliminar el docente porque tiene designaciones asociadas.");
+    }
+    #endregion
+
+    #region Patch
     // diana: arreglar estos test cuando tenga bien definido que devuelve el get de docente, hay que mejorar ese dto para que traiga mas detalles
     [Fact]
     public async Task PatchContacto_WhenValid_ReturnsNoContent_AndUpdatesContacto()
@@ -484,4 +545,64 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
     }
+
+    #endregion
+    //Diana arreglar seed cuando esten definidos los cargos, cursos y demas en la bd
+    private async Task SeedDesignacionForDocenteAsync(int docenteId)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
+
+        var cargo = new Cargo
+        {
+            Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
+            TipoCargo = TipoCargo.Adjunto,
+            DetalleCargo = EspecificacionCargo.Docencia,
+            Condicion = Condicion.Interino,
+            PuntosBase = 10,
+            Observaciones = "Cargo para test"
+        };
+
+        var dedicacion = new Dedicacion
+        {
+            DescTipo = TipoDedicacion.Simple,
+            CantidadHoras = 10,
+            CantidadDedicacion = 1
+        };
+
+        var curso = new Curso
+        {
+            Turno = Turno.Mañana,
+            NroComision = 1,
+            Año = Nivel.Primero,
+            Carrera = Especialidad.ISI,
+            AsignaturaModulos = new List<AsignaturaModulo>()
+        };
+
+        db.Cargos.Add(cargo);
+        db.Dedicaciones.Add(dedicacion);
+        db.Cursos.Add(curso);
+
+        await db.SaveChangesAsync();
+
+        var designacion = new Designacion
+        {
+            DocenteId = docenteId,
+            CargoId = cargo.Id,
+            DedicacionId = dedicacion.Id,
+            CursoId = curso.Id,
+            AsignaturaId = null,
+            FechaInicio = DateTime.UtcNow.AddDays(-10),
+            FechaFin = null,
+            EstadoDesignacion = Estado.Activa,
+            PuntosUtilizados = 10,
+            PuntosLibres = 5,
+            Observaciones = "Designación para test"
+        };
+
+        db.Designaciones.Add(designacion);
+        await db.SaveChangesAsync();
+    }
 }
+
+
