@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="CasosDeUso\" />
+    <Folder Include="Interfaces\Auth\" />
   </ItemGroup>
 
   <ItemGroup>
