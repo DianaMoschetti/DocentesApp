@@ -1,5 +1,6 @@
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocentesApp.API.Controllers
@@ -16,6 +17,7 @@ namespace DocentesApp.API.Controllers
         }
 
         #region GET
+
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ListDocenteDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ListDocenteDto>>> GetDocentes()
@@ -36,20 +38,29 @@ namespace DocentesApp.API.Controllers
         #endregion
 
         #region Create
+
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(DocenteDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<DocenteDto>> PostDocente([FromBody] CreateDocenteDto dto)
         {
             var result = await _docenteService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetDocente), new { id = result.Id }, result);
         }
+
         #endregion
 
         #region Update
-        [HttpPut("{id}")] // reemplaza todo, si va en null se pisa con null.
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutDocente(int id, [FromBody] UpdateDocenteDto dto)
         {
@@ -57,10 +68,12 @@ namespace DocentesApp.API.Controllers
             return NoContent();
         }
 
-        // Updates parciales
         [HttpPatch("{id}/contacto")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateContacto(int id, [FromBody] UpdateContactoDocenteDto dto)
         {
@@ -69,8 +82,11 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/academico")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateAcademico(int id, [FromBody] UpdateAcademicoDocenteDto dto)
         {
@@ -79,18 +95,25 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/observaciones")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateObservaciones(int id, [FromBody] UpdateObservacionesDocenteDto dto)
         {
             await _docenteService.UpdateObservacionesAsync(id, dto);
             return NoContent();
         }
+
         #endregion
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> DeleteDocente(int id)
