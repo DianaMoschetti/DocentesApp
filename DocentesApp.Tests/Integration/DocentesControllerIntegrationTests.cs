@@ -4,6 +4,7 @@ using DocentesApp.Data.Context;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
 using FluentAssertions;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
@@ -12,15 +13,15 @@ using System.Net.Http.Json;
 
 namespace DocentesApp.Tests.Integration;
 
-public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory>
+public class DocentesControllerIntegrationTests : IntegrationTestBase
 {
     private readonly HttpClient _client;
     private readonly CustomWebApplicationFactory _factory;
 
-    public DocentesControllerIntegrationTests(CustomWebApplicationFactory factory)
+    public DocentesControllerIntegrationTests(CustomWebApplicationFactory factory) :base(factory)
     {
-        _factory = factory;
-        _client = factory.CreateClient();
+        //_factory = factory;
+        //_client = factory.CreateClient();
 
     }
 
@@ -77,6 +78,7 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
     public async Task PostDocente_WhenValid_ReturnsCreated()
     {
         // Arrange
+        var admin = await Auth.CreateAdminClientAsync();
         var dto = new CreateDocenteDto
         {
             Nombre = "Carlos",
@@ -85,14 +87,16 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
             Legajo = 99999,
             Email = "carlos@test.com",
             MaxNivelAcademico = "Universitario",
-            Observaciones = "Creado desde integration test"
+            Observaciones = "Creado para test de integracion"
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        //var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var response = await admin.PostAsJsonAsync("/api/docentes", dto);
 
         // Assert
         var body = await response.Content.ReadAsStringAsync();
+        
         response.StatusCode.Should().Be(HttpStatusCode.Created, body);
 
         //response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -109,6 +113,7 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
     public async Task PostDocente_WhenLegajoExists_ReturnsBadRequest()
     {
         // Arrange
+        var admin = await Auth.CreateAdminClientAsync();
         var dto = new CreateDocenteDto
         {
             Nombre = "Duplicado",
@@ -118,22 +123,22 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var response = await admin.PostAsJsonAsync("/api/docentes", dto);
 
         // Assert
-       //response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var body = await response.Content.ReadAsStringAsync();
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
-
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
         error.Should().NotBeNull();
         error!.Message.Should().Be("Ya existe un docente con ese legajo.");
+      
+        //error!.Message.Should().Be("Ya existe un docente con ese legajo.");
     }
 
     [Fact]
     public async Task PostDocente_WhenDniExists_ReturnsBadRequest()
     {
         // Arrange
+        var admin = await Auth.CreateAdminClientAsync();
         var dto = new CreateDocenteDto
         {
             Nombre = "Duplicado",
@@ -143,13 +148,13 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
-        var body = await response.Content.ReadAsStringAsync();
+        var response = await admin.PostAsJsonAsync("/api/docentes", dto);
+
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>(); 
         error.Should().NotBeNull();
         error!.Message.Should().Be("Ya existe un docente con ese DNI.");
     }
@@ -158,17 +163,18 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
     public async Task PostDocente_WhenFechaNacimientoIsInvalid_ReturnsBadRequest()
     {
         // Arrange
+        var admin = await Auth.CreateAdminClientAsync();
         var dto = new CreateDocenteDto
         {
             Nombre = "Fecha",
             Apellido = "Invalida",
-            Dni = $"{Random.Shared.Next(30000000, 39999999)}",
-            Legajo = Random.Shared.Next(70000, 79999),
-            FechaNacimiento = "31/12/2000"
+            Dni = "11.222.333",
+            Legajo = 456789,
+            FechaNacimiento = "fecha-invalida"
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var response = await admin.PostAsJsonAsync("/api/docentes", dto);
         var body = await response.Content.ReadAsStringAsync();
 
         // Assert
@@ -180,68 +186,65 @@ public class DocentesControllerIntegrationTests : IClassFixture<CustomWebApplica
     [Fact]
     public async Task PutDocente_WhenValid_ReturnsNoContent_AndUpdatesDocente()
     {
+        var admin = await Auth.CreateAdminClientAsync();
         // Arrange
-        var createDto = new CreateDocenteDto
-        {
-            Nombre = "Actualizar",
-            Apellido = "Docente",
-            Dni = $"{Random.Shared.Next(41000000, 49999999)}",
-            Legajo = Random.Shared.Next(81000, 89999),
-            Email = "antes@test.com",
-            MaxNivelAcademico = "Secundario",
-            Observaciones = "Antes"
-        };
-
-        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
-        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-        var created = await createResponse.Content.ReadFromJsonAsync<DocenteDto>();
-        created.Should().NotBeNull();
-
-        var updateDto = new UpdateDocenteDto
+        var dto = new UpdateDocenteDto
         {
             Nombre = "Actualizado",
             Apellido = "Docente",
-            Dni = createDto.Dni,
-            Legajo = createDto.Legajo,
-            Email = "despues@test.com",
+            Dni = "11.111.111",
+            Legajo = 12345,
+            Email = "actualizado@test.com",
+            EmailAlternativo = "alternativo@test.com",
+            Celular = "3415555555",
+            Direccion = "Calle Actualizada 123",
+            FechaNacimiento = "1990-10-10",
             MaxNivelAcademico = "Universitario",
-            Observaciones = "Después"
+            Observaciones = "Actualizado desde PUT"
         };
-
+                
         // Act
-        var putResponse = await _client.PutAsJsonAsync($"/api/docentes/{created!.Id}", updateDto);
+        var putResponse = await admin.PutAsJsonAsync("/api/docentes/1", dto);
         var putBody = await putResponse.Content.ReadAsStringAsync();
 
         // Assert
         putResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, putBody);
 
-        var getResponse = await _client.GetAsync($"/api/docentes/{created.Id}");
+        var getResponse = await Client.GetAsync("/api/docentes/1");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
         var updated = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
         updated.Should().NotBeNull();
         updated!.NombreCompleto.Should().Contain("Actualizado");
-        updated.Email.Should().Be("despues@test.com");
-        updated.MaxNivelAcademico.Should().Be("Universitario");
+        updated.Email.Should().Be("actualizado@test.com");
+        updated.Observaciones.Should().Be("Actualizado desde PUT");
     }
 
     [Fact]
     public async Task PutDocente_WhenDocenteDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var updateDto = new UpdateDocenteDto
+        var admin = await Auth.CreateAdminClientAsync();
+
+        var dto = new UpdateDocenteDto
         {
             Nombre = "No",
             Apellido = "Existe",
-            Dni = "33.333.333",
-            Legajo = 99991,
+            Dni = "99.999.999",
+            Legajo = 999999,
             Email = "noexiste@test.com"
         };
 
+
         // Act
-        var response = await _client.PutAsJsonAsync("/api/docentes/99999", updateDto);
+        var response = await admin.PutAsJsonAsync("/api/docentes/999", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+        error.Should().NotBeNull();
+        error!.Message.Should().Be("No se encontró el docente con ID 999.");
     }
     #endregion
 
