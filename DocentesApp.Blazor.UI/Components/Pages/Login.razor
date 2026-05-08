@@ -1,0 +1,54 @@
+﻿@page "/login"
+@using DocentesApp.Blazor.UI.Components.Layout
+@layout EmptyLayout
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+
+<div class="login-container">
+    <div class="login-card">
+        <h3 class="login-title">Iniciar Sesión</h3>
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@_errorMessage</div>
+        }
+        <EditForm Model="_loginDto" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label class="form-label">Usuario o email</label>
+                <InputText class="form-control" @bind-Value="_loginDto.EmailOrUserName" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <InputText type="password" class="form-control" @bind-Value="_loginDto.Password" />
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+
+    private LoginDto _loginDto = new LoginDto();
+    private string? _errorMessage;
+    private bool _isLoading;
+
+    private async Task HandleLogin()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        var succes = await AuthService.LoginAsync(_loginDto);
+        if (succes)
+        {
+            Navigation.NavigateTo("/", forceLoad: false);
+        }
+        else
+        {
+            _errorMessage = "Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.";
+        }
+
+        _isLoading = false;
+    }
+}

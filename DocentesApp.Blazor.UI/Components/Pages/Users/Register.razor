@@ -1,0 +1,17 @@
+﻿@page "/users/register"
+<h3>Registrar cuentas nuevas</h3>
+
+<div class="card-body">
+    <EditForm Model="RegistrationModel" OnInvalidSubmit="HandleRegistration">
+
+    </EditForm>
+</div>
+
+@code {
+    RegisterDto RegistrationModel = new RegisterDto();
+
+    private async Task HandleRegistration()
+    {
+        // Lógica para manejar el registro
+    }
+}
