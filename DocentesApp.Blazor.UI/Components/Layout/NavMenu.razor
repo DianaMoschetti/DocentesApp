@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">DocentesApp.Blazor.UI</a>
+        <a class="navbar-brand" href="">Sistema de <br />Gestión Docente</a>
     </div>
 </div>
 
@@ -8,23 +8,58 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="docentes">
+                <span class="bi bi-people-fill" aria-hidden="true"></span> Docentes
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="designaciones">
+                <span class="bi bi-journal-text" aria-hidden="true"></span> Designaciones
             </NavLink>
         </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="udbs">
+                <span class="bi bi-building" aria-hidden="true"></span> UDBs
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="cargos">
+                <span class="bi bi-briefcase-fill" aria-hidden="true"></span> Cargos
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="dedicaciones">
+                <span class="bi bi-clock-fill" aria-hidden="true"></span> Dedicaciones
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="cursos">
+                <span class="bi bi-mortarboard-fill" aria-hidden="true"></span> Cursos
+            </NavLink>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="auth/signout">
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Cerrar sesión
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
     </nav>
 </div>
-

@@ -94,6 +94,11 @@ app.MapPost("/auth/signout", async (HttpContext ctx) =>
     return Results.Ok();
 });
 
+app.MapGet("/auth/signout", async (HttpContext ctx) =>
+{
+    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    ctx.Response.Redirect("/login");
+});
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
