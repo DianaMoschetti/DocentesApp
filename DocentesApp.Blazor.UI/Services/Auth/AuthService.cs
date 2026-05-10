@@ -1,38 +1,43 @@
-﻿using DocentesApp.Blazor.UI.Services.Base;
+﻿using DocentesApp.Blazor.UI.Services.Auth;
+using DocentesApp.Blazor.UI.Services.Base;
 
-namespace DocentesApp.Blazor.UI.Services.Auth
+public class AuthService : IAuthService
 {
-    public class AuthService : IAuthService
+    private readonly IClient _client;
+    private string? _pendingToken;
+
+    // solo lo uso para guardar el token, no llamo al endpoint desde aca
+    public AuthService(IClient client)
     {
-        private readonly IClient _client;
-        private readonly CustomAuthStateProvider _authStateProvider;
+        _client = client;
+    }
 
-        public AuthService(IClient client, CustomAuthStateProvider authStateProvider)
+    public async Task<(bool success, string? token)> LoginAsync(LoginDto loginDto)
+    {
+        try
         {
-            _client = client;
-            _authStateProvider = authStateProvider;
+            var response = await _client.LoginAsync(loginDto);
+            if (response?.Token == null)
+                return (false, null);
+            return (true, response.Token);
         }
-        public async Task<bool> LoginAsync(LoginDto loginDto)
+        catch (ApiException)
         {
-            try
-            {
-                var response = await _client.LoginAsync(loginDto);
-                if (response?.Token == null)
-                    return false;
+            return (false, null);
+        }
+    }
 
-                _authStateProvider.NotifyUserLogin(response.Token);
-                return true;
-            }
-            catch (ApiException)
-            {
-                return false;
-            }
-        }
+    public string? GetAndClearPendingToken()
+    {
+        var token = _pendingToken;
+        _pendingToken = null;
+        return token;
+    }
 
-        public Task LogoutAsync()
-        {
-            _authStateProvider.NotifyUserLogout();
-            return Task.CompletedTask;
-        }
+    public void SetPendingToken(string token) => _pendingToken = token;
+
+    public async Task LogoutAsync()
+    {
+       
     }
 }

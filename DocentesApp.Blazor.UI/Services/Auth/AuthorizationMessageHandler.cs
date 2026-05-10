@@ -2,25 +2,31 @@
 
 namespace DocentesApp.Blazor.UI.Services.Auth
 {
-    // intercepta las solicitudes HTTP salientes para agregar el token de autenticación al encabezado de la solicitud.
+    // lee el token del claim "access_token" que se agregó a la identidad del usuario durante el login,
+    //y lo agrega al encabezado de autorización de cada solicitud HTTP saliente.
     public class AuthorizationMessageHandler : DelegatingHandler
     {
-        private readonly CustomAuthStateProvider _authStateProvider;
-        public AuthorizationMessageHandler(CustomAuthStateProvider authStateProvider)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AuthorizationMessageHandler(IHttpContextAccessor httpContextAccessor)
         {
-            _authStateProvider = authStateProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        //se ejecuta antes de enviar la solicitud HTTP, agregando el token de autenticación al encabezado de la solicitud.
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
-            var token = _authStateProvider.GetToken();
+            var token = _httpContextAccessor.HttpContext?.User?
+                .FindFirst("access_token")?.Value;
+
             if (!string.IsNullOrEmpty(token))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
             }
 
-            return await base.SendAsync(request, cancellationToken); // agrega el token y sigue con el request normal
+            return await base.SendAsync(request, cancellationToken);
         }
     }
 }

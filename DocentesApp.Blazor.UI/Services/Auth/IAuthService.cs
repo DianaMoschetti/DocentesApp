@@ -4,7 +4,9 @@ namespace DocentesApp.Blazor.UI.Services.Auth
 {
     public interface IAuthService
     {
-        Task<bool> LoginAsync(LoginDto loginDto);
+        Task<(bool success, string? token)> LoginAsync(LoginDto loginDto);
+        void SetPendingToken(string token);
+        string? GetAndClearPendingToken();
         Task LogoutAsync();
     }
 }

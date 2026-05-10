@@ -1,6 +1,7 @@
 ﻿@page "/login"
 @using DocentesApp.Blazor.UI.Components.Layout
 @layout EmptyLayout
+@rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 
@@ -23,13 +24,23 @@
                 <InputText type="password" class="form-control" @bind-Value="_loginDto.Password" />
             </div>
 
+            <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
+                @if (_isLoading) 
+                {
+                    <span>Ingresando...</span>
+                }
+                else
+                {
+                    <span>Ingresar</span>
+                }
+            </button>
+
         </EditForm>
     </div>
 </div>
 
 
 @code {
-
     private LoginDto _loginDto = new LoginDto();
     private string? _errorMessage;
     private bool _isLoading;
@@ -39,16 +50,19 @@
         _isLoading = true;
         _errorMessage = null;
 
-        var succes = await AuthService.LoginAsync(_loginDto);
-        if (succes)
+        var (success, token) = await AuthService.LoginAsync(_loginDto);
+
+        if (success && token != null)
         {
-            Navigation.NavigateTo("/", forceLoad: false);
+            // Navego al endpoint HTTP con el token en la URL
+            // forceLoad hace que sea un request HTTP real del browser
+            var encodedToken = Uri.EscapeDataString(token);
+            Navigation.NavigateTo($"/auth/signin?token={encodedToken}", forceLoad: true);
         }
         else
         {
-            _errorMessage = "Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.";
+            _errorMessage = "Usuario o contraseña incorrectos.";
+            _isLoading = false;
         }
-
-        _isLoading = false;
     }
 }
