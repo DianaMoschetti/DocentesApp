@@ -1,0 +1,250 @@
+﻿@page "/docentes/nuevo"
+@page "/docentes/{Id:int}/editar"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+<!-- Si id= null, create. si id <> null edit.
+    -->
+
+<PageTitle>@(_esEdicion ? "Editar Docente" : "Nuevo Docente")</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@(_esEdicion ? "✏️ Editar Docente" : "➕ Nuevo Docente")</h2>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-secondary"
+                    @onclick='() => Navigation.NavigateTo("docentes")'>
+                ← Volver
+            </button>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@_errorMessage</div>
+        }
+
+        @if (!string.IsNullOrEmpty(_successMessage))
+        {
+            <div class="alert alert-success">@_successMessage</div>
+        }
+
+        <div class="card">
+            <div class="card-body">
+                    <EditForm Model="_docenteDto" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+
+                    <h5 class="mb-3">Datos personales</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Nombre" />
+                                <ValidationMessage For="@(() => _docenteDto.Nombre)" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellido <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Apellido" />
+                                <ValidationMessage For="@(() => _docenteDto.Apellido)" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">DNI <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Dni" />
+                                <ValidationMessage For="@(() => _docenteDto.Dni)" />
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Legajo <span class="text-danger">*</span></label>
+                                <InputNumber class="form-control" @bind-Value="_docenteDto.Legajo" />
+                                <ValidationMessage For="@(() => _docenteDto.Legajo)" />
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Fecha de nacimiento</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.FechaNacimiento"
+                                       placeholder="yyyy-MM-dd" />
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3 mt-2">Contacto</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Email" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email alternativo</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.EmailAlternativo" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Celular</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Celular" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Dirección</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.Direccion" />
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3 mt-2">Académico</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Máximo nivel académico</label>
+                                <InputText class="form-control" @bind-Value="_docenteDto.MaxNivelAcademico" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                            <InputTextArea class="form-control" @bind-Value="_docenteDto.Observaciones" rows="3" />
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+                            @if (_isSaving)
+                            {
+                                <span>Guardando...</span>
+                            }
+                            else
+                            {
+                                <span>@(_esEdicion ? "Guardar cambios" : "Crear docente")</span>
+                            }
+                        </button>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter] public int? Id { get; set; } // Si es null, es creación. Si tiene valor, es edición.
+
+    private CreateDocenteDto _docenteDto = new();
+
+    private bool _esEdicion => Id.HasValue;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+    private string? _successMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // OnParametersSetAsync en vez de OnInitializedAsync pq cuando navega de /docentes/nuevo a /docentes/5/editar
+        // el componente no se destruye y recrea, solo cambian los parámetros
+        if (_esEdicion)
+        {
+            await CargarDocente();
+        }
+        else
+        {
+            _docenteDto = new CreateDocenteDto();
+            _isLoading = false;
+        }
+    }
+
+    private async Task CargarDocente()
+    {
+        try
+        {
+            _isLoading = true;
+            var docente = await Client.DocentesGETAsync(Id!.Value);
+
+            // Mapeo el DocenteDto al CreateDocenteDto para prellenar el form
+            _docenteDto = new CreateDocenteDto
+            {
+                Nombre = docente.Nombre ?? "",
+                Apellido = docente.Apellido ?? "",
+                Dni = docente.Dni ?? "",
+                Legajo = docente.Legajo,
+                Email = docente.Email,
+                EmailAlternativo = docente.EmailAlternativo,
+                Celular = docente.Celular,
+                Direccion = docente.Direccion,
+                MaxNivelAcademico = docente.MaxNivelAcademico,
+                Observaciones = docente.Observaciones
+            };
+        }
+        catch (ApiException)
+        {
+            _errorMessage = "No se pudo cargar el docente.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            _isSaving = true;
+            _errorMessage = null;
+            _successMessage = null;
+
+            if (_esEdicion)
+            {
+                var updateDto = new UpdateDocenteDto
+                {
+                    Nombre = _docenteDto.Nombre,
+                    Apellido = _docenteDto.Apellido,
+                    Dni = _docenteDto.Dni,
+                    Legajo = _docenteDto.Legajo,
+                    Email = _docenteDto.Email,
+                    EmailAlternativo = _docenteDto.EmailAlternativo,
+                    Celular = _docenteDto.Celular,
+                    Direccion = _docenteDto.Direccion,
+                    MaxNivelAcademico = _docenteDto.MaxNivelAcademico,
+                    Observaciones = _docenteDto.Observaciones
+                };
+                await Client.DocentesPUTAsync(Id!.Value, updateDto);
+                _successMessage = "Docente actualizado correctamente.";
+            }
+            else
+            {
+                await Client.DocentesPOSTAsync(_docenteDto);
+                _successMessage = "Docente creado correctamente.";
+                _docenteDto = new CreateDocenteDto(); // limpio el form
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.StatusCode switch
+            {
+                400 => "Datos inválidos. Revisá los campos.",
+                401 => "No tenés permisos para realizar esta acción.",
+                403 => "No tenés permisos para realizar esta acción.",
+                409 => "Ya existe un docente con ese DNI o legajo.",
+                _ => "Error al guardar. Intentá de nuevo."
+            };
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}
+}
