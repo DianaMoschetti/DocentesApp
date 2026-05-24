@@ -172,7 +172,6 @@
             _isLoading = true;
             var docente = await Client.DocentesGETAsync(Id!.Value);
 
-            // Mapeo el DocenteDto al CreateDocenteDto para prellenar el form
             _docenteDto = new CreateDocenteDto
             {
                 Nombre = docente.Nombre ?? "",
@@ -221,30 +220,62 @@
                     Observaciones = _docenteDto.Observaciones
                 };
                 await Client.DocentesPUTAsync(Id!.Value, updateDto);
-                _successMessage = "Docente actualizado correctamente.";
+                Navigation.NavigateTo("docentes",
+                    new NavigationOptions { ReplaceHistoryEntry = true });
             }
             else
             {
                 await Client.DocentesPOSTAsync(_docenteDto);
-                _successMessage = "Docente creado correctamente.";
-                _docenteDto = new CreateDocenteDto(); // limpio el form
+                Navigation.NavigateTo("docentes",
+                    new NavigationOptions { ReplaceHistoryEntry = true });
             }
         }
         catch (ApiException ex)
         {
-            _errorMessage = ex.StatusCode switch
+            if (ex.StatusCode == 400)
             {
-                400 => "Datos inválidos. Revisá los campos.",
-                401 => "No tenés permisos para realizar esta acción.",
-                403 => "No tenés permisos para realizar esta acción.",
-                409 => "Ya existe un docente con ese DNI o legajo.",
-                _ => "Error al guardar. Intentá de nuevo."
-            };
+                // Intentamos extraer los errores de validación del JSON de respuesta
+                try
+                {
+                    var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ValidationErrorResponse>(
+                        ex.Response,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (errorResponse?.Errors != null && errorResponse.Errors.Any())
+                    {
+                        // Armamos un mensaje con todos los errores
+                        _errorMessage = string.Join(" | ",
+                            errorResponse.Errors.SelectMany(e => e.Value));
+                    }
+                    else
+                    {
+                        _errorMessage = ex.Response; // mostramos el JSON crudo si no podemos parsearlo
+                    }
+                }
+                catch
+                {
+                    _errorMessage = ex.Response; // fallback al texto crudo
+                }
+            }
+            else
+            {
+                _errorMessage = ex.StatusCode switch
+                {
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    409 => "Ya existe un docente con ese DNI o legajo.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
         }
         finally
         {
             _isSaving = false;
         }
     }
-}
+
+    private class ValidationErrorResponse
+    {
+        public Dictionary<string, string[]>? Errors { get; set; }
+    }
 }

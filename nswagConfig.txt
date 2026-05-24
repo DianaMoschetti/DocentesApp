@@ -1,0 +1,19 @@
+NswagStudio
+
+Runtime: net9
+Specification Url: https://localhost:7270/swagger/v1/swagger.json -> Create local copy
+
+Outputs 
+Settings
+- Check CSharp Client
+- Crear carpeta Services y Base en proy
+Namespace: DocentesApp.Blazor.UI (nombre del proyecto) + Services.Base
+- Check Use the base URL for the request
+- Check Generate the BaseUrl property
+- Check Inject HttpClient via constructor
+- Check Generate interfaces for Client classes
+
+Output file path: poner el path donde esta el csproj (C:\repos\DocentesApp\DocentesApp.Blazor.UI\Services\Base\ServiceClient.cs) -> ServiceClient es el nombre
+que yo le pongo al archivo que me va a generar
+
+Una vez tengo eso listo le doy al boton de GenerateFile

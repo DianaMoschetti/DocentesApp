@@ -2266,6 +2266,12 @@ namespace DocentesApp.Blazor.UI.Services.Base
         [Newtonsoft.Json.JsonProperty("legajo", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Legajo { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("nombre", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Nombre { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("apellido", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Apellido { get; set; }
+
         [Newtonsoft.Json.JsonProperty("nombreCompleto", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NombreCompleto { get; set; }
 

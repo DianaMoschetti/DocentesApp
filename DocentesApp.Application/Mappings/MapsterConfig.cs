@@ -77,6 +77,8 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
 
             config.NewConfig<Docente, DocenteDto>()
+                 .Map(dest => dest.Nombre, src => src.Nombre)
+                 .Map(dest => dest.Apellido, src => src.Apellido)
                  .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}")
                  .Map(dest => dest.Email, src => src.Email)
                  .Map(dest => dest.EmailAlternativo, src => src.EmailAlternativo)
@@ -86,6 +88,8 @@ namespace DocentesApp.Application.Mappings
                  .Map(dest => dest.Observaciones, src => src.Observaciones);
 
             config.NewConfig<Docente, ListDocenteDto>()
+                .Map(dest => dest.Nombre, src => src.Nombre)
+                .Map(dest => dest.Apellido, src => src.Apellido)
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
 
             config.NewConfig<CreatePlantaSnapshotDto, PlantaSnapshot>();

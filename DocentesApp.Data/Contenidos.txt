@@ -1,18 +1,7 @@
-﻿Entidades + Enums 
-
-(Opcional) Extensions de enums (DisplayName) en carpeta Extensions/ (solo lógica pura, sin EF) 
-
-DbContext 
-
-EntityTypeConfigurations/ (IEntityTypeConfiguration<T>) 
-
-Migrations/ 
+﻿Entidades + Enums:  Extensions de enums (DisplayName) en carpeta Extensions/ (solo lógica pura, sin EF) 
 
 Implementaciones concretas de repos/servicios (si decidís usarlos) 
 
-Seed (cargos base, dedicaciones base, etc.) 
-
---
 DocentesDbContext 
 
 Configurations/ (clases IEntityTypeConfiguration<T>) 
