@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
@@ -10,7 +8,9 @@ namespace DocentesApp.Domain.Enums
     {
         Anual = 1,
         Cuatrimestral = 2,
+        [Description("Electiva anual")]
         ElectivaAnual = 3,
+        [Description("Electiva cuatrimestral")]
         ElectivaCuatrimestral = 4,
         Taller = 5,
         Otro = 6

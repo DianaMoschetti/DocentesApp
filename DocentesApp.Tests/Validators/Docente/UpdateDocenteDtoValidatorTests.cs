@@ -1,5 +1,6 @@
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Validators.Docentes;
+using DocentesApp.Domain.Enums;
 using FluentValidation.TestHelper;
 
 namespace DocentesApp.Tests.Validators.Docentes;
@@ -31,19 +32,7 @@ public class UpdateDocenteDtoValidatorTests
         result.ShouldHaveValidationErrorFor(x => x.Dni)
             .WithErrorMessage("El DNI no puede superar los 15 caracteres.");
     }
-
-    [Fact]
-    public void Should_Have_Error_When_MaxNivelAcademico_Exceeds_Max_Length()
-    {
-        var dto = BuildValidDto();
-        dto.MaxNivelAcademico = new string('a', 121);
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
-            .WithErrorMessage("El máximo nivel académico no puede superar los 120 caracteres.");
-    }
-
+      
     [Fact]
     public void Should_Not_Have_Error_When_Dto_Is_Valid()
     {
@@ -75,7 +64,7 @@ public class UpdateDocenteDtoValidatorTests
         Email = "juan@test.com",
         Celular = "3415551234",
         Direccion = "Calle Falsa 123",
-        MaxNivelAcademico = "Universitario",
+        MaxNivelAcademico = Titulo.Universitario,
         Observaciones = "Observaciones"
     };
 }

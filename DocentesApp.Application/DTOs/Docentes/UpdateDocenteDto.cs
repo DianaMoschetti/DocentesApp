@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DocentesApp.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace DocentesApp.Application.DTOs.Docentes
 {
@@ -11,7 +12,7 @@ namespace DocentesApp.Application.DTOs.Docentes
         [MaxLength(15)]
         public string? Dni { get; set; }
        
-        [Range(1, int.MaxValue)]
+        [Range(1, 8)]
         public int Legajo { get; set; }
         [EmailAddress]
         public string? Email { get; set; }
@@ -20,7 +21,7 @@ namespace DocentesApp.Application.DTOs.Docentes
         public string? Celular { get; set; }
         public string? Direccion { get; set; }
         public string? FechaNacimiento { get; set; }
-        public string? MaxNivelAcademico { get; set; }
+        public Titulo? MaxNivelAcademico { get; set; } // enum
         public string? Observaciones { get; set; }
     }
 }

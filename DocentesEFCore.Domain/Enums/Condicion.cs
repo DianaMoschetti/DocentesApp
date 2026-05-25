@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
@@ -11,10 +8,13 @@ namespace DocentesApp.Domain.Enums
         Regular = 1,
         Interino = 2,
         Ordinario = 3,
+        [Description("Licencia con haberes")]
         LicenciaConHaberes = 4,
+        [Description("Licencia sinn haberes")]
         LicenciaSinHaberes = 5,
         Suplente = 6,
-        Otros = 7
+        Becario = 7,
+        Otros = 8
         
     }
 }

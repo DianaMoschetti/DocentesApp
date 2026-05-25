@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
@@ -10,7 +7,9 @@ namespace DocentesApp.Domain.Enums
     {
         Activa = 1,
         Finalizada = 2,
+        [Description("Licencia sin haberes")]
         LicenciaSinHaberes = 3,
+        [Description("Licencia con haberes")]
         LicenciaConHaberes = 4,
         Otros = 5
     }

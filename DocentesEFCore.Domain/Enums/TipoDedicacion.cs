@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
     public enum TipoDedicacion
     {
         Simple = 1,
+        [Description("Semi exclusiva")]
         SemiExclusiva = 2,
         Exclusiva = 3
     }

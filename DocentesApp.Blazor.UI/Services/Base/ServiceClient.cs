@@ -2011,6 +2011,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         _7 = 7,
 
+        _8 = 8,
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -2049,8 +2051,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
         [Newtonsoft.Json.JsonProperty("direccion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Direccion { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MaxNivelAcademico { get; set; }
+        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Titulo MaxNivelAcademico { get; set; }
 
         [Newtonsoft.Json.JsonProperty("observaciones", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Observaciones { get; set; }
@@ -2242,8 +2244,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
         [Newtonsoft.Json.JsonProperty("titulo", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Titulo Titulo { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MaxNivelAcademico { get; set; }
+        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Titulo MaxNivelAcademico { get; set; }
 
         [Newtonsoft.Json.JsonProperty("observaciones", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Observaciones { get; set; }
@@ -2291,8 +2293,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
         [Newtonsoft.Json.JsonProperty("direccion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Direccion { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MaxNivelAcademico { get; set; }
+        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Titulo MaxNivelAcademico { get; set; }
 
         [Newtonsoft.Json.JsonProperty("observaciones", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Observaciones { get; set; }
@@ -2335,6 +2337,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
         _5 = 5,
 
         _6 = 6,
+
+        _7 = 7,
 
     }
 
@@ -2397,6 +2401,12 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         [Newtonsoft.Json.JsonProperty("legajo", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Legajo { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("nombre", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Nombre { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("apellido", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Apellido { get; set; }
 
         [Newtonsoft.Json.JsonProperty("nombreCompleto", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NombreCompleto { get; set; }
@@ -2673,8 +2683,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
     public partial class UpdateAcademicoDocenteDto
     {
 
-        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MaxNivelAcademico { get; set; }
+        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Titulo MaxNivelAcademico { get; set; }
 
     }
 
@@ -2713,7 +2723,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         public string Dni { get; set; }
 
         [Newtonsoft.Json.JsonProperty("legajo", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.Range(1, 2147483647)]
+        [System.ComponentModel.DataAnnotations.Range(1, 8)]
         public int Legajo { get; set; }
 
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2731,8 +2741,8 @@ namespace DocentesApp.Blazor.UI.Services.Base
         [Newtonsoft.Json.JsonProperty("fechaNacimiento", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string FechaNacimiento { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MaxNivelAcademico { get; set; }
+        [Newtonsoft.Json.JsonProperty("maxNivelAcademico", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Titulo MaxNivelAcademico { get; set; }
 
         [Newtonsoft.Json.JsonProperty("observaciones", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Observaciones { get; set; }

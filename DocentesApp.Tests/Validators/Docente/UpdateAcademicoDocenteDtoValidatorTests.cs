@@ -1,5 +1,6 @@
 ﻿using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Validators.Docentes;
+using DocentesApp.Domain.Enums;
 using FluentValidation.TestHelper;
 
 namespace DocentesApp.Tests.Validators.Docentes;
@@ -24,7 +25,7 @@ public class UpdateAcademicoDocenteDtoValidatorTests
     {
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "   "
+            MaxNivelAcademico = null
         };
 
         var result = _validator.TestValidate(dto);
@@ -38,7 +39,7 @@ public class UpdateAcademicoDocenteDtoValidatorTests
     {
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "Universitario"
+            MaxNivelAcademico = Titulo.Universitario
         };
 
         var result = _validator.TestValidate(dto);
@@ -47,16 +48,37 @@ public class UpdateAcademicoDocenteDtoValidatorTests
     }
 
     [Fact]
-    public void Should_Have_Error_When_MaxNivelAcademico_Exceeds_Max_Length()
+    public void Should_Have_Error_When_MaxNivelAcademico_IsNull()
     {
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = new string('a', 121)
+            MaxNivelAcademico = null
         };
-
         var result = _validator.TestValidate(dto);
-
         result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
-            .WithErrorMessage("El máximo nivel académico no puede superar los 120 caracteres.");
+            .WithErrorMessage("El máximo nivel académico es obligatorio.");
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_MaxNivelAcademico_IsInvalidEnum()
+    {
+        var dto = new UpdateAcademicoDocenteDto
+        {
+            MaxNivelAcademico = (Titulo)99 // valor que no existe en el enum
+        };
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
+            .WithErrorMessage("El nivel académico seleccionado no es válido.");
+    }
+
+    [Fact]
+    public void Should_Not_Have_Error_When_MaxNivelAcademico_IsValid()
+    {
+        var dto = new UpdateAcademicoDocenteDto
+        {
+            MaxNivelAcademico = Titulo.Universitario
+        };
+        var result = _validator.TestValidate(dto);
+        result.ShouldNotHaveValidationErrorFor(x => x.MaxNivelAcademico);
     }
 }

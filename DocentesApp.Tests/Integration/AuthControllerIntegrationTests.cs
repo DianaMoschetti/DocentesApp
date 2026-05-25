@@ -1,5 +1,6 @@
 ﻿using DocentesApp.Application.DTOs.Auth;
 using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Domain.Enums;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -74,7 +75,7 @@ namespace DocentesApp.Tests.Integration
                 Dni = "33.333.333",
                 Legajo = 123456,
                 Email = "sintoken@test.com",
-                MaxNivelAcademico = "Universitario",
+                MaxNivelAcademico = Titulo.Universitario,
                 Observaciones = "Test sin token"
             };
 
@@ -98,7 +99,7 @@ namespace DocentesApp.Tests.Integration
                 Dni = "44.444.444",
                 Legajo = 123457,
                 Email = "userrole@test.com",
-                MaxNivelAcademico = "Universitario",
+                MaxNivelAcademico = Titulo.Universitario,
                 Observaciones = "Test con rol User"
             };
 
@@ -123,7 +124,7 @@ namespace DocentesApp.Tests.Integration
                 Dni = "55.555.555",
                 Legajo = Random.Shared.Next(200000, 299999),
                 Email = $"admin-{unique}@test.com",
-                MaxNivelAcademico = "Universitario",
+                MaxNivelAcademico = Titulo.Universitario,
                 Observaciones = "Creado por admin"
             };
 

@@ -5,6 +5,7 @@ using DocentesApp.Application.Services;
 using DocentesApp.Data.Context;
 using DocentesApp.Data.Repositories;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Domain.Enums;
 using DocentesApp.Tests.Helpers;
 using FluentAssertions;
 
@@ -143,7 +144,7 @@ public class DocenteServiceIntegrationTests
             Nombre = "Juan",
             Apellido = "Perez",
             Legajo = 12345,
-            MaxNivelAcademico = "Universitario",
+            MaxNivelAcademico = Titulo.Universitario,
             Observaciones = "Nuevo docente"
 
         };
@@ -252,7 +253,7 @@ public class DocenteServiceIntegrationTests
             Celular = "123456789",
             Direccion = "Calle Falsa 123",
             FechaNacimiento = "2000-01-01",
-            MaxNivelAcademico = "Universitario",
+            MaxNivelAcademico = Titulo.Universitario,
             Observaciones = "Actualizado"
         };
 
@@ -335,7 +336,7 @@ public class DocenteServiceIntegrationTests
         // Arrange
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "Universitario"
+            MaxNivelAcademico = Titulo.Universitario
         };
 
         // Act
@@ -367,7 +368,7 @@ public class DocenteServiceIntegrationTests
 
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "Universitario"
+            MaxNivelAcademico = Titulo.Universitario
         };
 
         // Act

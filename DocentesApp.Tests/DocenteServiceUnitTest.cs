@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MapsterMapper;
 using Moq;
+using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Tests;
 
@@ -234,7 +235,7 @@ public class DocenteServiceUnitTests
             Nombre = "Juan",
             Apellido = "Perez",
             Legajo = 12345,
-            MaxNivelAcademico = "Universitario",
+            MaxNivelAcademico = Titulo.Universitario,
             Observaciones = "Nuevo docente"
         };
 
@@ -479,7 +480,7 @@ public class DocenteServiceUnitTests
             Celular = "123456789",
             Direccion = "Calle Falsa 123",
             FechaNacimiento = "2000-01-01",
-            MaxNivelAcademico = "Universitario",
+            MaxNivelAcademico = Titulo.Universitario,
             Observaciones = "Actualizado"
         };
 
@@ -611,7 +612,7 @@ public class DocenteServiceUnitTests
         // Arrange
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "Universitario"
+            MaxNivelAcademico = Titulo.Universitario
         };
 
         _docenteRepositoryMock
@@ -648,7 +649,7 @@ public class DocenteServiceUnitTests
 
         var dto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = "Universitario"
+            MaxNivelAcademico = Titulo.Universitario
         };
 
         _docenteRepositoryMock

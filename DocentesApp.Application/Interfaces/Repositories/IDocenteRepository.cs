@@ -14,16 +14,7 @@ namespace DocentesApp.Application.Interfaces.Repositories
         void Update(Docente docente);
         void Delete(Docente docente);
         Task SaveChangesAsync();
-        Task<bool> HasDesignacionesAsync(int docenteId);
-        //Task<List<Docente>> GetAllDocentesAsync();
-        //Task<Docente?> GetDocenteByIdAsync(int id);
-        //Task<Docente?> GetDocenteByIdConDesignacionesAsync(int id);
-        //Task<Docente?> GetDocenteByLegajoAsync(int legajo);
-        //Task<bool> ExisteDocenteByLegajoAsync(int legajo);
-        //Task AddDocenteAsync(Docente docente);
-        //void UpdateDocente(Docente docente);
-        //void DeleteDocente(Docente docente);
-        //Task SaveChangesAsync();
+        Task<bool> HasDesignacionesAsync(int docenteId);      
 
     }
 }

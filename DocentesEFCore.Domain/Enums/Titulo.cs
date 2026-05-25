@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DocentesApp.Domain.Enums
+﻿namespace DocentesApp.Domain.Enums
 {
-    public enum Titulo
+    public enum Titulo //Maximo nivel academico
     {
         Terciario = 1,
         Universitario = 2,

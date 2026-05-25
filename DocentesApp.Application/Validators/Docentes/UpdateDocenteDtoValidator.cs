@@ -1,4 +1,5 @@
 using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Domain.Enums;
 using FluentValidation;
 using System.Globalization;
 
@@ -40,8 +41,11 @@ namespace DocentesApp.Application.Validators.Docentes
                 .WithMessage("La dirección no puede superar los 250 caracteres.");
 
             RuleFor(x => x.MaxNivelAcademico)
-                .MaximumLength(120).When(x => !string.IsNullOrWhiteSpace(x.MaxNivelAcademico))
-                .WithMessage("El máximo nivel académico no puede superar los 120 caracteres.");
+                .Must(v => v == null || Enum.IsDefined(typeof(Titulo), v))
+                .WithMessage("El nivel académico seleccionado no es válido.");
+            RuleFor(x => x.MaxNivelAcademico)
+                .NotNull().WithMessage("El máximo nivel académico es obligatorio.")
+                .IsInEnum().WithMessage("El nivel académico seleccionado no es válido.");
 
             RuleFor(x => x.Observaciones)
                 .MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Observaciones))

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocentesApp.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace DocentesApp.Application.DTOs.Docentes
         public string? EmailAlternativo { get; set; }
         public string? Celular { get; set; }
         public string? Direccion { get; set; }
-        public string? MaxNivelAcademico { get; set; }
+        public Titulo? MaxNivelAcademico { get; set; } // enum Titulo
         public string? Observaciones { get; set; }
 
     }

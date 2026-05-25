@@ -1,5 +1,6 @@
 using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Validators.Docentes;
+using DocentesApp.Domain.Enums;
 using FluentValidation.TestHelper;
 
 namespace DocentesApp.Tests.Validators.Docentes;
@@ -87,7 +88,7 @@ public class CreateDocenteDtoValidatorTests
         Email = "juan@test.com",
         Celular = "3415551234",
         Direccion = "Calle Falsa 123",
-        MaxNivelAcademico = "Universitario",
+        MaxNivelAcademico = Titulo.Universitario,
         Observaciones = "Observaciones"
     };
 }
