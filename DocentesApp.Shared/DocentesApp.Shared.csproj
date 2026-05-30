@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.*" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="DTOs\CasosDeUso\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
+	</ItemGroup>
+</Project>

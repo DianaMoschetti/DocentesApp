@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="CasosDeUso\" />
+    <Compile Remove="CasosDeUso\**" />
+    <EmbeddedResource Remove="CasosDeUso\**" />
+    <None Remove="CasosDeUso\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Interfaces\Auth\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DocentesApp.Shared\DocentesApp.Shared.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>
 

@@ -43,8 +43,7 @@
 
         <div class="card">
             <div class="card-body">
-                    <EditForm Model="docenteDto" OnValidSubmit="HandleSubmit">
-                    <DataAnnotationsValidator />
+                    <EditForm Model="docenteDto" OnSubmit="HandleSubmit">                   
 
                     <h5 class="mb-3">Datos personales</h5>
 
@@ -189,7 +188,7 @@
                 EmailAlternativo = docente.EmailAlternativo,
                 Celular = docente.Celular,
                 Direccion = docente.Direccion,
-                MaxNivelAcademico = (DocentesApp.Blazor.UI.Services.Base.Titulo)docente.MaxNivelAcademico.Value,
+                MaxNivelAcademico = (DocentesApp.Blazor.UI.Services.Base.Titulo)docente.MaxNivelAcademico,
                 Observaciones = docente.Observaciones
             };
         }
