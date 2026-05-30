@@ -9,7 +9,7 @@ namespace DocentesApp.Domain.Entities
         public int Legajo { get; set; }
         public Titulo Titulo { get; set; } // terciario / universitario / posgrado
         public string MaxNivelAcademico { get; set; } = string.Empty;// especialista / maestro / doctor / investigador
-        public string Observaciones { get; set; } = string.Empty;
+        public string? Observaciones { get; set; } = string.Empty;
 
         // Navigation properties
         public ICollection<Designacion> Designaciones { get; set; } = new HashSet<Designacion>(); // 1:n -> Un docente puede tener uno o más cargos a lo largo de su carrera.

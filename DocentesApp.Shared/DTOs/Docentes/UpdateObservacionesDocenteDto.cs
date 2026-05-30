@@ -2,6 +2,6 @@
 {
     public class UpdateObservacionesDocenteDto
     {
-        public string? Observaciones { get; set; }
+        public string? Observaciones { get; set; } = string.Empty;
     }
 }

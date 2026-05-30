@@ -22,6 +22,6 @@ namespace DocentesApp.Shared.DTOs.Docentes
         public string? Direccion { get; set; }
         public string? FechaNacimiento { get; set; }
         public Titulo? MaxNivelAcademico { get; set; } // enum
-        public string? Observaciones { get; set; }
+        public string? Observaciones { get; set; } = string.Empty;
     }
 }

@@ -4,6 +4,7 @@
 @using DocentesApp.Blazor.UI.Helpers
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Shared.DTOs.Docentes
+@using DocentesApp.Shared.Validators.Docentes
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -118,7 +119,7 @@
                             <option value="">-- Seleccionar --</option>
                             @foreach (var (value, display) in titulos)
                             {
-                                <option value="@((int)value)">@display</option>
+                                <option value="@value">@display</option>
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => docenteDto.MaxNivelAcademico)" />
@@ -213,11 +214,10 @@
             errorMessage = null;
             successMessage = null;
 
-            var validator = new CreateDocenteDtoValidator();
-            //var validationResult = await validator.ValidateAsync(docenteDto);
-
+            //validacion del lado del cliente
             if (esEdicion)
             {
+                var validatorEdit = new UpdateDocenteDtoValidator();
                 var updateDto = new UpdateDocenteDto
                 {
                     Nombre = docenteDto.Nombre,
@@ -231,15 +231,29 @@
                     MaxNivelAcademico = docenteDto.MaxNivelAcademico,
                     Observaciones = docenteDto.Observaciones
                 };
+
+                var validationResult = await validatorEdit.ValidateAsync(updateDto);
+                if (!validationResult.IsValid)
+                {
+                    errorMessage = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
+                    return;
+                }
+
                 await Client.DocentesPUTAsync(Id!.Value, updateDto);
-                Navigation.NavigateTo("docentes",
-                    new NavigationOptions { ReplaceHistoryEntry = true });
+                Navigation.NavigateTo("docentes", new NavigationOptions { ReplaceHistoryEntry = true });
             }
             else
             {
+                var validator = new CreateDocenteDtoValidator();
+                var validationResult = await validator.ValidateAsync(docenteDto);
+                if (!validationResult.IsValid)
+                {
+                    errorMessage = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
+                    return;
+                }
+
                 await Client.DocentesPOSTAsync(docenteDto);
-                Navigation.NavigateTo("docentes",
-                    new NavigationOptions { ReplaceHistoryEntry = true });
+                Navigation.NavigateTo("docentes", new NavigationOptions { ReplaceHistoryEntry = true });
             }
         }
         catch (ApiException ex)
