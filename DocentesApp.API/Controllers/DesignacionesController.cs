@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using DocentesApp.Data.Context;
+using DocentesApp.Shared.DTOs.Designaciones;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DocentesApp.Data.Context;
-using DocentesApp.Domain.Entities;
+
 
 namespace DocentesApp.API.Controllers
 {
@@ -36,86 +31,33 @@ namespace DocentesApp.API.Controllers
          */
         // GET: api/Designaciones
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Designacion>>> GetDesignaciones()
+        public ActionResult<IEnumerable<DesignacionDto>> GetDesignaciones()
         {
-            return await _context.Designaciones.ToListAsync();
+            return StatusCode(501); // Not Implemented por ahora
         }
 
-        // GET: api/Designaciones/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Designacion>> GetDesignacion(int id)
+        public ActionResult<DesignacionDto> GetDesignacion(int id)
         {
-            var designacion = await _context.Designaciones.FindAsync(id);
-
-            if (designacion == null)
-            {
-                return NotFound();
-            }
-
-            return designacion;
+            return StatusCode(501);
         }
 
-        // PUT: api/Designaciones/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDesignacion(int id, Designacion designacion)
-        {
-            if (id != designacion.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(designacion).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DesignacionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Designaciones
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Designacion>> PostDesignacion(Designacion designacion)
+        public ActionResult<DesignacionDto> PostDesignacion(DesignacionDto body)
         {
-            _context.Designaciones.Add(designacion);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDesignacion", new { id = designacion.Id }, designacion);
+            return StatusCode(501);
         }
 
-        // DELETE: api/Designaciones/5
+        [HttpPut("{id}")]
+        public IActionResult PutDesignacion(int id, DesignacionDto body)
+        {
+            return StatusCode(501);
+        }
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDesignacion(int id)
+        public IActionResult DeleteDesignacion(int id)
         {
-            var designacion = await _context.Designaciones.FindAsync(id);
-            if (designacion == null)
-            {
-                return NotFound();
-            }
-
-            _context.Designaciones.Remove(designacion);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool DesignacionExists(int id)
-        {
-            return _context.Designaciones.Any(e => e.Id == id);
+            return StatusCode(501);
         }
     }
 }

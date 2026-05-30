@@ -1,6 +1,6 @@
 ﻿using DocentesApp.API.Services;
-using DocentesApp.Application.DTOs.Auth;
 using DocentesApp.Data.Identity;
+using DocentesApp.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

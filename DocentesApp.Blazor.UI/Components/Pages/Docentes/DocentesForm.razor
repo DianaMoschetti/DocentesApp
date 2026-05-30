@@ -1,7 +1,10 @@
 ﻿@page "/docentes/nuevo"
 @page "/docentes/{Id:int}/editar"
+
 @using DocentesApp.Blazor.UI.Helpers
 @using DocentesApp.Domain.Enums
+@using DocentesApp.Shared.DTOs.Docentes
+
 @attribute [Authorize]
 @rendermode InteractiveServer
 @inject IClient Client
@@ -188,7 +191,7 @@
                 EmailAlternativo = docente.EmailAlternativo,
                 Celular = docente.Celular,
                 Direccion = docente.Direccion,
-                MaxNivelAcademico = (DocentesApp.Blazor.UI.Services.Base.Titulo)docente.MaxNivelAcademico,
+                MaxNivelAcademico = docente.MaxNivelAcademico,
                 Observaciones = docente.Observaciones
             };
         }
@@ -209,6 +212,9 @@
             isSaving = true;
             errorMessage = null;
             successMessage = null;
+
+            var validator = new CreateDocenteDtoValidator();
+            //var validationResult = await validator.ValidateAsync(docenteDto);
 
             if (esEdicion)
             {

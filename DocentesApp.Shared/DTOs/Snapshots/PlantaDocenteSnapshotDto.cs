@@ -1,4 +1,4 @@
-﻿namespace DocentesApp.Application.DTOs.Snapshots
+﻿namespace DocentesApp.Shared.DTOs.Snapshots
 {
     public class PlantaDocenteSnapshotDto
     {

@@ -1,5 +1,5 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
-using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
 using DocentesApp.Domain.Entities;
@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MapsterMapper;
 using Moq;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Shared.DTOs.Docentes;
 
 namespace DocentesApp.Tests;
 

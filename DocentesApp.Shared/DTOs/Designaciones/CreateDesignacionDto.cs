@@ -5,7 +5,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Designaciones
+namespace DocentesApp.Shared.DTOs.Designaciones
 {
     public class CreateDesignacionDto
     {

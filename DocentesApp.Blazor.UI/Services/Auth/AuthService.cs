@@ -1,5 +1,6 @@
 ﻿using DocentesApp.Blazor.UI.Services.Auth;
 using DocentesApp.Blazor.UI.Services.Base;
+using DocentesApp.Shared.DTOs.Auth;
 
 public class AuthService : IAuthService
 {

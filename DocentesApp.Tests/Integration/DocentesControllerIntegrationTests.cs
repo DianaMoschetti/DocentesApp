@@ -1,5 +1,5 @@
 ﻿using DocentesApp.Application.Common.Responses;
-using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Data.Context;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;

@@ -1,4 +1,4 @@
-﻿using DocentesApp.Application.DTOs.Docentes;
+﻿using DocentesApp.Shared.DTOs.Docentes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

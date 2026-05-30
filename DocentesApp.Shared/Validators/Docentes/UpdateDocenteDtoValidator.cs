@@ -1,9 +1,9 @@
-using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Shared.DTOs.Docentes;
 using FluentValidation;
 using System.Globalization;
 
-namespace DocentesApp.Application.Validators.Docentes
+namespace DocentesApp.Shared.Validators.Docentes
 {
     public class UpdateDocenteDtoValidator : AbstractValidator<UpdateDocenteDto>
     {

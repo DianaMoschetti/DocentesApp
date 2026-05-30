@@ -1,4 +1,4 @@
-﻿namespace DocentesApp.Application.DTOs.Udbs
+﻿namespace DocentesApp.Shared.DTOs.Udbs
 {
     public class UdbDto
     {

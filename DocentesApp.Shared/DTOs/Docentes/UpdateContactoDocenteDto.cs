@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DocentesApp.Application.DTOs.Docentes
+namespace DocentesApp.Shared.DTOs.Docentes
 {
     public class UpdateContactoDocenteDto
     {

@@ -1,6 +1,6 @@
-﻿using DocentesApp.Application.DTOs.Docentes;
-using DocentesApp.Application.Validators.Docentes;
+﻿using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Shared.Validators.Docentes;
 using FluentValidation.TestHelper;
 
 namespace DocentesApp.Tests.Validators.Docentes;

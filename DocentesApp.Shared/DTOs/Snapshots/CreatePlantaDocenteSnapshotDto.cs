@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DocentesApp.Domain.Enums;
 
-namespace DocentesApp.Application.DTOs.Snapshots
+namespace DocentesApp.Shared.DTOs.Snapshots
 {
     public class CreatePlantaDocenteSnapshotDto
     {

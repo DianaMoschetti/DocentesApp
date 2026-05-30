@@ -1,8 +1,8 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
-using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Interfaces.Services;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Shared.DTOs.Docentes;
 using MapsterMapper;
 
 namespace DocentesApp.Application.Services

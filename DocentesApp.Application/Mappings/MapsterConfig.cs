@@ -1,10 +1,10 @@
-using DocentesApp.Application.DTOs.Asignaturas;
-using DocentesApp.Application.DTOs.Cursos;
-using DocentesApp.Application.DTOs.Designaciones;
-using DocentesApp.Application.DTOs.Docentes;
-using DocentesApp.Application.DTOs.Snapshots;
-using DocentesApp.Application.DTOs.Udbs;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Shared.DTOs.Asignaturas;
+using DocentesApp.Shared.DTOs.Cursos;
+using DocentesApp.Shared.DTOs.Designaciones;
+using DocentesApp.Shared.DTOs.Docentes;
+using DocentesApp.Shared.DTOs.Snapshots;
+using DocentesApp.Shared.DTOs.Udbs;
 using Mapster;
 using System.Globalization;
 

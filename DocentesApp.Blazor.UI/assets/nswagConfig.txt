@@ -19,4 +19,10 @@ que yo le pongo al archivo que me va a generar
 Una vez tengo eso listo le doy al boton de GenerateFile
 
 
-PARA ACTUALIZAR SI HAGO ALGUN CAMBIO Y QUE SE REFLEJE EN EL SWAGGER -> NSWAG vuelvo a crear una copy local con la url
+PARA ACTUALIZAR SI HAGO ALGUN CAMBIO Y QUE SE REFLEJE EN EL SWAGGER -> NSWAG
+1. Borro el ServiceClient.cs que me generó el NSwag Studio asi estoy segura q lo va a pisar
+2. Corro el proyecto DocentesApp.API 
+3. Abro el .nswag q esta en C:\repos\DocentesApp\DocentesApp.Blazor.UI con el nswag studio
+4. Primero a la izquierda click en Create local Copy para actualizar el JSON
+5. A la derecha, click en Generate Files para que me vuelva a generar el ServiceClient.cs con los cambios que hice en la API
+Corré DocentesApp.API

@@ -1,5 +1,5 @@
-﻿using DocentesApp.Application.DTOs.Auth;
-using DocentesApp.Application.DTOs.Docentes;
+﻿using DocentesApp.Shared.DTOs.Auth;
+using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Domain.Enums;
 using FluentAssertions;
 using System.Net;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Cursos
+namespace DocentesApp.Shared.DTOs.Cursos
 {
     public class UpdateCursoDto
     {

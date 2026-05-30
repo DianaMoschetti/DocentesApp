@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Udbs
+namespace DocentesApp.Shared.DTOs.Udbs
 {
     public class ListUdbDto
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Designaciones
+namespace DocentesApp.Shared.DTOs.Designaciones
 {
     internal class DetalleDesignacionDto
     {

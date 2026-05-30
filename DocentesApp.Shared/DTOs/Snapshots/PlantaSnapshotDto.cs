@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Snapshots
+namespace DocentesApp.Shared.DTOs.Snapshots
 {
     public class PlantaSnapshotDto
     {

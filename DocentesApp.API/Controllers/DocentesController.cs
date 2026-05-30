@@ -1,5 +1,5 @@
-using DocentesApp.Application.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Services;
+using DocentesApp.Shared.DTOs.Docentes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

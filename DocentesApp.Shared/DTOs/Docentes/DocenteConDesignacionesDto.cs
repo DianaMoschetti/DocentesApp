@@ -1,6 +1,6 @@
-﻿using DocentesApp.Application.DTOs.Designaciones;
+﻿using DocentesApp.Shared.DTOs.Designaciones;
 
-namespace DocentesApp.Application.DTOs.Docentes
+namespace DocentesApp.Shared.DTOs.Docentes
 {
     public class DocenteConDesignacionesDto
     {

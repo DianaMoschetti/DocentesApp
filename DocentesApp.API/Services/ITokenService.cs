@@ -1,5 +1,5 @@
-﻿using DocentesApp.Application.DTOs.Auth;
-using DocentesApp.Data.Identity;
+﻿using DocentesApp.Data.Identity;
+using DocentesApp.Shared.DTOs.Auth;
 
 namespace DocentesApp.API.Services
 {

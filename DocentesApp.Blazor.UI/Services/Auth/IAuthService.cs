@@ -1,4 +1,5 @@
 ﻿using DocentesApp.Blazor.UI.Services.Base;
+using DocentesApp.Shared.DTOs.Auth;
 
 namespace DocentesApp.Blazor.UI.Services.Auth
 {

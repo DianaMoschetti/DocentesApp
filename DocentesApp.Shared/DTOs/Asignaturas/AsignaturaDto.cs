@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocentesApp.Application.DTOs.Asignaturas
+namespace DocentesApp.Shared.DTOs.Asignaturas
 {
     public class AsignaturaDto
     {

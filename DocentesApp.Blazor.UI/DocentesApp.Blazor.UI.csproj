@@ -10,6 +10,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.15" />
+    <PackageReference Include="NSwag.MSBuild" Version="14.7.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
   </ItemGroup>
 
@@ -17,5 +21,12 @@
     <ProjectReference Include="..\DocentesApp.Shared\DocentesApp.Shared.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\Base\" />
+  </ItemGroup>
+  <!--<Target Name="NSwag" AfterTargets="PostBuildEvent">
+    <Exec Command="$(NSwagExe_Net90) run nswag.json /variables:Configuration=$(Configuration)" />
+  </Target>-->
 
 </Project>

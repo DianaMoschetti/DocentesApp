@@ -1,5 +1,5 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
-using DocentesApp.Application.DTOs.Docentes;
+using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
 using DocentesApp.Data.Context;

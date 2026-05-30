@@ -11,8 +11,7 @@ using DocentesApp.Shared.DTOs.Auth;
 using DocentesApp.Shared.DTOs.Cursos;
 using DocentesApp.Shared.DTOs.Snapshots;
 using DocentesApp.Shared.DTOs.Udbs;
-using DocentesApp.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
+using DocentesApp.Shared.DTOs.CasosDeUso;
 
 #pragma warning disable 108 // Disable "CS0108 '{derivedDto}.ToJson()' hides inherited member '{dtoBase}.ToJson()'. Use the new keyword if hiding was intended."
 #pragma warning disable 114 // Disable "CS0114 '{derivedDto}.RaisePropertyChanged(String)' hides inherited member 'dtoBase.RaisePropertyChanged(String)'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword."
@@ -66,39 +65,39 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DesignacionesAllAsync();
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Designacion>> DesignacionesAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DesignacionesAllAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Designacion>> DesignacionesAllAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DesignacionDto> DesignacionesPOSTAsync(DesignacionDto body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DesignacionDto> DesignacionesPOSTAsync(DesignacionDto body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DesignacionDto> DesignacionesGETAsync(int id);
+        System.Threading.Tasks.Task<Designacion> DesignacionesPOSTAsync(Designacion body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DesignacionDto> DesignacionesGETAsync(int id, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Designacion> DesignacionesPOSTAsync(Designacion body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task DesignacionesPUTAsync(int id, DesignacionDto body);
+        System.Threading.Tasks.Task<Designacion> DesignacionesGETAsync(int id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task DesignacionesPUTAsync(int id, DesignacionDto body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Designacion> DesignacionesGETAsync(int id, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task DesignacionesPUTAsync(int id, Designacion body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task DesignacionesPUTAsync(int id, Designacion body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -480,7 +479,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DesignacionesAllAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Designacion>> DesignacionesAllAsync()
         {
             return DesignacionesAllAsync(System.Threading.CancellationToken.None);
         }
@@ -488,7 +487,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DesignacionesAllAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Designacion>> DesignacionesAllAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -529,7 +528,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<DesignacionDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Designacion>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -558,7 +557,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DesignacionDto> DesignacionesPOSTAsync(DesignacionDto body)
+        public virtual System.Threading.Tasks.Task<Designacion> DesignacionesPOSTAsync(Designacion body)
         {
             return DesignacionesPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -566,7 +565,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DesignacionDto> DesignacionesPOSTAsync(DesignacionDto body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Designacion> DesignacionesPOSTAsync(Designacion body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -611,7 +610,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<DesignacionDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Designacion>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -640,7 +639,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DesignacionDto> DesignacionesGETAsync(int id)
+        public virtual System.Threading.Tasks.Task<Designacion> DesignacionesGETAsync(int id)
         {
             return DesignacionesGETAsync(id, System.Threading.CancellationToken.None);
         }
@@ -648,7 +647,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DesignacionDto> DesignacionesGETAsync(int id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Designacion> DesignacionesGETAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -693,7 +692,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<DesignacionDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Designacion>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -722,7 +721,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DesignacionesPUTAsync(int id, DesignacionDto body)
+        public virtual System.Threading.Tasks.Task DesignacionesPUTAsync(int id, Designacion body)
         {
             return DesignacionesPUTAsync(id, body, System.Threading.CancellationToken.None);
         }
@@ -730,7 +729,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DesignacionesPUTAsync(int id, DesignacionDto body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task DesignacionesPUTAsync(int id, Designacion body, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");

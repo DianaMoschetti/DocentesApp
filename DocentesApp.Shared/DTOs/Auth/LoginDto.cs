@@ -1,5 +1,4 @@
-﻿
-namespace DocentesApp.Application.DTOs.Auth
+﻿namespace DocentesApp.Shared.DTOs.Auth
 {
     public class LoginDto
     {
