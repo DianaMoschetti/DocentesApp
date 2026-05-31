@@ -4,10 +4,7 @@ using DocentesApp.Data.Context;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
 using FluentAssertions;
-using Humanizer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -561,8 +558,7 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         {
             Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
             TipoCargo = TipoCargo.Adjunto,
-            DetalleCargo = EspecificacionCargo.Docencia,
-            Condicion = Condicion.Interino,
+            Condicion = Condicion.Interino,  // ← sacar DetalleCargo
             PuntosBase = 10,
             Observaciones = "Cargo para test"
         };
@@ -574,18 +570,8 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             CantidadDedicacion = 1
         };
 
-        var curso = new Curso
-        {
-            Turno = Turno.Mañana,
-            NroComision = 1,
-            Año = Nivel.Primero,
-            Carrera = Especialidad.ISI,
-            AsignaturaModulos = new List<AsignaturaModulo>()
-        };
-
         db.Cargos.Add(cargo);
         db.Dedicaciones.Add(dedicacion);
-        db.Cursos.Add(curso);
 
         await db.SaveChangesAsync();
 
@@ -594,14 +580,11 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             DocenteId = docenteId,
             CargoId = cargo.Id,
             DedicacionId = dedicacion.Id,
-            CursoId = curso.Id,
-            AsignaturaId = null,
             FechaInicio = DateTime.UtcNow.AddDays(-10),
             FechaFin = null,
             EstadoDesignacion = Estado.Activa,
-            PuntosUtilizados = 10,
-            PuntosLibres = 5,
             Observaciones = "Designación para test"
+            // ← sacar CursoId, AsignaturaId, PuntosUtilizados, PuntosLibres
         };
 
         db.Designaciones.Add(designacion);

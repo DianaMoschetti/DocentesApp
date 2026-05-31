@@ -50,16 +50,13 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<Designacion, ListDesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
                 .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty)
-                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null ? src.Asignatura.NombreAsignatura.ToString() : null)
-                .Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
+                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty);
+                //.Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
 
             config.NewConfig<Designacion, DesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
                 .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty)
-                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null ? src.Asignatura.NombreAsignatura.ToString() : null)
-                .Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
+                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty);
 
             config.NewConfig<CreateDocenteDto, Docente>();
             config.NewConfig<UpdateDocenteDto, Docente>();

@@ -20,9 +20,8 @@ namespace DocentesApp.Data.Configurations
             //builder.Property(c => c.TipoCargo).HasConversion<int>();
             builder.Property(c => c.Observaciones).HasMaxLength(500);
 
-            // para evitar cargos repetidos, no se pueden repetir la combinación de estos campos
-            builder.HasIndex(x => new { x.Denominacion, x.TipoCargo, x.DetalleCargo, x.Condicion })
-             .IsUnique();
+            builder.HasIndex(x => new { x.Denominacion, x.TipoCargo, x.Condicion })
+                .IsUnique();
 
             // Relaciones
             builder.HasMany(x => x.Designaciones)
