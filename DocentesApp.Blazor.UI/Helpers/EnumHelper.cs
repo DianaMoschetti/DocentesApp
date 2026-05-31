@@ -18,6 +18,15 @@ namespace DocentesApp.Blazor.UI.Helpers
         }
 
         /// <summary>
+        /// Devuelve el texto a mostrar para un valor de enum
+        /// Útil cuando tengo el valor como T en lugar de Enum
+        /// </summary>
+        public static string GetDisplay<T>(T value) where T : Enum
+        {
+            return GetDisplayName(value);
+        }
+
+        /// <summary>
         /// Devuelve todos los valores de un enum como lista de (valor, texto).
         /// Útil para construir dropdowns.
         /// </summary>

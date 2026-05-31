@@ -1,0 +1,153 @@
+﻿@page "/docentes/{Id:int}"
+@using DocentesApp.Shared.DTOs.Docentes
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Blazor.UI.Helpers
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Detalle Docente</PageTitle>
+
+<div class="container mt-4">
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (docente != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>@docente.NombreCompleto</h2>
+            <div>
+                <button class="btn btn-outline-secondary me-2"
+                        @onclick='() => Navigation.NavigateTo($"docentes/{Id}/editar")'>
+                    Editar
+                </button>
+                <button class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("docentes")'>
+                    Volver
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Datos personales</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Legajo</label>
+                        <p>@docente.Legajo</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">DNI</label>
+                        <p>@(docente.Dni ?? "-")</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Nombre</label>
+                        <p>@docente.Nombre</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Apellido</label>
+                        <p>@docente.Apellido</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Fecha de nacimiento</label>
+                        <p>@(docente.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Contacto</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Email</label>
+                        <p>@(docente.Email ?? "-")</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Email alternativo</label>
+                        <p>@(docente.EmailAlternativo ?? "-")</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Celular</label>
+                        <p>@(docente.Celular ?? "-")</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Dirección</label>
+                        <p>@(docente.Direccion ?? "-")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Académico</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Máximo nivel académico</label>
+                        <p>
+                            @(docente.MaxNivelAcademico.HasValue
+                                                    ? EnumHelper.GetDisplay(docente.MaxNivelAcademico.Value)
+                                                    : "-")
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Observaciones</div>
+            <div class="card-body">
+                <p>@(string.IsNullOrWhiteSpace(docente.Observaciones) ? "-" : docente.Observaciones)</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Designaciones</div>
+            <div class="card-body">
+                <p class="text-muted">Próximamente disponible.</p>
+            </div>
+        </div>
+        }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private DocenteDto? docente;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDocente();
+    }
+
+    private async Task CargarDocente()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            docente = await Client.DocentesGETAsync(Id);
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró el docente."
+                : "Error al cargar el docente.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
