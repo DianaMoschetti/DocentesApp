@@ -1,10 +1,6 @@
 ﻿using DocentesApp.Domain.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DocentesApp.Shared.DTOs.Docentes
 {
@@ -14,6 +10,7 @@ namespace DocentesApp.Shared.DTOs.Docentes
         public int Legajo { get; set; }
         public string Nombre { get; set; } = null!;
         public string Apellido { get; set; } = null!;
+        public DateOnly? FechaNacimiento { get; set; }
         public string NombreCompleto { get; set; } = null!;
         [MaxLength(15)]
         public string? Dni { get; set; }

@@ -80,6 +80,7 @@ namespace DocentesApp.Application.Mappings
                  .Map(dest => dest.Nombre, src => src.Nombre)
                  .Map(dest => dest.Apellido, src => src.Apellido)
                  .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}")
+                 .Map(dest => dest.FechaNacimiento, src => src.FechaNacimiento)
                  .Map(dest => dest.Email, src => src.Email)
                  .Map(dest => dest.EmailAlternativo, src => src.EmailAlternativo)
                  .Map(dest => dest.Celular, src => src.Celular)
