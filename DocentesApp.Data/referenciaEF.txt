@@ -4,3 +4,10 @@ https://learn.microsoft.com/en-us/ef/ef6/modeling/code-first/fluent/relationship
 Add-Migration AllowNullObservaciones -Project DocentesApp.Data -StartupProject DocentesApp.API
 
 Update-Database -Project DocentesApp.Data -StartupProject DocentesApp.API
+
+Add-Migration RefactorDesignacionCabeceraDetalle -Project DocentesApp.Data -StartupProject DocentesApp.API
+
+Remove-Migration -Project DocentesApp.Data -StartupProject DocentesApp.API (habia un warning en PuntosLibres)
+Add-Migration RefactorDesignacionCabeceraDetalle -Project DocentesApp.Data -StartupProject DocentesApp.API
+
+Update-Database -Project DocentesApp.Data -StartupProject DocentesApp.API

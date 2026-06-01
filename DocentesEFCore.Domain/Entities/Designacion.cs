@@ -31,7 +31,7 @@ namespace DocentesApp.Domain.Entities
         public DateTime? FechaFin { get; set; } // historial
         public string? Observaciones { get; set; }
         //public decimal PuntosUtilizados { get; set; }
-        public decimal PuntosLibres { get; set; }     
+        public decimal PuntosLibres { get; set; }     // diana ver si sirve de algo, 
         public Estado EstadoDesignacion { get; set; } // Activa, Finalizada
         //public int CursoId { get; set; }
         //public Curso? Curso { get; set; }

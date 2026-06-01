@@ -44,6 +44,8 @@ namespace DocentesApp.Data.Configurations
                 .IsUnique()
                 .HasFilter("[FechaFin] IS NULL");
 
+            builder.Property(d => d.PuntosLibres).HasPrecision(10, 2);
+
         }
     }
 }

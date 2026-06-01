@@ -26,6 +26,7 @@ namespace DocentesApp.Data.Context
 
         public DbSet<PlantaSnapshot> PlantaSnapshots => Set<PlantaSnapshot>();
         public DbSet<PlantaDocenteSnapshot> PlantaDocenteSnapshots => Set<PlantaDocenteSnapshot>();
+        public DbSet<DetalleDesignacion> DetalleDesignaciones => Set<DetalleDesignacion>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

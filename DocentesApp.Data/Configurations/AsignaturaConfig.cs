@@ -28,7 +28,7 @@ namespace DocentesApp.Data.Configurations
              .IsUnique();
 
             // Una asignatura tiene muchas designaciones y una designación pertenece a una asignatura
-            builder.HasMany(x => x.DetalleDesigacion)
+            builder.HasMany(x => x.DetalleDesignacion)
              .WithOne(d => d.Asignatura)
              .HasForeignKey(d => d.AsignaturaId)
              .OnDelete(DeleteBehavior.Restrict);
