@@ -3,15 +3,12 @@ using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
-    public class DetalleDesignacionDto
+    public class CreateDetalleDesignacionDto
     {
-        public int Id { get; set; }
-        public int DesignacionId { get; set; }
+        // sin id pq se genera cuando se intesrta en la db
         public EspecificacionCargo Especificacion { get; set; }
         public int? AsignaturaId { get; set; }
-        public string? NombreAsignatura { get; set; }
         public int? CursoId { get; set; }
-        public string? DescripcionCurso { get; set; }
         public decimal? PuntosUtilizados { get; set; }
     }
 }

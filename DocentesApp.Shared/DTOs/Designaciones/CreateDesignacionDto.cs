@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
     public class CreateDesignacionDto
@@ -12,8 +6,8 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public int DocenteId { get; set; }
         public int CargoId { get; set; }
         public int DedicacionId { get; set; }
-        public int? AsignaturaId { get; set; }
-        public int? CursoId { get; set; }
+        // public int? AsignaturaId { get; set; }
+        //public int? CursoId { get; set; }
 
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
@@ -24,5 +18,6 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public decimal? PuntosLibres { get; set; }
         public int EstadoDesignacion { get; set; }
         public string? Observaciones { get; set; }
+        public List<CreateDetalleDesignacionDto> Detalles { get; set; } = new();
     }
 }

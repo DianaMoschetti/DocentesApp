@@ -43,6 +43,14 @@ namespace DocentesApp.Application.Mappings
 
             config.NewConfig<Curso, ListCursoDto>()
                 .Map(dest => dest.Descripcion, src => $"{src.Año} - {src.Carrera} - Comisión {src.NroComision} - {src.Turno}");
+            #region Designacion
+            // DetalleDesignacion → DetalleDesignacionDto
+            config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
+                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null ? src.Asignatura.NombreAsignatura.ToString() : null)
+                .Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
+
+            // CreateDetalleDesignacionDto -> DetalleDesignacion
+            config.NewConfig<CreateDetalleDesignacionDto, DetalleDesignacion>();
 
             config.NewConfig<CreateDesignacionDto, Designacion>();
             config.NewConfig<UpdateDesignacionDto, Designacion>();
@@ -51,13 +59,15 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
                 .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
                 .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty);
-                //.Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
 
             config.NewConfig<Designacion, DesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
                 .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty);
+                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty)
+                .Map(dest => dest.Detalles, src => src.Detalles);
+            #endregion
 
+            #region Docente
             config.NewConfig<CreateDocenteDto, Docente>();
             config.NewConfig<UpdateDocenteDto, Docente>();
 
@@ -89,13 +99,17 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.Nombre, src => src.Nombre)
                 .Map(dest => dest.Apellido, src => src.Apellido)
                 .Map(dest => dest.NombreCompleto, src => $"{src.Apellido}, {src.Nombre}");
+            #endregion
 
+            #region Planta
             config.NewConfig<CreatePlantaSnapshotDto, PlantaSnapshot>();
             config.NewConfig<CreatePlantaDocenteSnapshotDto, PlantaDocenteSnapshot>();
             config.NewConfig<PlantaSnapshot, PlantaSnapshotDto>()
                 .Ignore(dest => dest.Filas);
             config.NewConfig<PlantaDocenteSnapshot, PlantaDocenteSnapshotDto>();
+            #endregion
 
+            #region Udb
             config.NewConfig<CreateUdbDto, Udb>();
             config.NewConfig<UpdateUdbDto, Udb>();
 
@@ -104,6 +118,7 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.SecretarioNombreCompleto, src => src.Secretario != null ? $"{src.Secretario.Apellido}, {src.Secretario.Nombre}" : null);
 
             config.NewConfig<Udb, ListUdbDto>();
+            #endregion
         }
 
         private static DateOnly? ParseDateOnly(string? value)
