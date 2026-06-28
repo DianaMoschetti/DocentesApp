@@ -1,5 +1,6 @@
 using DocentesApp.Domain.Entities;
 using DocentesApp.Shared.DTOs.Asignaturas;
+using DocentesApp.Shared.DTOs.Cargos;
 using DocentesApp.Shared.DTOs.Cursos;
 using DocentesApp.Shared.DTOs.Designaciones;
 using DocentesApp.Shared.DTOs.Docentes;
@@ -118,6 +119,18 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.SecretarioNombreCompleto, src => src.Secretario != null ? $"{src.Secretario.Apellido}, {src.Secretario.Nombre}" : null);
 
             config.NewConfig<Udb, ListUdbDto>();
+            #endregion
+
+            #region Cargo
+            config.NewConfig<CreateCargoDto, Cargo>();
+
+            config.NewConfig<Cargo, CargoDto>()
+                .Map(dest => dest.Descripcion, src =>
+                    $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
+
+            config.NewConfig<Cargo, ListCargoDto>()
+                .Map(dest => dest.Descripcion, src =>
+                    $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
             #endregion
         }
 

@@ -85,6 +85,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<ICargoRepository, CargoRepository>();
 
 // Fluent
 builder.Services.AddFluentValidationAutoValidation(config =>

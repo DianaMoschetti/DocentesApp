@@ -1,0 +1,140 @@
+﻿@page "/cargos/nuevo"
+@using DocentesApp.Shared.DTOs.Cargos
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Blazor.UI.Helpers
+@using DocentesApp.Shared.Validators.Cargos
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Nuevo Cargo</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Nuevo Cargo</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("cargos")'>
+            Volver
+        </button>
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (successMessage != null)
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+
+    <EditForm Model="cargoDto" OnSubmit="HandleSubmit">
+        <div class="card mb-4">
+            <div class="card-header">Datos del cargo</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Denominación <span class="text-danger">*</span></label>
+                        <InputSelect class="form-select" @bind-Value="cargoDto.Denominacion">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach (var (value, display) in denominaciones)
+                            {
+                                <option value="@value">@display</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                        <InputSelect class="form-select" @bind-Value="cargoDto.TipoCargo">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach (var (value, display) in tipos)
+                            {
+                                <option value="@value">@display</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Condición <span class="text-danger">*</span></label>
+                        <InputSelect class="form-select" @bind-Value="cargoDto.Condicion">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach (var (value, display) in condiciones)
+                            {
+                                <option value="@value">@display</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Puntos base <span class="text-danger">*</span></label>
+                        <InputNumber class="form-control" @bind-Value="cargoDto.PuntosBase" />
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <InputTextArea class="form-control" @bind-Value="cargoDto.Observaciones" rows="3" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary"
+                    @onclick='() => Navigation.NavigateTo("cargos")'
+                    disabled="@isSaving">
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                @(isSaving ? "Guardando..." : "Guardar")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CreateCargoDto cargoDto = new();
+    private bool isSaving;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private readonly List<(DenominacionCargo Value, string Display)> denominaciones =
+        EnumHelper.GetOptions<DenominacionCargo>();
+    private readonly List<(TipoCargo Value, string Display)> tipos =
+        EnumHelper.GetOptions<TipoCargo>();
+    private readonly List<(Condicion Value, string Display)> condiciones =
+        EnumHelper.GetOptions<Condicion>();
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        // Validación client-side
+        var validator = new CreateCargoDtoValidator();
+        var result = await validator.ValidateAsync(cargoDto);
+        if (!result.IsValid)
+        {
+            errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            await Client.CargosPOSTAsync(cargoDto);
+            Navigation.NavigateTo("cargos", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode switch
+            {
+                400 => "Ya existe un cargo con esa combinación.",
+                401 => "No tiene permisos para realizar esta acción.",
+                403 => "No tiene permisos para realizar esta acción.",
+                _ => "Error al guardar. Intentá de nuevo."
+            };
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

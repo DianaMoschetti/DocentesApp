@@ -11,3 +11,6 @@ Remove-Migration -Project DocentesApp.Data -StartupProject DocentesApp.API (habi
 Add-Migration RefactorDesignacionCabeceraDetalle -Project DocentesApp.Data -StartupProject DocentesApp.API
 
 Update-Database -Project DocentesApp.Data -StartupProject DocentesApp.API
+
+¿Vas a modificar la entidad después de traerla? → sin AsNoTracking (necesitás el tracking para el Update)
+¿Solo la vas a leer y mostrar? → con AsNoTracking (es más eficiente)

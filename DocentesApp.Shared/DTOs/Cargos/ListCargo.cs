@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public string Descripcion { get; set; } = string.Empty; // "Titular Adjunto Docencia Ordinario"
         public float PuntosBase { get; set; }
+        public string Observaciones { get; set; } = string.Empty;
     }
 }

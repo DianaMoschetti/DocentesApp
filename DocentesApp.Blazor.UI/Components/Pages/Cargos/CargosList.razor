@@ -1,0 +1,167 @@
+﻿@page "/cargos"
+@using DocentesApp.Shared.DTOs.Cargos
+@using DocentesApp.Domain.Enums
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Cargos</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Cargos</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("cargos/nuevo")'>
+            + Nuevo cargo
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!cargos.Any())
+    {
+        <div class="alert alert-info">No hay cargos cargados todavía.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Puntos base</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cargo in cargos)
+                {
+                    <tr>
+                        <td>@cargo.Descripcion</td>
+                        <td>@cargo.PuntosBase</td>
+                        <td>@cargo.Observaciones</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => ConfirmarEliminar(cargo)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@* Modal de confirmación de eliminación *@
+@if (cargoAEliminar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar eliminación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés eliminar el cargo <strong>@cargoAEliminar.Descripcion</strong>?</p>
+                    @if (deleteErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@deleteErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarEliminar"
+                            disabled="@isDeleting">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="EjecutarEliminar"
+                            disabled="@isDeleting">
+                        @(isDeleting ? "Eliminando..." : "Eliminar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ICollection<ListCargoDto> cargos = new List<ListCargoDto>();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    // Estado del modal de eliminación
+    private ListCargoDto? cargoAEliminar;
+    private bool isDeleting;
+    private string? deleteErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCargos();
+    }
+
+    private async Task CargarCargos()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            cargos = await Client.CargosAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar los cargos.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ConfirmarEliminar(ListCargoDto cargo)
+    {
+        cargoAEliminar = cargo;
+        deleteErrorMessage = null;
+    }
+
+    private void CancelarEliminar()
+    {
+        cargoAEliminar = null;
+        deleteErrorMessage = null;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (cargoAEliminar == null) return;
+
+        try
+        {
+            isDeleting = true;
+            deleteErrorMessage = null;
+            await Client.CargosDELETEAsync(cargoAEliminar.Id);
+            cargoAEliminar = null;
+            await CargarCargos();
+        }
+        catch (ApiException ex)
+        {
+            deleteErrorMessage = ex.StatusCode switch
+            {
+                409 => "No se puede eliminar el cargo porque tiene designaciones asociadas.",
+                404 => "El cargo no existe.",
+                _ => "Error al eliminar el cargo."
+            };
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}
