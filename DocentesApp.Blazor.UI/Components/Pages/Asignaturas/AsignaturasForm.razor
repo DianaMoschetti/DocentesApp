@@ -1,0 +1,240 @@
+@page "/asignaturas/nuevo"
+@page "/asignaturas/{Id:int}/editar"
+@using DocentesApp.Shared.DTOs.Asignaturas
+@using DocentesApp.Shared.DTOs.Udbs
+@using DocentesApp.Shared.Validators.Asignaturas
+@using DocentesApp.Blazor.UI.Helpers
+@using DocentesApp.Domain.Enums
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>@(esEdicion ? "Editar asignatura" : "Nueva asignatura")</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(esEdicion ? "Editar asignatura" : "Nueva asignatura")</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("asignaturas")'>
+            Volver
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <EditForm Model="asignaturaDto" OnSubmit="HandleSubmit">
+            <div class="card mb-4">
+                <div class="card-header">Datos de la asignatura</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Materia <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="asignaturaDto.NombreAsignatura">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in materias)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Frecuencia <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="asignaturaDto.Frecuencia">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in frecuencias)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Nivel <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="asignaturaDto.Nivel">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in niveles)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">UDB</label>
+                            <InputSelect class="form-select" @bind-Value="asignaturaDto.UdbId">
+                                <option value="">-- Sin UDB --</option>
+                                @foreach (var udb in udbs)
+                                {
+                                    <option value="@udb.Id">@udb.Nombre</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("asignaturas")'
+                        disabled="@isSaving">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @(isSaving ? "Guardando..." : (esEdicion ? "Guardar cambios" : "Crear asignatura"))
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private CreateAsignaturaDto asignaturaDto = new();
+    private bool esEdicion => Id.HasValue;
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+    private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
+
+    private readonly List<(Materia Value, string Display)> materias = EnumHelper.GetOptions<Materia>();
+    private readonly List<(Frecuencia Value, string Display)> frecuencias = EnumHelper.GetOptions<Frecuencia>();
+    private readonly List<(Nivel Value, string Display)> niveles = EnumHelper.GetOptions<Nivel>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarUdbs();
+
+        if (esEdicion)
+        {
+            await CargarAsignatura();
+        }
+        else
+        {
+            asignaturaDto = new CreateAsignaturaDto();
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarUdbs()
+    {
+        try
+        {
+            udbs = await Client.UdbsAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar la lista de UDBs.";
+        }
+    }
+
+    private async Task CargarAsignatura()
+    {
+        try
+        {
+            isLoading = true;
+            var asignatura = await Client.AsignaturasGETAsync(Id!.Value);
+
+            asignaturaDto = new CreateAsignaturaDto
+            {
+                NombreAsignatura = asignatura.NombreAsignatura,
+                Frecuencia = asignatura.Frecuencia,
+                Nivel = asignatura.Nivel,
+                UdbId = asignatura.UdbId
+            };
+        }
+        catch (ApiException)
+        {
+            errorMessage = "No se pudo cargar la asignatura.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        if (esEdicion)
+        {
+            var updateDto = new UpdateAsignaturaDto
+            {
+                NombreAsignatura = asignaturaDto.NombreAsignatura,
+                Frecuencia = asignaturaDto.Frecuencia,
+                Nivel = asignaturaDto.Nivel,
+                UdbId = asignaturaDto.UdbId
+            };
+
+            var validator = new UpdateAsignaturaDtoValidator();
+            var result = await validator.ValidateAsync(updateDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.AsignaturasPUTAsync(Id!.Value, updateDto);
+                Navigation.NavigateTo("asignaturas", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe una asignatura con esa combinación de materia, nivel y UDB.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    404 => "La asignatura no existe.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+        else
+        {
+            var validator = new CreateAsignaturaDtoValidator();
+            var result = await validator.ValidateAsync(asignaturaDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.AsignaturasPOSTAsync(asignaturaDto);
+                Navigation.NavigateTo("asignaturas", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe una asignatura con esa combinación de materia, nivel y UDB.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+    }
+}

@@ -21,7 +21,8 @@ namespace DocentesApp.Application.Mappings
                 .MapWith(src => ParseDateOnly(src));
 
             config.NewConfig<CreateAsignaturaDto, Asignatura>();
-            config.NewConfig<UpdateAsignaturaDto, Asignatura>();
+            config.NewConfig<UpdateAsignaturaDto, Asignatura>()
+                .Ignore(dest => dest.Id);
 
             config.NewConfig<Asignatura, AsignaturaDto>()
                 .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())

@@ -1,0 +1,170 @@
+@page "/asignaturas"
+@using DocentesApp.Shared.DTOs.Asignaturas
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Asignaturas</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Asignaturas</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("asignaturas/nuevo")'>
+            + Nueva asignatura
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!asignaturas.Any())
+    {
+        <div class="alert alert-info">No hay asignaturas cargadas todavía.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Materia</th>
+                    <th>Frecuencia</th>
+                    <th>Nivel</th>
+                    <th>UDB</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var asignatura in asignaturas)
+                {
+                    <tr>
+                        <td>@asignatura.NombreAsignaturaTexto</td>
+                        <td>@asignatura.FrecuenciaTexto</td>
+                        <td>@asignatura.NivelTexto</td>
+                        <td>@(asignatura.NombreUdb ?? "—")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                    @onclick='() => Navigation.NavigateTo($"asignaturas/{asignatura.Id}/editar")'>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => ConfirmarEliminar(asignatura)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (asignaturaAEliminar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar eliminación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés eliminar la asignatura <strong>@asignaturaAEliminar.NombreAsignaturaTexto</strong>?</p>
+                    @if (deleteErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@deleteErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarEliminar"
+                            disabled="@isDeleting">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="EjecutarEliminar"
+                            disabled="@isDeleting">
+                        @(isDeleting ? "Eliminando..." : "Eliminar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private ListAsignaturaDto? asignaturaAEliminar;
+    private bool isDeleting;
+    private string? deleteErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarAsignaturas();
+    }
+
+    private async Task CargarAsignaturas()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            asignaturas = await Client.AsignaturasAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar las asignaturas.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ConfirmarEliminar(ListAsignaturaDto asignatura)
+    {
+        asignaturaAEliminar = asignatura;
+        deleteErrorMessage = null;
+    }
+
+    private void CancelarEliminar()
+    {
+        asignaturaAEliminar = null;
+        deleteErrorMessage = null;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (asignaturaAEliminar == null) return;
+
+        try
+        {
+            isDeleting = true;
+            deleteErrorMessage = null;
+            await Client.AsignaturasDELETEAsync(asignaturaAEliminar.Id);
+            asignaturaAEliminar = null;
+            await CargarAsignaturas();
+        }
+        catch (ApiException ex)
+        {
+            deleteErrorMessage = ex.StatusCode switch
+            {
+                409 => "No se puede eliminar la asignatura porque tiene designaciones asociadas.",
+                404 => "La asignatura no existe.",
+                _ => "Error al eliminar la asignatura."
+            };
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}
