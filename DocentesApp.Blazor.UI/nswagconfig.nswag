@@ -56,6 +56,7 @@
         "DocentesApp.Shared.DTOs.Snapshots",
         "DocentesApp.Shared.DTOs.Udbs",
         "DocentesApp.Shared.DTOs.Cargos",
+        "DocentesApp.Shared.DTOs.Dedicaciones",
 
         "DocentesApp.Domain.Entities",
         "Microsoft.AspNetCore.Mvc"

@@ -87,6 +87,8 @@ builder.Services.AddScoped<IDocenteService, DocenteService>();
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
 builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<ICargoRepository, CargoRepository>();
+builder.Services.AddScoped<IDedicacionService, DedicacionService>();
+builder.Services.AddScoped<IDedicacionRepository, DedicacionRepository>();
 
 // Fluent
 builder.Services.AddFluentValidationAutoValidation(config =>

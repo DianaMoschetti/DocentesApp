@@ -2,6 +2,7 @@ using DocentesApp.Domain.Entities;
 using DocentesApp.Shared.DTOs.Asignaturas;
 using DocentesApp.Shared.DTOs.Cargos;
 using DocentesApp.Shared.DTOs.Cursos;
+using DocentesApp.Shared.DTOs.Dedicaciones;
 using DocentesApp.Shared.DTOs.Designaciones;
 using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Shared.DTOs.Snapshots;
@@ -132,6 +133,19 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.Descripcion, src =>
                     $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
             #endregion
+
+            #region Dedicacion
+            config.NewConfig<CreateDedicacionDto, Dedicacion>();
+
+            config.NewConfig<Dedicacion, DedicacionDto>()
+                .Map(dest => dest.Descripcion, src =>
+                    $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
+
+            config.NewConfig<Dedicacion, ListDedicacionDto>()
+                .Map(dest => dest.Descripcion, src =>
+                    $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
+            #endregion
+
         }
 
         private static DateOnly? ParseDateOnly(string? value)

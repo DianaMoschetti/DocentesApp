@@ -1,0 +1,107 @@
+﻿@page "/dedicaciones/nuevo"
+@using DocentesApp.Shared.DTOs.Dedicaciones
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Blazor.UI.Helpers
+@using DocentesApp.Shared.Validators.Dedicaciones
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Nueva Dedicación</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Nueva Dedicación</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("dedicaciones")'>
+            Volver
+        </button>
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <EditForm Model="dedicacionDto" OnSubmit="HandleSubmit">
+        <div class="card mb-4">
+            <div class="card-header">Datos de la dedicación</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                        <InputSelect class="form-select" @bind-Value="dedicacionDto.DescTipo">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach (var (value, display) in tipos)
+                            {
+                                <option value="@value">@display</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Cantidad de horas <span class="text-danger">*</span></label>
+                        <InputNumber class="form-control" @bind-Value="dedicacionDto.CantidadHoras" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Cantidad de dedicación <span class="text-danger">*</span></label>
+                        <InputNumber class="form-control" @bind-Value="dedicacionDto.CantidadDedicacion" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary"
+                    @onclick='() => Navigation.NavigateTo("dedicaciones")'
+                    disabled="@isSaving">
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                @(isSaving ? "Guardando..." : "Guardar")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CreateDedicacionDto dedicacionDto = new();
+    private bool isSaving;
+    private string? errorMessage;
+
+    private readonly List<(TipoDedicacion Value, string Display)> tipos =
+        EnumHelper.GetOptions<TipoDedicacion>();
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        var validator = new CreateDedicacionDtoValidator();
+        var result = await validator.ValidateAsync(dedicacionDto);
+        if (!result.IsValid)
+        {
+            errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            await Client.DedicacionesPOSTAsync(dedicacionDto);
+            Navigation.NavigateTo("dedicaciones", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode switch
+            {
+                401 => "No tiene permisos para realizar esta acción.",
+                403 => "No tiene permisos para realizar esta acción.",
+                _ => "Error al guardar. Intentá de nuevo."
+            };
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}
