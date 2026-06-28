@@ -1,0 +1,164 @@
+@page "/udbs"
+@using DocentesApp.Shared.DTOs.Udbs
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>UDBs</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>UDBs</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("udbs/nuevo")'>
+            + Nueva UDB
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!udbs.Any())
+    {
+        <div class="alert alert-info">No hay UDBs cargadas todavía.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var udb in udbs)
+                {
+                    <tr>
+                        <td>@udb.Nombre</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                    @onclick='() => Navigation.NavigateTo($"udbs/{udb.Id}/editar")'>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => ConfirmarEliminar(udb)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (udbAEliminar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar eliminación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés eliminar la UDB <strong>@udbAEliminar.Nombre</strong>?</p>
+                    @if (deleteErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@deleteErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarEliminar"
+                            disabled="@isDeleting">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="EjecutarEliminar"
+                            disabled="@isDeleting">
+                        @(isDeleting ? "Eliminando..." : "Eliminar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private ListUdbDto? udbAEliminar;
+    private bool isDeleting;
+    private string? deleteErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarUdbs();
+    }
+
+    private async Task CargarUdbs()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            udbs = await Client.UdbsAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar las UDBs.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ConfirmarEliminar(ListUdbDto udb)
+    {
+        udbAEliminar = udb;
+        deleteErrorMessage = null;
+    }
+
+    private void CancelarEliminar()
+    {
+        udbAEliminar = null;
+        deleteErrorMessage = null;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (udbAEliminar == null) return;
+
+        try
+        {
+            isDeleting = true;
+            deleteErrorMessage = null;
+            await Client.UdbsDELETEAsync(udbAEliminar.Id);
+            udbAEliminar = null;
+            await CargarUdbs();
+        }
+        catch (ApiException ex)
+        {
+            deleteErrorMessage = ex.StatusCode switch
+            {
+                409 => "No se puede eliminar la UDB porque tiene asignaturas asociadas.",
+                404 => "La UDB no existe.",
+                _ => "Error al eliminar la UDB."
+            };
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

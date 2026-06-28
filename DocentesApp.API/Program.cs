@@ -89,6 +89,8 @@ builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<ICargoRepository, CargoRepository>();
 builder.Services.AddScoped<IDedicacionService, DedicacionService>();
 builder.Services.AddScoped<IDedicacionRepository, DedicacionRepository>();
+builder.Services.AddScoped<IUdbService, UdbService>();
+builder.Services.AddScoped<IUdbRepository, UdbRepository>();
 
 // Fluent
 builder.Services.AddFluentValidationAutoValidation(config =>
@@ -117,7 +119,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Ingresá el token JWT: Bearer {tu token}"
+        Description = "Ingresï¿½ el token JWT: Bearer {tu token}"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -178,4 +180,4 @@ await app.SeedIdentityDataAsync();
 
 app.Run();
 
-public partial class Program { } // para que el WebApplicationFactory<Program> del proyecto de pruebas pueda acceder a program.cs y ejecutar la aplicación en memoria
+public partial class Program { } // para que el WebApplicationFactory<Program> del proyecto de pruebas pueda acceder a program.cs y ejecutar la aplicaciï¿½n en memoria

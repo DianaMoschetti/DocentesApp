@@ -1,0 +1,216 @@
+@page "/udbs/nuevo"
+@page "/udbs/{Id:int}/editar"
+@using DocentesApp.Shared.DTOs.Udbs
+@using DocentesApp.Shared.DTOs.Docentes
+@using DocentesApp.Shared.Validators.Udbs
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>@(esEdicion ? "Editar UDB" : "Nueva UDB")</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(esEdicion ? "Editar UDB" : "Nueva UDB")</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("udbs")'>
+            Volver
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <EditForm Model="udbDto" OnSubmit="HandleSubmit">
+            <div class="card mb-4">
+                <div class="card-header">Datos de la UDB</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <InputText class="form-control" @bind-Value="udbDto.Nombre" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Director</label>
+                            <InputSelect class="form-select" @bind-Value="udbDto.DirectorDocenteId">
+                                <option value="">-- Sin director --</option>
+                                @foreach (var docente in docentes)
+                                {
+                                    <option value="@docente.Id">@docente.NombreCompleto</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Secretario</label>
+                            <InputSelect class="form-select" @bind-Value="udbDto.SecretarioDocenteId">
+                                <option value="">-- Sin secretario --</option>
+                                @foreach (var docente in docentes)
+                                {
+                                    <option value="@docente.Id">@docente.NombreCompleto</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("udbs")'
+                        disabled="@isSaving">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @(isSaving ? "Guardando..." : (esEdicion ? "Guardar cambios" : "Crear UDB"))
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private CreateUdbDto udbDto = new();
+    private bool esEdicion => Id.HasValue;
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+    private ICollection<ListDocenteDto> docentes = new List<ListDocenteDto>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDocentes();
+
+        if (esEdicion)
+        {
+            await CargarUdb();
+        }
+        else
+        {
+            udbDto = new CreateUdbDto();
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarDocentes()
+    {
+        try
+        {
+            docentes = await Client.DocentesAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar la lista de docentes.";
+        }
+    }
+
+    private async Task CargarUdb()
+    {
+        try
+        {
+            isLoading = true;
+            var udb = await Client.UdbsGETAsync(Id!.Value);
+
+            udbDto = new CreateUdbDto
+            {
+                Nombre = udb.Nombre ?? "",
+                DirectorDocenteId = udb.DirectorDocenteId,
+                SecretarioDocenteId = udb.SecretarioDocenteId
+            };
+        }
+        catch (ApiException)
+        {
+            errorMessage = "No se pudo cargar la UDB.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        if (esEdicion)
+        {
+            var updateDto = new UpdateUdbDto
+            {
+                Nombre = udbDto.Nombre,
+                DirectorDocenteId = udbDto.DirectorDocenteId,
+                SecretarioDocenteId = udbDto.SecretarioDocenteId
+            };
+
+            var validator = new UpdateUdbDtoValidator();
+            var result = await validator.ValidateAsync(updateDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.UdbsPUTAsync(Id!.Value, updateDto);
+                Navigation.NavigateTo("udbs", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe una UDB con ese nombre.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    404 => "La UDB no existe.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+        else
+        {
+            var validator = new CreateUdbDtoValidator();
+            var result = await validator.ValidateAsync(udbDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.UdbsPOSTAsync(udbDto);
+                Navigation.NavigateTo("udbs", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe una UDB con ese nombre.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+    }
+}
