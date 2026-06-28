@@ -1,0 +1,218 @@
+@page "/cursos/nuevo"
+@page "/cursos/{Id:int}/editar"
+@using DocentesApp.Shared.DTOs.Cursos
+@using DocentesApp.Shared.Validators.Cursos
+@using DocentesApp.Blazor.UI.Helpers
+@using DocentesApp.Domain.Enums
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>@(esEdicion ? "Editar curso" : "Nuevo curso")</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(esEdicion ? "Editar curso" : "Nuevo curso")</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("cursos")'>
+            Volver
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <EditForm Model="cursoDto" OnSubmit="HandleSubmit">
+            <div class="card mb-4">
+                <div class="card-header">Datos del curso</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Turno <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="cursoDto.Turno">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in turnos)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Año <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="cursoDto.Año">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in niveles)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Carrera <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="cursoDto.Carrera">
+                                <option value="0">-- Seleccionar --</option>
+                                @foreach (var (value, display) in especialidades)
+                                {
+                                    <option value="@((int)value)">@display</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nro. Comisión <span class="text-danger">*</span></label>
+                            <InputNumber class="form-control" @bind-Value="cursoDto.NroComision" min="1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("cursos")'
+                        disabled="@isSaving">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @(isSaving ? "Guardando..." : (esEdicion ? "Guardar cambios" : "Crear curso"))
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private CreateCursoDto cursoDto = new();
+    private bool esEdicion => Id.HasValue;
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+
+    private readonly List<(Turno Value, string Display)> turnos = EnumHelper.GetOptions<Turno>();
+    private readonly List<(Nivel Value, string Display)> niveles = EnumHelper.GetOptions<Nivel>();
+    private readonly List<(Especialidad Value, string Display)> especialidades = EnumHelper.GetOptions<Especialidad>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (esEdicion)
+        {
+            await CargarCurso();
+        }
+        else
+        {
+            cursoDto = new CreateCursoDto();
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarCurso()
+    {
+        try
+        {
+            isLoading = true;
+            var curso = await Client.CursosGETAsync(Id!.Value);
+
+            cursoDto = new CreateCursoDto
+            {
+                Turno = curso.Turno,
+                Año = curso.Año,
+                Carrera = curso.Carrera,
+                NroComision = curso.NroComision
+            };
+        }
+        catch (ApiException)
+        {
+            errorMessage = "No se pudo cargar el curso.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        if (esEdicion)
+        {
+            var updateDto = new UpdateCursoDto
+            {
+                Turno = cursoDto.Turno,
+                Año = cursoDto.Año,
+                Carrera = cursoDto.Carrera,
+                NroComision = cursoDto.NroComision
+            };
+
+            var validator = new UpdateCursoDtoValidator();
+            var result = await validator.ValidateAsync(updateDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.CursosPUTAsync(Id!.Value, updateDto);
+                Navigation.NavigateTo("cursos", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe un curso con esa combinación de turno, año, carrera y comisión.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    404 => "El curso no existe.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+        else
+        {
+            var validator = new CreateCursoDtoValidator();
+            var result = await validator.ValidateAsync(cursoDto);
+            if (!result.IsValid)
+            {
+                errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+                return;
+            }
+
+            try
+            {
+                isSaving = true;
+                await Client.CursosPOSTAsync(cursoDto);
+                Navigation.NavigateTo("cursos", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            catch (ApiException ex)
+            {
+                errorMessage = ex.StatusCode switch
+                {
+                    400 => "Ya existe un curso con esa combinación de turno, año, carrera y comisión.",
+                    401 => "No tiene permisos para realizar esta acción.",
+                    403 => "No tiene permisos para realizar esta acción.",
+                    _ => "Error al guardar. Intentá de nuevo."
+                };
+            }
+            finally
+            {
+                isSaving = false;
+            }
+        }
+    }
+}

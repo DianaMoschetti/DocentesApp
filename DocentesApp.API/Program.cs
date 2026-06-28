@@ -93,6 +93,8 @@ builder.Services.AddScoped<IUdbService, UdbService>();
 builder.Services.AddScoped<IUdbRepository, UdbRepository>();
 builder.Services.AddScoped<IAsignaturaService, AsignaturaService>();
 builder.Services.AddScoped<IAsignaturaRepository, AsignaturaRepository>();
+builder.Services.AddScoped<ICursoService, CursoService>();
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 
 // Fluent
 builder.Services.AddFluentValidationAutoValidation(config =>

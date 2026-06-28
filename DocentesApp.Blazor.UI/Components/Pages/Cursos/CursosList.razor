@@ -1,0 +1,164 @@
+@page "/cursos"
+@using DocentesApp.Shared.DTOs.Cursos
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Cursos</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Cursos</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("cursos/nuevo")'>
+            + Nuevo curso
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!cursos.Any())
+    {
+        <div class="alert alert-info">No hay cursos cargados todavía.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var curso in cursos)
+                {
+                    <tr>
+                        <td>@curso.Descripcion</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                    @onclick='() => Navigation.NavigateTo($"cursos/{curso.Id}/editar")'>
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => ConfirmarEliminar(curso)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (cursoAEliminar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar eliminación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés eliminar el curso <strong>@cursoAEliminar.Descripcion</strong>?</p>
+                    @if (deleteErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@deleteErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarEliminar"
+                            disabled="@isDeleting">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="EjecutarEliminar"
+                            disabled="@isDeleting">
+                        @(isDeleting ? "Eliminando..." : "Eliminar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ICollection<ListCursoDto> cursos = new List<ListCursoDto>();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private ListCursoDto? cursoAEliminar;
+    private bool isDeleting;
+    private string? deleteErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCursos();
+    }
+
+    private async Task CargarCursos()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            cursos = await Client.CursosAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar los cursos.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ConfirmarEliminar(ListCursoDto curso)
+    {
+        cursoAEliminar = curso;
+        deleteErrorMessage = null;
+    }
+
+    private void CancelarEliminar()
+    {
+        cursoAEliminar = null;
+        deleteErrorMessage = null;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (cursoAEliminar == null) return;
+
+        try
+        {
+            isDeleting = true;
+            deleteErrorMessage = null;
+            await Client.CursosDELETEAsync(cursoAEliminar.Id);
+            cursoAEliminar = null;
+            await CargarCursos();
+        }
+        catch (ApiException ex)
+        {
+            deleteErrorMessage = ex.StatusCode switch
+            {
+                409 => "No se puede eliminar el curso porque tiene asignaturas o designaciones asociadas.",
+                404 => "El curso no existe.",
+                _ => "Error al eliminar el curso."
+            };
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

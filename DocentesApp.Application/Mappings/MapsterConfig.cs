@@ -37,7 +37,8 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null);
 
             config.NewConfig<CreateCursoDto, Curso>();
-            config.NewConfig<UpdateCursoDto, Curso>();
+            config.NewConfig<UpdateCursoDto, Curso>()
+                .Ignore(dest => dest.Id);
 
             config.NewConfig<Curso, CursoDto>()
                 .Map(dest => dest.TurnoTexto, src => src.Turno.ToString())
