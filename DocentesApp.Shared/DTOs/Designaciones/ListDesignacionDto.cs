@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocentesApp.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,16 +12,18 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public int Id { get; set; }
         public int DocenteId { get; set; }
         public string NombreCompletoDocente { get; set; } = string.Empty;
-        public int CargoId { get; set; }
+        //public int CargoId { get; set; }
         public string DescripcionCargo { get; set; } = string.Empty;
         public int DedicacionId { get; set; }
         public string DescripcionDedicacion { get; set; } = string.Empty;
-        public int? AsignaturaId { get; set; }
-        public string? NombreAsignatura { get; set; }
-        public int? CursoId { get; set; }
-        public string? DescripcionCurso { get; set; }
+        //public int? AsignaturaId { get; set; }
+        //public string? NombreAsignatura { get; set; }
+        //public int? CursoId { get; set; }
+        //public string? DescripcionCurso { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
+        public Estado EstadoDesignacion { get; set; }
+        public bool EsVigente => FechaFin == null || FechaFin > DateTime.Now;
 
         //public string? NroResolucion { get; set; }
         //public string? NroNota { get; set; }

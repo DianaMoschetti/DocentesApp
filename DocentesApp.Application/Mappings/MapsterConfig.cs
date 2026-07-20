@@ -19,7 +19,7 @@ namespace DocentesApp.Application.Mappings
         {
             config.NewConfig<string?, DateOnly?>()
                 .MapWith(src => ParseDateOnly(src));
-
+            #region Asignatura
             config.NewConfig<CreateAsignaturaDto, Asignatura>();
             config.NewConfig<UpdateAsignaturaDto, Asignatura>()
                 .Ignore(dest => dest.Id);
@@ -35,7 +35,9 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.FrecuenciaTexto, src => src.Frecuencia.ToString())
                 .Map(dest => dest.NivelTexto, src => src.Nivel.ToString())
                 .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null);
+            #endregion
 
+            #region Curso
             config.NewConfig<CreateCursoDto, Curso>();
             config.NewConfig<UpdateCursoDto, Curso>()
                 .Ignore(dest => dest.Id);
@@ -47,27 +49,40 @@ namespace DocentesApp.Application.Mappings
 
             config.NewConfig<Curso, ListCursoDto>()
                 .Map(dest => dest.Descripcion, src => $"{src.Año} - {src.Carrera} - Comisión {src.NroComision} - {src.Turno}");
-            #region Designacion
-            // DetalleDesignacion → DetalleDesignacionDto
-            config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
-                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null ? src.Asignatura.NombreAsignatura.ToString() : null)
-                .Map(dest => dest.DescripcionCurso, src => src.Curso != null ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
+            #endregion
 
-            // CreateDetalleDesignacionDto -> DetalleDesignacion
+            #region Designacion
             config.NewConfig<CreateDetalleDesignacionDto, DetalleDesignacion>();
 
-            config.NewConfig<CreateDesignacionDto, Designacion>();
-            config.NewConfig<UpdateDesignacionDto, Designacion>();
+            config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
+                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null
+                    ? src.Asignatura.NombreAsignatura.ToString() : null)
+                .Map(dest => dest.DescripcionCurso, src => src.Curso != null
+                    ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
+
+            config.NewConfig<CreateDesignacionDto, Designacion>()
+                .Map(dest => dest.Detalles, src => src.Detalles);
+
+            config.NewConfig<UpdateDesignacionDto, Designacion>()
+                .Ignore(dest => dest.Id)
+                .Ignore(dest => dest.DocenteId)
+                .Map(dest => dest.Detalles, src => src.Detalles);
 
             config.NewConfig<Designacion, ListDesignacionDto>()
-                .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
-                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty);
+                .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
+                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
+                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
+                    ? src.Cargo.Denominacion.ToString() : string.Empty)
+                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
+                    ? src.Dedicacion.DescTipo.ToString() : string.Empty);
 
             config.NewConfig<Designacion, DesignacionDto>()
-                .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
-                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null ? src.Dedicacion.DescTipo.ToString() : string.Empty)
+                .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
+                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
+                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
+                    ? src.Cargo.Denominacion.ToString() : string.Empty)
+                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
+                    ? src.Dedicacion.DescTipo.ToString() : string.Empty)
                 .Map(dest => dest.Detalles, src => src.Detalles);
             #endregion
 
@@ -148,6 +163,7 @@ namespace DocentesApp.Application.Mappings
                     $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
             #endregion
 
+           
         }
 
         private static DateOnly? ParseDateOnly(string? value)

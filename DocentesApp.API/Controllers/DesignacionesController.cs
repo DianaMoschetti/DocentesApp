@@ -1,5 +1,6 @@
-﻿using DocentesApp.Data.Context;
+﻿using DocentesApp.Application.Interfaces.Services;
 using DocentesApp.Shared.DTOs.Designaciones;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -9,55 +10,95 @@ namespace DocentesApp.API.Controllers
     [ApiController]
     public class DesignacionesController : ControllerBase
     {
-        private readonly DocentesDbContext _context;
+        private readonly IDesignacionService _designacionService;
 
-        public DesignacionesController(DocentesDbContext context)
+        public DesignacionesController(IDesignacionService designacionService)
         {
-            _context = context;
+            _designacionService = designacionService;
         }
 
-        // diana revisar: Cuando devuelvas una designación como DTO, cargá las relaciones con Include, si no esos textos pueden venir vacíos.
-        /*
-         * var designacion = await _context.Designaciones
-    .Include(d => d.Docente)
-    .Include(d => d.Cargo)
-    .Include(d => d.Dedicacion)
-    .Include(d => d.Asignatura)
-    .Include(d => d.Curso)
-    .FirstOrDefaultAsync(d => d.Id == id);
+        #region GET
 
-        y recien despues:
-        var dto = designacion.Adapt<DesignacionDto>();
-         */
-        // GET: api/Designaciones
         [HttpGet]
-        public ActionResult<IEnumerable<DesignacionDto>> GetDesignaciones()
+        [ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetDesignaciones()
         {
-            return StatusCode(501); // Not Implemented por ahora
+            var result = await _designacionService.GetAllAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("vigentes")]
+        [ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetVigentes()
+        {
+            var result = await _designacionService.GetVigentesAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("docente/{docenteId}")]
+        [ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetByDocente(int docenteId)
+        {
+            var result = await _designacionService.GetByDocenteAsync(docenteId);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<DesignacionDto> GetDesignacion(int id)
+        [ProducesResponseType(typeof(DesignacionDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<DesignacionDto>> GetDesignacion(int id)
         {
-            return StatusCode(501);
+            var result = await _designacionService.GetByIdAsync(id);
+            return Ok(result);
         }
+
+        #endregion
+
+        #region Create
 
         [HttpPost]
-        public ActionResult<DesignacionDto> PostDesignacion(DesignacionDto body)
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(DesignacionDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<DesignacionDto>> PostDesignacion([FromBody] CreateDesignacionDto dto)
         {
-            return StatusCode(501);
+            var result = await _designacionService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetDesignacion), new { id = result.Id }, result);
         }
+
+        #endregion
+
+        #region Update
 
         [HttpPut("{id}")]
-        public IActionResult PutDesignacion(int id, DesignacionDto body)
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutDesignacion(int id, [FromBody] UpdateDesignacionDto dto)
         {
-            return StatusCode(501);
+            await _designacionService.UpdateAsync(id, dto);
+            return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteDesignacion(int id)
+        [HttpPatch("{id}/cerrar")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CerrarDesignacion(int id)
         {
-            return StatusCode(501);
+            await _designacionService.CerrarAsync(id);
+            return NoContent();
         }
+
+        #endregion
     }
 }

@@ -26,5 +26,6 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public Estado EstadoDesignacion { get; set; }
         public string? Observaciones { get; set; }
         public List<DetalleDesignacionDto> Detalles { get; set; } = new();
+        public bool EsVigente => FechaFin == null || FechaFin > DateTime.Now;
     }
 }
