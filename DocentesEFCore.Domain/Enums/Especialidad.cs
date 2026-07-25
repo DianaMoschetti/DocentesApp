@@ -19,8 +19,9 @@ namespace DocentesApp.Domain.Enums
         IQ = 4,
         [Description("Ingeniería en Sistemas de Información")]
         ISI = 5,
-        [Description("Tradicionales")]
-        Tradicionales = 6,        
+        [Description("Tradicionales")] //agregar siglas? DIANA VER
+        Tradicionales = 6,
+        [Description("Todas")]
         Todas = 7 // ver como se maneja para guardar en la db
     }
 }

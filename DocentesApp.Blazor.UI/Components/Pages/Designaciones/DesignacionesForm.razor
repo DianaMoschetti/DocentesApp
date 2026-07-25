@@ -1,0 +1,342 @@
+﻿@page "/designaciones/nuevo"
+@using DocentesApp.Shared.DTOs.Designaciones
+@using DocentesApp.Shared.DTOs.Docentes
+@using DocentesApp.Shared.DTOs.Cargos
+@using DocentesApp.Shared.DTOs.Dedicaciones
+@using DocentesApp.Shared.DTOs.Asignaturas
+@using DocentesApp.Shared.DTOs.Cursos
+@using DocentesApp.Shared.DTOs.Udbs
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Blazor.UI.Helpers
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Nueva Designación</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Nueva Designación</h2>
+        <button class="btn btn-outline-secondary"
+                @onclick='() => Navigation.NavigateTo("designaciones")'>
+            Volver
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando datos...</p>
+    }
+    else
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <EditForm Model="dto" OnSubmit="HandleSubmit">
+
+            @* Cabecera *@
+            <div class="card mb-4">
+                <div class="card-header">Datos de la designación</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Docente <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="dto.DocenteId">
+                                <option value="0">-- Seleccionar docente --</option>
+                                @foreach (var docente in docentes)
+                                {
+                                    <option value="@docente.Id">@docente.NombreCompleto</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="dto.CargoId">
+                                <option value="0">-- Seleccionar cargo --</option>
+                                @foreach (var cargo in cargos)
+                                {
+                                    <option value="@cargo.Id">@cargo.Descripcion</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Dedicación <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="dto.DedicacionId">
+                                <option value="0">-- Seleccionar dedicación --</option>
+                                @foreach (var dedicacion in dedicaciones)
+                                {
+                                    <option value="@dedicacion.Id">@dedicacion.Descripcion</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Fecha inicio <span class="text-danger">*</span></label>
+                            <InputDate class="form-control" @bind-Value="dto.FechaInicio" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Fecha fin</label>
+                            <InputDate class="form-control" @bind-Value="dto.FechaFin" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nro. Resolución</label>
+                            <InputText class="form-control" @bind-Value="dto.NroResolucion" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nro. Nota</label>
+                            <InputText class="form-control" @bind-Value="dto.NroNota" />
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <InputTextArea class="form-control" @bind-Value="dto.Observaciones" rows="2" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Detalles *@
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Detalles de actividad</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                            @onclick="AgregarDetalle">
+                        + Agregar actividad
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (!dto.Detalles.Any())
+                    {
+                        <p class="text-muted">No hay actividades cargadas. Agregá al menos una.</p>
+                    }
+                    else
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Especificación</th>
+                                    <th>UDB</th>
+                                    <th>Asignatura</th>
+                                    <th>Curso</th>
+                                    <th>Puntos</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var (detalle, index) in dto.Detalles.Select((d, i) => (d, i)))
+                                {
+                                    <tr>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.Especificacion">
+                                                @foreach (var (value, display) in especificaciones)
+                                                {
+                                                    <option value="@value">@display</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm"
+                                                    @onchange="e => FiltrarUdb(index, e)">
+                                                <option value="">-- Todas --</option>
+                                                @foreach (var udb in udbs)
+                                                {
+                                                    <option value="@udb.Id">@udb.Nombre</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.AsignaturaId">
+                                                <option value="">-- Sin asignatura --</option>
+                                                @foreach (var asignatura in AsignaturasPorUdb(filtrosUdb.ElementAtOrDefault(index)))
+                                                {
+                                                    <option value="@asignatura.Id">@asignatura.NombreAsignaturaTexto</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.CursoId">
+                                                <option value="">-- Sin curso --</option>
+                                                @foreach (var curso in cursos)
+                                                {
+                                                    <option value="@curso.Id">@curso.Descripcion</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputNumber class="form-control form-control-sm"
+                                                         @bind-Value="detalle.PuntosUtilizados" />
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    @onclick="() => QuitarDetalle(index)">
+                                                ✕
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("designaciones")'
+                        disabled="@isSaving">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @(isSaving ? "Guardando..." : "Guardar")
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private CreateDesignacionDto dto = new()
+    {
+        FechaInicio = DateTime.Today,
+        EstadoDesignacion = (int)Estado.Activa  // cast explícito pq sino rompe
+    };
+
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+
+    // Catálogos para los dropdowns
+    private ICollection<ListDocenteDto> docentes = new List<ListDocenteDto>();
+    private ICollection<ListCargoDto> cargos = new List<ListCargoDto>();
+    private ICollection<ListDedicacionDto> dedicaciones = new List<ListDedicacionDto>();
+    private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
+    private ICollection<ListCursoDto> cursos = new List<ListCursoDto>();
+    private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
+
+    // Filtros de UDB por fila de detalle
+    private List<int?> filtrosUdb = new();
+
+    private readonly List<(EspecificacionCargo Value, string Display)> especificaciones =
+        EnumHelper.GetOptions<EspecificacionCargo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCatalogos();
+    }
+
+    private async Task CargarCatalogos()
+    {
+        try
+        {
+            isLoading = true;
+
+            // Cargamos todos los catálogos en paralelo para ser más eficientes
+            var docentesTask = Client.DocentesAllAsync();
+            var cargosTask = Client.CargosAllAsync();
+            var dedicacionesTask = Client.DedicacionesAllAsync();
+            var asignaturasTask = Client.AsignaturasAllAsync();
+            var cursosTask = Client.CursosAllAsync();
+            var udbsTask = Client.UdbsAllAsync();
+
+            await Task.WhenAll(docentesTask, cargosTask, dedicacionesTask,
+                               asignaturasTask, cursosTask, udbsTask);
+
+            docentes = await docentesTask;
+            cargos = await cargosTask;
+            dedicaciones = await dedicacionesTask;
+            asignaturas = await asignaturasTask;
+            cursos = await cursosTask;
+            udbs = await udbsTask;
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar los datos. Intentá de nuevo.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void AgregarDetalle()
+    {
+        dto.Detalles.Add(new CreateDetalleDesignacionDto
+        {
+            Especificacion = EspecificacionCargo.Docencia
+        });
+        filtrosUdb.Add(null);
+    }
+
+    private void QuitarDetalle(int index)
+    {
+        dto.Detalles.RemoveAt(index);
+        filtrosUdb.RemoveAt(index);
+    }
+
+    private void FiltrarUdb(int index, ChangeEventArgs e)
+    {
+        var valor = e.Value?.ToString();
+        filtrosUdb[index] = string.IsNullOrEmpty(valor) ? null : int.Parse(valor);
+        // Limpiamos la asignatura seleccionada porque puede no estar en la nueva UDB
+        dto.Detalles[index].AsignaturaId = null;
+    }
+
+    private IEnumerable<ListAsignaturaDto> AsignaturasPorUdb(int? udbId)
+    {
+        if (udbId == null) return asignaturas;
+        return asignaturas.Where(a => a.UdbId == udbId);
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        // Validaciones client-side
+        if (dto.DocenteId == 0)
+        {
+            errorMessage = "El docente es obligatorio.";
+            return;
+        }
+        if (dto.CargoId == 0)
+        {
+            errorMessage = "El cargo es obligatorio.";
+            return;
+        }
+        if (dto.DedicacionId == 0)
+        {
+            errorMessage = "La dedicación es obligatoria.";
+            return;
+        }
+        if (!dto.Detalles.Any())
+        {
+            errorMessage = "Debés agregar al menos una actividad.";
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            await Client.DesignacionesPOSTAsync(dto);
+            Navigation.NavigateTo("designaciones", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode switch
+            {
+                400 => "Ya existe una designación activa para ese docente con ese cargo.",
+                401 => "No tiene permisos para realizar esta acción.",
+                403 => "No tiene permisos para realizar esta acción.",
+                _ => "Error al guardar. Intentá de nuevo."
+            };
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

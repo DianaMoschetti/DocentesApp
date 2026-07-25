@@ -12,6 +12,7 @@ namespace DocentesApp.Domain.Enums
         [Description("Ayudante de Segunda")]
         AyudanteDeSegunda = 4,
         Becario = 5,
-        Administrativo = 6 // ver si va aca o en tipo
+        Adscripto = 6,
+        Administrativo = 7 // ver si va aca o en tipo
     }
 }

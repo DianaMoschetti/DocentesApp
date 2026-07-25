@@ -19,6 +19,7 @@ namespace DocentesApp.Application.Mappings
         {
             config.NewConfig<string?, DateOnly?>()
                 .MapWith(src => ParseDateOnly(src));
+
             #region Asignatura
             config.NewConfig<CreateAsignaturaDto, Asignatura>();
             config.NewConfig<UpdateAsignaturaDto, Asignatura>()
@@ -31,6 +32,7 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null);
 
             config.NewConfig<Asignatura, ListAsignaturaDto>()
+                .Map(dest => dest.UdbId, src => src.UdbId)
                 .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())
                 .Map(dest => dest.FrecuenciaTexto, src => src.Frecuencia.ToString())
                 .Map(dest => dest.NivelTexto, src => src.Nivel.ToString())

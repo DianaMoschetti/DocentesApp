@@ -6,6 +6,7 @@
         Universitario = 2,
         Posgrado = 3,
         Docencia = 4,
-        Secundario = 5
+        Secundario = 5,
+        Otro
     }
 }

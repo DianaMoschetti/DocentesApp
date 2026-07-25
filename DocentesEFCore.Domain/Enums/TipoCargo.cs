@@ -6,8 +6,5 @@ namespace DocentesApp.Domain.Enums
         Adjunto = 1,
         Asociado = 2,
         Titular = 3
-        
-
-
     }
 }

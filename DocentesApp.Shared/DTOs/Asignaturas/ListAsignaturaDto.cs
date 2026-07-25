@@ -15,7 +15,7 @@ namespace DocentesApp.Shared.DTOs.Asignaturas
         public string FrecuenciaTexto { get; set; } = string.Empty;
         //ublic int Nivel { get; set; } // enum Primer año, segundo, tercero
         public string NivelTexto { get; set; } = string.Empty;
-        //public int? UdbId { get; set; }
+        public int? UdbId { get; set; }
         public string? NombreUdb { get; set; } 
     }
 }

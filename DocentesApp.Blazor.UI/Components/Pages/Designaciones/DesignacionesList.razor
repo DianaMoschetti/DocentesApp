@@ -1,0 +1,241 @@
+﻿@page "/designaciones"
+@using DocentesApp.Shared.DTOs.Designaciones
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Designaciones</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Designaciones</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("designaciones/nuevo")'>
+            + Nueva designación
+        </button>
+    </div>
+
+    @* Filtros *@
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar docente</label>
+                    <input type="text" class="form-control"
+                           placeholder="Nombre o apellido..."
+                           @bind="filtroDocente"
+                           @bind:event="oninput" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" @bind="filtroEstado">
+                        <option value="todas">Todas</option>
+                        <option value="vigentes">Solo vigentes</option>
+                        <option value="finalizadas">Solo finalizadas</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary w-100"
+                            @onclick="LimpiarFiltros">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!DesignacionesFiltradas.Any())
+    {
+        <div class="alert alert-info">No se encontraron designaciones con los filtros aplicados.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Docente</th>
+                    <th>Cargo</th>
+                    <th>Dedicación</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha fin</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in DesignacionesFiltradas)
+                {
+                    <tr>
+                        <td>@d.NombreCompletoDocente</td>
+                        <td>@d.DescripcionCargo</td>
+                        <td>@d.DescripcionDedicacion</td>
+                        <td>@d.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@(d.FechaFin?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td>
+                            @if (d.EsVigente)
+                            {
+                                <span class="badge bg-success">Vigente</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Finalizada</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick='() => Navigation.NavigateTo($"designaciones/{d.Id}")'>
+                                Ver
+                            </button>
+                            @if (d.EsVigente)
+                            {
+                                <button class="btn btn-sm btn-outline-warning"
+                                        @onclick="() => ConfirmarCerrar(d)">
+                                    Cerrar
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="text-muted">Mostrando @DesignacionesFiltradas.Count() de @todasLasDesignaciones.Count designaciones.</p>
+    }
+</div>
+
+@* Modal de confirmación de cierre *@
+@if (designacionACerrar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar cierre de designación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés cerrar la designación de <strong>@designacionACerrar.NombreCompletoDocente</strong>?</p>
+                    <p class="text-muted">Esta acción establecerá la fecha de fin como hoy. No se puede deshacer.</p>
+                    @if (cerrarErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@cerrarErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarCerrar"
+                            disabled="@isCerrando">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-warning"
+                            @onclick="EjecutarCerrar"
+                            disabled="@isCerrando">
+                        @(isCerrando ? "Cerrando..." : "Cerrar designación")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ListDesignacionDto> todasLasDesignaciones = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    // Filtros
+    private string filtroDocente = string.Empty;
+    private string filtroEstado = "todas";
+
+    // Estado del modal de cierre
+    private ListDesignacionDto? designacionACerrar;
+    private bool isCerrando;
+    private string? cerrarErrorMessage;
+
+    // Propiedad calculada que aplica los filtros en memoria
+    private IEnumerable<ListDesignacionDto> DesignacionesFiltradas =>
+        todasLasDesignaciones
+            .Where(d => string.IsNullOrWhiteSpace(filtroDocente) ||
+                        d.NombreCompletoDocente.Contains(filtroDocente, StringComparison.OrdinalIgnoreCase))
+            .Where(d => filtroEstado switch
+            {
+                "vigentes" => d.EsVigente,
+                "finalizadas" => !d.EsVigente,
+                _ => true
+            });
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDesignaciones();
+    }
+
+    private async Task CargarDesignaciones()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            todasLasDesignaciones = (await Client.DesignacionesAllAsync()).ToList();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar las designaciones.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void LimpiarFiltros()
+    {
+        filtroDocente = string.Empty;
+        filtroEstado = "todas";
+    }
+
+    private void ConfirmarCerrar(ListDesignacionDto designacion)
+    {
+        designacionACerrar = designacion;
+        cerrarErrorMessage = null;
+    }
+
+    private void CancelarCerrar()
+    {
+        designacionACerrar = null;
+        cerrarErrorMessage = null;
+    }
+
+    private async Task EjecutarCerrar()
+    {
+        if (designacionACerrar == null) return;
+
+        try
+        {
+            isCerrando = true;
+            cerrarErrorMessage = null;
+            await Client.CerrarAsync(designacionACerrar.Id);
+            designacionACerrar = null;
+            await CargarDesignaciones();
+        }
+        catch (ApiException ex)
+        {
+            cerrarErrorMessage = ex.StatusCode switch
+            {
+                400 => "La designación ya está cerrada.",
+                404 => "La designación no existe.",
+                _ => "Error al cerrar la designación."
+            };
+        }
+        finally
+        {
+            isCerrando = false;
+        }
+    }
+}
