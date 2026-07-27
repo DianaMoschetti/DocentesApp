@@ -2,6 +2,7 @@
 
 namespace DocentesApp.Domain.Entities
 {
+    [Obsolete("Entidad reemplazada en v4.0. Los atributos de dedicación pasan a DetalleDesignacion. No usar en código nuevo.")]
     public class Dedicacion 
     {
         public int Id { get; set; }

@@ -3,6 +3,7 @@ using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
+    [Obsolete("Entidad reemplazada en v4.0. Los atributos de cargo pasan a DetalleDesignacion.")]
     public class Cargo : BaseDomainModel
     {
         public int Id { get; set; }
