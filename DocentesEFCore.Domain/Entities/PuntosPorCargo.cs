@@ -7,7 +7,7 @@ namespace DocentesApp.Domain.Entities
         public int Id { get; set; }
         public DenominacionCargo Denominacion { get; set; }
         public TipoCargo TipoCargo { get; set; }
-        public Condicion Condicion { get; set; }
+        // Los puntos son iguales para Regular e Interino — Condicion no influye en el cálculo
         public decimal PuntosBase { get; set; }
     }
 }

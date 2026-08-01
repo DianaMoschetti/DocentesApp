@@ -13,10 +13,9 @@ namespace DocentesApp.Data.Configurations
 
             builder.Property(p => p.Denominacion).IsRequired();
             builder.Property(p => p.TipoCargo).IsRequired();
-            builder.Property(p => p.Condicion).IsRequired();
             builder.Property(p => p.PuntosBase).IsRequired().HasPrecision(10, 2);
 
-            builder.HasIndex(p => new { p.Denominacion, p.TipoCargo, p.Condicion })
+            builder.HasIndex(p => new { p.Denominacion, p.TipoCargo })
                 .IsUnique();
         }
     }

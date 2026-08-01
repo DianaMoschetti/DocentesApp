@@ -6,7 +6,7 @@ namespace DocentesApp.Application.Interfaces.Repositories
 {
     public interface IDesignacionRepository
     {
-        / // Trae todas las designaciones con sus prop de navegacion incluidas
+         // Trae todas las designaciones con sus prop de navegacion incluidas
         // (Docente, Detalles) para armar el listado
         Task<IEnumerable<Designacion>> GetAllAsync();
         // Trae designaciones filtradas por docente — para ver el historial de un docente
