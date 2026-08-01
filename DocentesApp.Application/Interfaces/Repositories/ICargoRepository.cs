@@ -3,6 +3,8 @@ using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Application.Interfaces.Repositories
 {
+    // [Diana desde v4.0 OBSOLETO]
+    [Obsolete("ICargoRepository obsoleto desde v4.0.")]
     public interface ICargoRepository
     {
         Task<IEnumerable<Cargo>> GetAllAsync();

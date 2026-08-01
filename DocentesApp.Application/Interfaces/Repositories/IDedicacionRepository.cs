@@ -2,6 +2,8 @@
 
 namespace DocentesApp.Application.Interfaces.Repositories
 {
+    // [Diana desde v4.0 OBSOLETO]
+    [Obsolete("IDedicacionRepository obsoleto desde v4.0.")]
     public interface IDedicacionRepository
     {
         Task<IEnumerable<Dedicacion>> GetAllAsync();

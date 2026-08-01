@@ -2,6 +2,8 @@
 
 namespace DocentesApp.Application.Interfaces.Services
 {
+    // [Diana desde v4.0 OBSOLETO]
+    [Obsolete("ICargoService obsoleto desde v4.0.")]
     public interface ICargoService
     {
         Task<IEnumerable<ListCargoDto>> GetAllAsync();
