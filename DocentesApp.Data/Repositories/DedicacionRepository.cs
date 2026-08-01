@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DocentesApp.Data.Repositories
 {
     // [OBSOLETO v4.0] Dedicacion reemplazada por atributos en DetalleDesignacion
+    [Obsolete("DedicacionRepository obsoleto desde v4.0.")]
     public class DedicacionRepository : IDedicacionRepository
     {
         private readonly DocentesDbContext _context;

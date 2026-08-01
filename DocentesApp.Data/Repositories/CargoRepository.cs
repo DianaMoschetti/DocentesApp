@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DocentesApp.Data.Repositories
 {
     // [Diana desde v4.0 OBSOLETO] Cargo reemplazado por atributos en DetalleDesignacion
+    [Obsolete("CargoRepository obsoleto desde v4.0.")]
     public class CargoRepository : ICargoRepository
     {
         private readonly DocentesDbContext _context;
