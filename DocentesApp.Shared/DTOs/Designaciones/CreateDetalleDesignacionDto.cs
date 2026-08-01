@@ -1,14 +1,20 @@
-﻿
-using DocentesApp.Domain.Enums;
-
+﻿using DocentesApp.Domain.Enums;
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
     public class CreateDetalleDesignacionDto
     {
-        // sin id pq se genera cuando se intesrta en la db
+        // sin id pq se genera cuando se inserta en la db
+        public DenominacionCargo Denominacion { get; set; }
+        public TipoCargo TipoCargo { get; set; }
+        public Condicion Condicion { get; set; }
+        public TipoDedicacion TipoDedicacion { get; set; }
+        public float CantidadDedicacion { get; set; }
         public EspecificacionCargo Especificacion { get; set; }
         public int? AsignaturaId { get; set; }
         public int? CursoId { get; set; }
-        public decimal? PuntosUtilizados { get; set; }
+        // [Diana desde v4.0 OBSOLETO] PuntosUtilizados renombrado a PuntosAsignados
+        // public decimal? PuntosUtilizados { get; set; }
+        public decimal? PuntosAsignados { get; set; } // calculado desde PuntosPorCargo
+        public string? Observaciones { get; set; }
     }
 }
