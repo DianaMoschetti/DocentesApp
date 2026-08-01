@@ -7,6 +7,8 @@ namespace DocentesApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // [Diana desde v4.0 OBSOLETO] CargosController reemplazado por PuntosPorCargoController
+    [Obsolete("CargosController obsoleto desde v4.0.")]
     public class CargosController : ControllerBase
     {
         private readonly ICargoService _cargoService;
