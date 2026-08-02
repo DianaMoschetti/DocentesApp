@@ -1,10 +1,9 @@
 ﻿@page "/designaciones/nuevo"
 @using DocentesApp.Shared.DTOs.Designaciones
 @using DocentesApp.Shared.DTOs.Docentes
-@using DocentesApp.Shared.DTOs.Cargos
-@using DocentesApp.Shared.DTOs.Dedicaciones
 @using DocentesApp.Shared.DTOs.Asignaturas
 @using DocentesApp.Shared.DTOs.Cursos
+@using DocentesApp.Shared.DTOs.PuntosPorCargo
 @using DocentesApp.Shared.DTOs.Udbs
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
@@ -52,26 +51,6 @@
                                 }
                             </InputSelect>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Cargo <span class="text-danger">*</span></label>
-                            <InputSelect class="form-select" @bind-Value="dto.CargoId">
-                                <option value="0">-- Seleccionar cargo --</option>
-                                @foreach (var cargo in cargos)
-                                {
-                                    <option value="@cargo.Id">@cargo.Descripcion</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Dedicación <span class="text-danger">*</span></label>
-                            <InputSelect class="form-select" @bind-Value="dto.DedicacionId">
-                                <option value="0">-- Seleccionar dedicación --</option>
-                                @foreach (var dedicacion in dedicaciones)
-                                {
-                                    <option value="@dedicacion.Id">@dedicacion.Descripcion</option>
-                                }
-                            </InputSelect>
-                        </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Fecha inicio <span class="text-danger">*</span></label>
                             <InputDate class="form-control" @bind-Value="dto.FechaInicio" />
@@ -115,6 +94,11 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Denominación</th>
+                                    <th>Tipo</th>
+                                    <th>Condición</th>
+                                    <th>Dedicación</th>
+                                    <th>Cant.</th>
                                     <th>Especificación</th>
                                     <th>UDB</th>
                                     <th>Asignatura</th>
@@ -127,6 +111,48 @@
                                 @foreach (var (detalle, index) in dto.Detalles.Select((d, i) => (d, i)))
                                 {
                                     <tr>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.Denominacion"
+                                                         @bind-Value:after="() => ActualizarPuntos(index)">
+                                                @foreach (var (value, display) in denominaciones)
+                                                {
+                                                    <option value="@value">@display</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.TipoCargo"
+                                                         @bind-Value:after="() => ActualizarPuntos(index)">
+                                                @foreach (var (value, display) in tiposCargo)
+                                                {
+                                                    <option value="@value">@display</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.Condicion">
+                                                @foreach (var (value, display) in condiciones)
+                                                {
+                                                    <option value="@value">@display</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputSelect class="form-select form-select-sm"
+                                                         @bind-Value="detalle.TipoDedicacion">
+                                                @foreach (var (value, display) in tiposDedicacion)
+                                                {
+                                                    <option value="@value">@display</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td>
+                                            <InputNumber class="form-control form-control-sm"
+                                                         @bind-Value="detalle.CantidadDedicacion" />
+                                        </td>
                                         <td>
                                             <InputSelect class="form-select form-select-sm"
                                                          @bind-Value="detalle.Especificacion">
@@ -152,7 +178,7 @@
                                                 <option value="">-- Sin asignatura --</option>
                                                 @foreach (var asignatura in AsignaturasPorUdb(filtrosUdb.ElementAtOrDefault(index)))
                                                 {
-                                                    <option value="@asignatura.Id">@asignatura.NombreAsignaturaTexto</option>
+                                                    <option value="@asignatura.Id">@asignatura.Nombre</option>
                                                 }
                                             </InputSelect>
                                         </td>
@@ -168,7 +194,7 @@
                                         </td>
                                         <td>
                                             <InputNumber class="form-control form-control-sm"
-                                                         @bind-Value="detalle.PuntosUtilizados" />
+                                                         @bind-Value="detalle.PuntosAsignados" />
                                         </td>
                                         <td>
                                             <button type="button"
@@ -203,7 +229,7 @@
     private CreateDesignacionDto dto = new()
     {
         FechaInicio = DateTime.Today,
-        EstadoDesignacion = (int)Estado.Activa  // cast explícito pq sino rompe
+        EstadoDesignacion = Estado.Activa
     };
 
     private bool isLoading = true;
@@ -212,15 +238,24 @@
 
     // Catálogos para los dropdowns
     private ICollection<ListDocenteDto> docentes = new List<ListDocenteDto>();
-    private ICollection<ListCargoDto> cargos = new List<ListCargoDto>();
-    private ICollection<ListDedicacionDto> dedicaciones = new List<ListDedicacionDto>();
     private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
     private ICollection<ListCursoDto> cursos = new List<ListCursoDto>();
     private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
 
+    // Puntos por cargo — para autocompletar
+    private ICollection<PuntosPorCargoDto> puntosPorCargo = new List<PuntosPorCargoDto>();
+
     // Filtros de UDB por fila de detalle
     private List<int?> filtrosUdb = new();
 
+    private readonly List<(DenominacionCargo Value, string Display)> denominaciones =
+        EnumHelper.GetOptions<DenominacionCargo>();
+    private readonly List<(TipoCargo Value, string Display)> tiposCargo =
+        EnumHelper.GetOptions<TipoCargo>();
+    private readonly List<(Condicion Value, string Display)> condiciones =
+        EnumHelper.GetOptions<Condicion>();
+    private readonly List<(TipoDedicacion Value, string Display)> tiposDedicacion =
+        EnumHelper.GetOptions<TipoDedicacion>();
     private readonly List<(EspecificacionCargo Value, string Display)> especificaciones =
         EnumHelper.GetOptions<EspecificacionCargo>();
 
@@ -237,21 +272,18 @@
 
             // Cargamos todos los catálogos en paralelo para ser más eficientes
             var docentesTask = Client.DocentesAllAsync();
-            var cargosTask = Client.CargosAllAsync();
-            var dedicacionesTask = Client.DedicacionesAllAsync();
             var asignaturasTask = Client.AsignaturasAllAsync();
             var cursosTask = Client.CursosAllAsync();
             var udbsTask = Client.UdbsAllAsync();
+            var puntosTask = Client.PuntosPorCargoAllAsync();
 
-            await Task.WhenAll(docentesTask, cargosTask, dedicacionesTask,
-                               asignaturasTask, cursosTask, udbsTask);
+            await Task.WhenAll(docentesTask, asignaturasTask, cursosTask, udbsTask, puntosTask);
 
             docentes = await docentesTask;
-            cargos = await cargosTask;
-            dedicaciones = await dedicacionesTask;
             asignaturas = await asignaturasTask;
             cursos = await cursosTask;
             udbs = await udbsTask;
+            puntosPorCargo = await puntosTask;
         }
         catch (ApiException)
         {
@@ -267,7 +299,12 @@
     {
         dto.Detalles.Add(new CreateDetalleDesignacionDto
         {
-            Especificacion = EspecificacionCargo.Docencia
+            Especificacion = EspecificacionCargo.Docencia,
+            Denominacion = DenominacionCargo.Profesor,
+            TipoCargo = TipoCargo.Adjunto,
+            Condicion = Condicion.Interino,
+            TipoDedicacion = TipoDedicacion.Simple,
+            CantidadDedicacion = 1
         });
         filtrosUdb.Add(null);
     }
@@ -286,10 +323,19 @@
         dto.Detalles[index].AsignaturaId = null;
     }
 
+    private void ActualizarPuntos(int index)
+    {
+        var detalle = dto.Detalles[index];
+        var puntos = puntosPorCargo
+            .FirstOrDefault(p => p.Denominacion == detalle.Denominacion
+                              && p.TipoCargo == detalle.TipoCargo);
+        detalle.PuntosAsignados = puntos?.PuntosBase;
+    }
+
     private IEnumerable<ListAsignaturaDto> AsignaturasPorUdb(int? udbId)
     {
-        if (udbId == null) return asignaturas;
-        return asignaturas.Where(a => a.UdbId == udbId);
+        if (udbId == null) return asignaturas.Where(a => a.EsVigente);
+        return asignaturas.Where(a => a.UdbId == udbId && a.EsVigente);
     }
 
     private async Task HandleSubmit()
@@ -300,16 +346,6 @@
         if (dto.DocenteId == 0)
         {
             errorMessage = "El docente es obligatorio.";
-            return;
-        }
-        if (dto.CargoId == 0)
-        {
-            errorMessage = "El cargo es obligatorio.";
-            return;
-        }
-        if (dto.DedicacionId == 0)
-        {
-            errorMessage = "La dedicación es obligatoria.";
             return;
         }
         if (!dto.Detalles.Any())
@@ -328,7 +364,7 @@
         {
             errorMessage = ex.StatusCode switch
             {
-                400 => "Ya existe una designación activa para ese docente con ese cargo.",
+                400 => "Error al crear la designación. Verificá los datos ingresados.",
                 401 => "No tiene permisos para realizar esta acción.",
                 403 => "No tiene permisos para realizar esta acción.",
                 _ => "Error al guardar. Intentá de nuevo."

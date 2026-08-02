@@ -38,14 +38,9 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Materia <span class="text-danger">*</span></label>
-                            <InputSelect class="form-select" @bind-Value="asignaturaDto.NombreAsignatura">
-                                <option value="0">-- Seleccionar --</option>
-                                @foreach (var (value, display) in materias)
-                                {
-                                    <option value="@((int)value)">@display</option>
-                                }
-                            </InputSelect>
+                            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <InputText class="form-control" @bind-Value="asignaturaDto.Nombre"
+                                       placeholder="Ej: Álgebra y Geometría Analítica" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Frecuencia <span class="text-danger">*</span></label>
@@ -53,7 +48,7 @@
                                 <option value="0">-- Seleccionar --</option>
                                 @foreach (var (value, display) in frecuencias)
                                 {
-                                    <option value="@((int)value)">@display</option>
+                                    <option value="@value">@display</option>
                                 }
                             </InputSelect>
                         </div>
@@ -63,19 +58,29 @@
                                 <option value="0">-- Seleccionar --</option>
                                 @foreach (var (value, display) in niveles)
                                 {
-                                    <option value="@((int)value)">@display</option>
+                                    <option value="@value">@display</option>
                                 }
                             </InputSelect>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">UDB</label>
+                            <label class="form-label">UDB <span class="text-danger">*</span></label>
                             <InputSelect class="form-select" @bind-Value="asignaturaDto.UdbId">
-                                <option value="">-- Sin UDB --</option>
+                                <option value="">-- Seleccionar UDB --</option>
                                 @foreach (var udb in udbs)
                                 {
                                     <option value="@udb.Id">@udb.Nombre</option>
                                 }
                             </InputSelect>
+                        </div>
+                        <div class="col-md-3 mb-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <InputCheckbox class="form-check-input"
+                                               @bind-Value="asignaturaDto.EsVigente"
+                                               id="esVigente" />
+                                <label class="form-check-label" for="esVigente">
+                                    Vigente
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -105,7 +110,8 @@
     private string? errorMessage;
     private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
 
-    private readonly List<(Materia Value, string Display)> materias = EnumHelper.GetOptions<Materia>();
+    // [Diana desde v4.0 OBSOLETO] materias (enum Materia) reemplazado por Nombre (string)
+    // private readonly List<(Materia Value, string Display)> materias = EnumHelper.GetOptions<Materia>();
     private readonly List<(Frecuencia Value, string Display)> frecuencias = EnumHelper.GetOptions<Frecuencia>();
     private readonly List<(Nivel Value, string Display)> niveles = EnumHelper.GetOptions<Nivel>();
 
@@ -145,7 +151,10 @@
 
             asignaturaDto = new CreateAsignaturaDto
             {
-                NombreAsignatura = asignatura.NombreAsignatura,
+                // [Diana desde v4.0 OBSOLETO] NombreAsignatura reemplazado por Nombre
+                // NombreAsignatura = asignatura.NombreAsignatura,
+                Nombre = asignatura.Nombre,
+                EsVigente = asignatura.EsVigente,
                 Frecuencia = asignatura.Frecuencia,
                 Nivel = asignatura.Nivel,
                 UdbId = asignatura.UdbId
@@ -169,7 +178,10 @@
         {
             var updateDto = new UpdateAsignaturaDto
             {
-                NombreAsignatura = asignaturaDto.NombreAsignatura,
+                // [Diana desde v4.0 OBSOLETO] NombreAsignatura reemplazado por Nombre
+                // NombreAsignatura = asignaturaDto.NombreAsignatura,
+                Nombre = asignaturaDto.Nombre,
+                EsVigente = asignaturaDto.EsVigente,
                 Frecuencia = asignaturaDto.Frecuencia,
                 Nivel = asignaturaDto.Nivel,
                 UdbId = asignaturaDto.UdbId
@@ -193,7 +205,7 @@
             {
                 errorMessage = ex.StatusCode switch
                 {
-                    400 => "Ya existe una asignatura con esa combinación de materia, nivel y UDB.",
+                    400 => "Ya existe una asignatura con ese nombre, nivel y UDB.",
                     401 => "No tiene permisos para realizar esta acción.",
                     403 => "No tiene permisos para realizar esta acción.",
                     404 => "La asignatura no existe.",
@@ -225,7 +237,7 @@
             {
                 errorMessage = ex.StatusCode switch
                 {
-                    400 => "Ya existe una asignatura con esa combinación de materia, nivel y UDB.",
+                    400 => "Ya existe una asignatura con ese nombre, nivel y UDB.",
                     401 => "No tiene permisos para realizar esta acción.",
                     403 => "No tiene permisos para realizar esta acción.",
                     _ => "Error al guardar. Intentá de nuevo."

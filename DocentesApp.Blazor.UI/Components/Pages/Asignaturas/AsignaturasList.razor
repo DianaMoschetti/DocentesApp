@@ -33,7 +33,8 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Materia</th>
+                    <th>Nombre</th>
+                    <th>Vigente</th>
                     <th>Frecuencia</th>
                     <th>Nivel</th>
                     <th>UDB</th>
@@ -44,7 +45,17 @@
                 @foreach (var asignatura in asignaturas)
                 {
                     <tr>
-                        <td>@asignatura.NombreAsignaturaTexto</td>
+                        <td>@asignatura.Nombre</td>
+                        <td>
+                            @if (asignatura.EsVigente)
+                            {
+                                <span class="badge bg-success">Vigente</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">No vigente</span>
+                            }
+                        </td>
                         <td>@asignatura.FrecuenciaTexto</td>
                         <td>@asignatura.NivelTexto</td>
                         <td>@(asignatura.NombreUdb ?? "—")</td>
@@ -74,7 +85,7 @@
                     <h5 class="modal-title">Confirmar eliminación</h5>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás segura que querés eliminar la asignatura <strong>@asignaturaAEliminar.NombreAsignaturaTexto</strong>?</p>
+                    <p>¿Estás segura que querés eliminar la asignatura <strong>@asignaturaAEliminar.Nombre</strong>?</p>
                     @if (deleteErrorMessage != null)
                     {
                         <div class="alert alert-danger">@deleteErrorMessage</div>

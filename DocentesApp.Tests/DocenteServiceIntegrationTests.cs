@@ -1,13 +1,14 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
-using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
 using DocentesApp.Data.Context;
 using DocentesApp.Data.Repositories;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Tests.Helpers;
 using FluentAssertions;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 public class DocenteServiceIntegrationTests
 {
@@ -468,9 +469,8 @@ public class DocenteServiceIntegrationTests
         // Assert
         _context.Docentes.Should().BeEmpty();
     }
-
-    [Fact]
-    public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictException()
+        
+public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictException()
     {
         // Arrange
         var docente = new Docente
@@ -483,14 +483,28 @@ public class DocenteServiceIntegrationTests
         };
 
         _context.Docentes.Add(docente);
-        await _context.SaveChangesAsync();
 
         _context.Designaciones.Add(new Designacion
         {
             DocenteId = docente.Id,
-            CargoId = 1,
-            DedicacionId = 1,
-            FechaInicio = DateTime.UtcNow
+            // [Diana desde v4.0 OBSOLETO] CargoId y DedicacionId eliminados
+            // CargoId = 1,
+            // DedicacionId = 1,
+            FechaInicio = DateTime.UtcNow,
+            EstadoDesignacion = Estado.Activa,
+            Detalles = new List<DetalleDesignacion>
+    {
+        new DetalleDesignacion
+        {
+            Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
+            TipoCargo = TipoCargo.Adjunto,
+            Condicion = Condicion.Interino,
+            TipoDedicacion = TipoDedicacion.Simple,
+            CantidadDedicacion = 1,
+            Especificacion = EspecificacionCargo.Docencia,
+            PuntosAsignados = 119
+        }
+    }
         });
 
         await _context.SaveChangesAsync();
