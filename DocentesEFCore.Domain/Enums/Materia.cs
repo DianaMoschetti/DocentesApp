@@ -4,6 +4,9 @@ using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
+    // [Diana desde v4.0 OBSOLETO] El enum Materia fue reemplazado por el campo Nombre (string)
+    // en la entidad Asignatura. Mantener hasta completar el refactor completo.
+    [Obsolete("Enum Materia obsoleto desde v4.0. Usar Asignatura.Nombre (string) en su lugar.")]
     public enum Materia
     {
         [Description("Inglés I")]

@@ -1,4 +1,4 @@
-﻿using DocentesApp.Domain.Enums;
+using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
@@ -12,6 +12,12 @@ namespace DocentesApp.Domain.Entities
         public Asignatura? Asignatura { get; set; }
         public int? CursoId { get; set; }
         public Curso? Curso { get; set; }
-        public decimal? PuntosUtilizados { get; set; }
+        public DenominacionCargo Denominacion { get; set; }
+        public TipoCargo TipoCargo { get; set; }
+        public Condicion Condicion { get; set; }
+        public TipoDedicacion TipoDedicacion { get; set; }
+        public float CantidadDedicacion { get; set; }
+        public decimal PuntosAsignados { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

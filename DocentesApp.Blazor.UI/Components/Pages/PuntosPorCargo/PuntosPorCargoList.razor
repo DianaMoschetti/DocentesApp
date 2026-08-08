@@ -1,0 +1,165 @@
+@page "/puntosporcargo"
+@using DocentesApp.Shared.DTOs.PuntosPorCargo
+@using DocentesApp.Domain.Enums
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Puntos por cargo</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Puntos por cargo</h2>
+        <button class="btn btn-primary"
+                @onclick='() => Navigation.NavigateTo("puntosporcargo/nuevo")'>
+            + Nuevo
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (!puntosPorCargo.Any())
+    {
+        <div class="alert alert-info">No hay puntos por cargo cargados todavía.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Puntos base</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var punto in puntosPorCargo)
+                {
+                    <tr>
+                        <td>@punto.Descripcion</td>
+                        <td>@punto.PuntosBase</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => ConfirmarEliminar(punto)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@* Modal de confirmación de eliminación *@
+@if (puntoAEliminar != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar eliminación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés eliminar los puntos por cargo <strong>@puntoAEliminar.Descripcion</strong>?</p>
+                    @if (deleteErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@deleteErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            @onclick="CancelarEliminar"
+                            disabled="@isDeleting">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="EjecutarEliminar"
+                            disabled="@isDeleting">
+                        @(isDeleting ? "Eliminando..." : "Eliminar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ICollection<PuntosPorCargoDto> puntosPorCargo = new List<PuntosPorCargoDto>();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    // Estado del modal de eliminación
+    private PuntosPorCargoDto? puntoAEliminar;
+    private bool isDeleting;
+    private string? deleteErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPuntosPorCargo();
+    }
+
+    private async Task CargarPuntosPorCargo()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            puntosPorCargo = await Client.PuntosPorCargoAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar los puntos por cargo.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ConfirmarEliminar(PuntosPorCargoDto punto)
+    {
+        puntoAEliminar = punto;
+        deleteErrorMessage = null;
+    }
+
+    private void CancelarEliminar()
+    {
+        puntoAEliminar = null;
+        deleteErrorMessage = null;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (puntoAEliminar == null) return;
+
+        try
+        {
+            isDeleting = true;
+            deleteErrorMessage = null;
+            await Client.PuntosPorCargoDELETEAsync(puntoAEliminar.Id);
+            puntoAEliminar = null;
+            await CargarPuntosPorCargo();
+        }
+        catch (ApiException ex)
+        {
+            deleteErrorMessage = ex.StatusCode switch
+            {
+                409 => "No se pueden eliminar los puntos por cargo porque tienen designaciones asociadas.",
+                404 => "Los puntos por cargo no existen.",
+                _ => "Error al eliminar los puntos por cargo."
+            };
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

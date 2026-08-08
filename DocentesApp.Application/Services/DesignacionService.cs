@@ -12,18 +12,21 @@ namespace DocentesApp.Application.Services
     {
         private readonly IDesignacionRepository _designacionRepository;
         private readonly IDocenteRepository _docenteRepository;
-        private readonly ICargoRepository _cargoRepository;
+        // [Diana desde v4.0 OBSOLETO] ICargoRepository eliminado — cargo pasa a DetalleDesignacion
+        // private readonly ICargoRepository _cargoRepository;
         private readonly IMapper _mapper;
 
         public DesignacionService(
             IDesignacionRepository designacionRepository,
             IDocenteRepository docenteRepository,
-            ICargoRepository cargoRepository,
+            // [Diana desde v4.0 OBSOLETO] ICargoRepository eliminado
+            // ICargoRepository cargoRepository,
             IMapper mapper)
         {
             _designacionRepository = designacionRepository;
             _docenteRepository = docenteRepository;
-            _cargoRepository = cargoRepository;
+            // [Diana desde v4.0 OBSOLETO]
+            // _cargoRepository = cargoRepository;
             _mapper = mapper;
         }
 
@@ -65,17 +68,18 @@ namespace DocentesApp.Application.Services
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {dto.DocenteId}.");
 
-            // Validar que el cargo existe
-            var cargo = await _cargoRepository.GetByIdAsync(dto.CargoId);
-            if (cargo == null)
-                throw new NotFoundException($"No se encontró el cargo con ID {dto.CargoId}.");
+            // [Diana desde v4.0 OBSOLETO] validación de cargo eliminada — cargo pasa a DetalleDesignacion
+            // var cargo = await _cargoRepository.GetByIdAsync(dto.CargoId);
+            // if (cargo == null)
+            //     throw new NotFoundException($"No se encontró el cargo con ID {dto.CargoId}.");
 
-            // DIANA VER Validar regla 33: no pueden existir dos designaciones activas con la misma combinación docente-cargo
-            var existeActiva = await _designacionRepository
-                .ExisteDesignacionActivaAsync(dto.DocenteId, dto.CargoId);
-            if (existeActiva)
-                throw new BadRequestException(
-                    "Ya existe una designación activa para ese docente con ese cargo.");
+            // [Diana desde v4.0 OBSOLETO] Regla 33 eliminada — Regla 41: un docente puede tener
+            // múltiples designaciones activas con la misma categoría de cargo
+            // var existeActiva = await _designacionRepository
+            //     .ExisteDesignacionActivaAsync(dto.DocenteId, dto.CargoId);
+            // if (existeActiva)
+            //     throw new BadRequestException(
+            //         "Ya existe una designación activa para ese docente con ese cargo.");
 
             // DIANA VER Validar que tenga al menos un detalle (regla 25)
             if (dto.Detalles == null || !dto.Detalles.Any())
@@ -99,16 +103,15 @@ namespace DocentesApp.Application.Services
             if (designacion == null)
                 throw new NotFoundException($"No se encontró la designación con ID {id}.");
 
-            // Si cambia el cargo, validar que no haya otra designación activa
-            // con la nueva combinación docente-cargo
-            if (dto.CargoId != designacion.CargoId)
-            {
-                var existeActiva = await _designacionRepository
-                    .ExisteDesignacionActivaAsync(designacion.DocenteId, dto.CargoId, excludeId: id);
-                if (existeActiva)
-                    throw new BadRequestException(
-                        "Ya existe una designación activa para ese docente con ese cargo.");
-            }
+            // [Diana desde v4.0 OBSOLETO] validación de CargoId eliminada — cargo pasa a DetalleDesignacion
+            // if (dto.CargoId != designacion.CargoId)
+            // {
+            //     var existeActiva = await _designacionRepository
+            //         .ExisteDesignacionActivaAsync(designacion.DocenteId, dto.CargoId, excludeId: id);
+            //     if (existeActiva)
+            //         throw new BadRequestException(
+            //             "Ya existe una designación activa para ese docente con ese cargo.");
+            // }
 
             if (dto.Detalles == null || !dto.Detalles.Any())
                 throw new BadRequestException(

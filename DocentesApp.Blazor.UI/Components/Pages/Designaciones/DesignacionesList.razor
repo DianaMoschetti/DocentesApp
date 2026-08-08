@@ -63,8 +63,11 @@
             <thead>
                 <tr>
                     <th>Docente</th>
+                    @* [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion ya no existen en ListDesignacionDto
                     <th>Cargo</th>
                     <th>Dedicación</th>
+                    *@
+                    <th>Nro. Resolución</th>
                     <th>Fecha inicio</th>
                     <th>Fecha fin</th>
                     <th>Estado</th>
@@ -76,8 +79,11 @@
                 {
                     <tr>
                         <td>@d.NombreCompletoDocente</td>
+                        @* [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion ya no existen en ListDesignacionDto
                         <td>@d.DescripcionCargo</td>
                         <td>@d.DescripcionDedicacion</td>
+                        *@
+                        <td>@d.NroResolucion</td>
                         <td>@d.FechaInicio.ToString("dd/MM/yyyy")</td>
                         <td>@(d.FechaFin?.ToString("dd/MM/yyyy") ?? "-")</td>
                         <td>

@@ -12,7 +12,13 @@ namespace DocentesApp.Data.Configurations
             builder.HasKey(d => d.Id);
 
             builder.Property(d => d.Especificacion).IsRequired();
-            builder.Property(d => d.PuntosUtilizados).HasPrecision(10, 2);
+            builder.Property(d => d.Denominacion).IsRequired();
+            builder.Property(d => d.TipoCargo).IsRequired();
+            builder.Property(d => d.Condicion).IsRequired();
+            builder.Property(d => d.TipoDedicacion).IsRequired();
+            builder.Property(d => d.CantidadDedicacion).IsRequired();
+            builder.Property(d => d.PuntosAsignados).HasPrecision(10, 2);
+            builder.Property(d => d.Observaciones).HasMaxLength(500);
 
             // Relación con Designacion (cabecera)
             builder.HasOne(d => d.Designacion)

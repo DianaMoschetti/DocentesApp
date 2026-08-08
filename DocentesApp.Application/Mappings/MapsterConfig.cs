@@ -5,6 +5,7 @@ using DocentesApp.Shared.DTOs.Cursos;
 using DocentesApp.Shared.DTOs.Dedicaciones;
 using DocentesApp.Shared.DTOs.Designaciones;
 using DocentesApp.Shared.DTOs.Docentes;
+using DocentesApp.Shared.DTOs.PuntosPorCargo;
 using DocentesApp.Shared.DTOs.Snapshots;
 using DocentesApp.Shared.DTOs.Udbs;
 using Mapster;
@@ -26,14 +27,18 @@ namespace DocentesApp.Application.Mappings
                 .Ignore(dest => dest.Id);
 
             config.NewConfig<Asignatura, AsignaturaDto>()
-                .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())
+                // [Diana desde v4.0 OBSOLETO] NombreAsignaturaTexto reemplazado por Nombre directo
+                // .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())
+                .Map(dest => dest.Nombre, src => src.Nombre)
                 .Map(dest => dest.FrecuenciaTexto, src => src.Frecuencia.ToString())
                 .Map(dest => dest.NivelTexto, src => src.Nivel.ToString())
                 .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null);
 
             config.NewConfig<Asignatura, ListAsignaturaDto>()
                 .Map(dest => dest.UdbId, src => src.UdbId)
-                .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())
+                // [Diana desde v4.0 OBSOLETO] NombreAsignaturaTexto reemplazado por Nombre directo
+                // .Map(dest => dest.NombreAsignaturaTexto, src => src.NombreAsignatura.ToString())
+                .Map(dest => dest.Nombre, src => src.Nombre)
                 .Map(dest => dest.FrecuenciaTexto, src => src.Frecuencia.ToString())
                 .Map(dest => dest.NivelTexto, src => src.Nivel.ToString())
                 .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null);
@@ -57,8 +62,10 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<CreateDetalleDesignacionDto, DetalleDesignacion>();
 
             config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
+                // [Diana desde v4.0 OBSOLETO] NombreAsignatura antes usaba src.Asignatura.NombreAsignatura.ToString()
+                // ahora usa src.Asignatura.Nombre directamente
                 .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null
-                    ? src.Asignatura.NombreAsignatura.ToString() : null)
+                    ? src.Asignatura.Nombre : null)
                 .Map(dest => dest.DescripcionCurso, src => src.Curso != null
                     ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
 
@@ -72,19 +79,21 @@ namespace DocentesApp.Application.Mappings
 
             config.NewConfig<Designacion, ListDesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
-                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
-                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
-                    ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
-                    ? src.Dedicacion.DescTipo.ToString() : string.Empty);
+                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty);
+            // [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion eliminados de cabecera
+            // .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
+            //     ? src.Cargo.Denominacion.ToString() : string.Empty)
+            // .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
+            //     ? src.Dedicacion.DescTipo.ToString() : string.Empty);
 
             config.NewConfig<Designacion, DesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
                     ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
-                .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
-                    ? src.Cargo.Denominacion.ToString() : string.Empty)
-                .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
-                    ? src.Dedicacion.DescTipo.ToString() : string.Empty)
+                // [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion eliminados de cabecera
+                // .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
+                //     ? src.Cargo.Denominacion.ToString() : string.Empty)
+                // .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
+                //     ? src.Dedicacion.DescTipo.ToString() : string.Empty)
                 .Map(dest => dest.Detalles, src => src.Detalles);
             #endregion
 
@@ -142,30 +151,30 @@ namespace DocentesApp.Application.Mappings
             #endregion
 
             #region Cargo
-            config.NewConfig<CreateCargoDto, Cargo>();
-
-            config.NewConfig<Cargo, CargoDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
-
-            config.NewConfig<Cargo, ListCargoDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
+            // [Diana desde v4.0 OBSOLETO] Cargo reemplazado por atributos en DetalleDesignacion
+            // config.NewConfig<CreateCargoDto, Cargo>();
+            // config.NewConfig<Cargo, CargoDto>()
+            //     .Map(dest => dest.Descripcion, src => $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
+            // config.NewConfig<Cargo, ListCargoDto>()
+            //     .Map(dest => dest.Descripcion, src => $"{src.Denominacion} {src.TipoCargo} {src.Condicion}");
             #endregion
 
             #region Dedicacion
-            config.NewConfig<CreateDedicacionDto, Dedicacion>();
-
-            config.NewConfig<Dedicacion, DedicacionDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
-
-            config.NewConfig<Dedicacion, ListDedicacionDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
+            // [Diana desde v4.0 OBSOLETO] Dedicacion reemplazada por atributos en DetalleDesignacion
+            // config.NewConfig<CreateDedicacionDto, Dedicacion>();
+            // config.NewConfig<Dedicacion, DedicacionDto>()
+            //     .Map(dest => dest.Descripcion, src => $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
+            // config.NewConfig<Dedicacion, ListDedicacionDto>()
+            //     .Map(dest => dest.Descripcion, src => $"{src.DescTipo} - {src.CantidadHoras}hs - {src.CantidadDedicacion} dedicación/es");
             #endregion
 
-           
+            #region PuntosPorCargo
+            config.NewConfig<CreatePuntosPorCargoDto, PuntosPorCargo>();
+
+            config.NewConfig<PuntosPorCargo, PuntosPorCargoDto>()
+                .Map(dest => dest.Descripcion, src =>
+                    $"{src.Denominacion} {src.TipoCargo}");
+            #endregion
         }
 
         private static DateOnly? ParseDateOnly(string? value)

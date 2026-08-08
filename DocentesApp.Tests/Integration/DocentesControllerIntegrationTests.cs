@@ -548,43 +548,43 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     }
 
     #endregion
+
     //Diana arreglar seed cuando esten definidos los cargos, cursos y demas en la bd
     private async Task SeedDesignacionForDocenteAsync(int docenteId)
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
 
-        var cargo = new Cargo
-        {
-            Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
-            TipoCargo = TipoCargo.Adjunto,
-            Condicion = Condicion.Interino,  // ← sacar DetalleCargo
-            PuntosBase = 10,
-            Observaciones = "Cargo para test"
-        };
-
-        var dedicacion = new Dedicacion
-        {
-            DescTipo = TipoDedicacion.Simple,
-            CantidadHoras = 10,
-            CantidadDedicacion = 1
-        };
-
-        db.Cargos.Add(cargo);
-        db.Dedicaciones.Add(dedicacion);
-
-        await db.SaveChangesAsync();
+        // [Diana desde v4.0 OBSOLETO] Cargo y Dedicacion eliminados como entidades independientes
+        // var cargo = new Cargo { ... };
+        // var dedicacion = new Dedicacion { ... };
+        // db.Cargos.Add(cargo);
+        // db.Dedicaciones.Add(dedicacion);
+        // await db.SaveChangesAsync();
 
         var designacion = new Designacion
         {
             DocenteId = docenteId,
-            CargoId = cargo.Id,
-            DedicacionId = dedicacion.Id,
+            // [Diana desde v4.0 OBSOLETO] CargoId y DedicacionId eliminados
+            // CargoId = cargo.Id,
+            // DedicacionId = dedicacion.Id,
             FechaInicio = DateTime.UtcNow.AddDays(-10),
             FechaFin = null,
             EstadoDesignacion = Estado.Activa,
-            Observaciones = "Designación para test"
-            // ← sacar CursoId, AsignaturaId, PuntosUtilizados, PuntosLibres
+            Observaciones = "Designación para test",
+            Detalles = new List<DetalleDesignacion>
+        {
+            new DetalleDesignacion
+            {
+                Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
+                TipoCargo = TipoCargo.Adjunto,
+                Condicion = Condicion.Interino,
+                TipoDedicacion = TipoDedicacion.Simple,
+                CantidadDedicacion = 1,
+                Especificacion = EspecificacionCargo.Docencia,
+                PuntosAsignados = 119
+            }
+        }
         };
 
         db.Designaciones.Add(designacion);

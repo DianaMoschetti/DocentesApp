@@ -2,6 +2,8 @@
 
 namespace DocentesApp.Application.Interfaces.Services
 {
+    // [Diana desde v4.0 OBSOLETO]
+    [Obsolete("IDedicacionService obsoleto desde v4.0.")]
     public interface IDedicacionService
     {
         Task<IEnumerable<ListDedicacionDto>> GetAllAsync();

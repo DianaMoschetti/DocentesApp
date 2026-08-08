@@ -1,10 +1,4 @@
 ﻿using DocentesApp.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
     public class ListDesignacionDto
@@ -12,24 +6,24 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public int Id { get; set; }
         public int DocenteId { get; set; }
         public string NombreCompletoDocente { get; set; } = string.Empty;
-        //public int CargoId { get; set; }
-        public string DescripcionCargo { get; set; } = string.Empty;
-        public int DedicacionId { get; set; }
-        public string DescripcionDedicacion { get; set; } = string.Empty;
-        //public int? AsignaturaId { get; set; }
-        //public string? NombreAsignatura { get; set; }
-        //public int? CursoId { get; set; }
-        //public string? DescripcionCurso { get; set; }
+        // [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion pasan a DetalleDesignacion
+        // public string DescripcionCargo { get; set; } = string.Empty;
+        // public int DedicacionId { get; set; }
+        // public string DescripcionDedicacion { get; set; } = string.Empty;
+        // public int? AsignaturaId { get; set; }
+        // public string? NombreAsignatura { get; set; }
+        // public int? CursoId { get; set; }
+        // public string? DescripcionCurso { get; set; }
+        public string? NroResolucion { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public Estado EstadoDesignacion { get; set; }
         public bool EsVigente => FechaFin == null || FechaFin > DateTime.Now;
-
-        //public string? NroResolucion { get; set; }
-        //public string? NroNota { get; set; }
-        //public decimal? PuntosUtilizados { get; set; }
-        //public decimal? PuntosLibres { get; set; }
-        //public int EstadoDesignacion { get; set; }
-        //public string? Observaciones { get; set; }
+        // public string? NroResolucion { get; set; }
+        // public string? NroNota { get; set; }
+        // public decimal? PuntosUtilizados { get; set; }
+        // public decimal? PuntosLibres { get; set; }
+        // public int EstadoDesignacion { get; set; }
+        // public string? Observaciones { get; set; }
     }
 }

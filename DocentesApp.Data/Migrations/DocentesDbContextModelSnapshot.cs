@@ -116,21 +116,28 @@ namespace DocentesApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("EsVigente")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<int>("Frecuencia")
                         .HasColumnType("int");
 
                     b.Property<int>("Nivel")
                         .HasColumnType("int");
 
-                    b.Property<int>("NombreAsignatura")
-                        .HasColumnType("int");
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int?>("UdbId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UdbId", "NombreAsignatura", "Nivel")
+                    b.HasIndex("UdbId", "Nombre", "Nivel")
                         .IsUnique()
                         .HasFilter("[UdbId] IS NOT NULL");
 
@@ -184,8 +191,7 @@ namespace DocentesApp.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Observaciones")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("PuntosBase")
                         .HasColumnType("real");
@@ -195,10 +201,7 @@ namespace DocentesApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Denominacion", "TipoCargo", "Condicion")
-                        .IsUnique();
-
-                    b.ToTable("Cargos", (string)null);
+                    b.ToTable("Cargos");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Curso", b =>
@@ -248,7 +251,7 @@ namespace DocentesApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dedicaciones", (string)null);
+                    b.ToTable("Dedicaciones");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Designacion", b =>
@@ -259,7 +262,7 @@ namespace DocentesApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CargoId")
+                    b.Property<int?>("CargoId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -267,9 +270,6 @@ namespace DocentesApp.Data.Migrations
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("DedicacionId")
-                        .HasColumnType("int");
 
                     b.Property<int>("DocenteId")
                         .HasColumnType("int");
@@ -309,12 +309,6 @@ namespace DocentesApp.Data.Migrations
 
                     b.HasIndex("CargoId");
 
-                    b.HasIndex("DedicacionId");
-
-                    b.HasIndex("DocenteId", "CargoId")
-                        .IsUnique()
-                        .HasFilter("[FechaFin] IS NULL");
-
                     b.HasIndex("DocenteId", "FechaFin");
 
                     b.HasIndex("DocenteId", "FechaInicio");
@@ -335,7 +329,16 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int?>("AsignaturaId")
                         .HasColumnType("int");
 
+                    b.Property<float>("CantidadDedicacion")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Condicion")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CursoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Denominacion")
                         .HasColumnType("int");
 
                     b.Property<int>("DesignacionId")
@@ -344,9 +347,19 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("Especificacion")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("PuntosUtilizados")
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("PuntosAsignados")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("TipoCargo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoDedicacion")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -611,6 +624,76 @@ namespace DocentesApp.Data.Migrations
                     b.ToTable("PlantaSnapshots", (string)null);
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.PuntosPorCargo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Denominacion")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PuntosBase")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("TipoCargo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Denominacion", "TipoCargo")
+                        .IsUnique();
+
+                    b.ToTable("PuntosPorCargo", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Denominacion = 1,
+                            PuntosBase = 138m,
+                            TipoCargo = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Denominacion = 1,
+                            PuntosBase = 157m,
+                            TipoCargo = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Denominacion = 1,
+                            PuntosBase = 176m,
+                            TipoCargo = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Denominacion = 2,
+                            PuntosBase = 119m,
+                            TipoCargo = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Denominacion = 3,
+                            PuntosBase = 100m,
+                            TipoCargo = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Denominacion = 4,
+                            PuntosBase = 80m,
+                            TipoCargo = 1
+                        });
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Udb", b =>
                 {
                     b.Property<int>("Id")
@@ -833,27 +916,15 @@ namespace DocentesApp.Data.Migrations
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Designacion", b =>
                 {
-                    b.HasOne("DocentesApp.Domain.Entities.Cargo", "Cargo")
+                    b.HasOne("DocentesApp.Domain.Entities.Cargo", null)
                         .WithMany("Designaciones")
-                        .HasForeignKey("CargoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DocentesApp.Domain.Entities.Dedicacion", "Dedicacion")
-                        .WithMany()
-                        .HasForeignKey("DedicacionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("CargoId");
 
                     b.HasOne("DocentesApp.Domain.Entities.Docente", "Docente")
                         .WithMany("Designaciones")
                         .HasForeignKey("DocenteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Cargo");
-
-                    b.Navigation("Dedicacion");
 
                     b.Navigation("Docente");
                 });

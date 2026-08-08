@@ -1,20 +1,19 @@
 ﻿using DocentesApp.Domain.Enums;
-
 namespace DocentesApp.Domain.Entities
 {
     public class Asignatura
     {
         public int Id { get; set; }
-        public Materia NombreAsignatura { get; set; }
+        // [Diana desde v4.0 OBSOLETO] NombreAsignatura (enum Materia) reemplazado por Nombre (string)
+        // public Materia NombreAsignatura { get; set; }
+        public string Nombre { get; set; } = null!; // nombre libre de la asignatura, no enum
+        public bool EsVigente { get; set; } = true; // indica si la asignatura está activa en el plan de estudios
         public Frecuencia Frecuencia { get; set; }
         public Nivel Nivel { get; set; } // Primer año, segundo, tercero
-
         // Navigation properties
         public int? UdbId { get; set; } // 1:n -> Una materia pertenece a una udb y una udb tiene muchas materias FK UDbId + Udb (nav)
         public Udb? Udb { get; set; } // 
-
         public ICollection<DetalleDesignacion> DetalleDesignacion { get; set; } = new HashSet<DetalleDesignacion>(); // 1:n -> Una materia tiene muchos docentes y un docente da en una o muchas materias
         public ICollection<AsignaturaModulo> AsignaturaModulos { get; set; } = new HashSet<AsignaturaModulo>(); // n:n -> Una materia esta en muchos cursos y un curso tiene muchas materias           
-
     }
 }

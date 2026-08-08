@@ -1,11 +1,5 @@
 ﻿using DocentesApp.Domain.Base;
 using DocentesApp.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocentesApp.Domain.Entities
 {
@@ -16,14 +10,8 @@ namespace DocentesApp.Domain.Entities
         public int Id { get; set; }
         public int DocenteId { get; set; }
         public Docente Docente { get; set; }
-        public int CargoId { get; set; }
-        public Cargo Cargo { get; set; }
-
         //public int? AsignaturaId { get; set; } // puede no tener asignatura (ej cargos de gestión)
         //public Asignatura? Asignatura { get; set; }
-
-        public int DedicacionId { get; set; }
-        public Dedicacion Dedicacion { get; set; }
 
         public string? NroResolucion { get; set; }
         public string? NroNota { get; set; } // Ver si es necesario
