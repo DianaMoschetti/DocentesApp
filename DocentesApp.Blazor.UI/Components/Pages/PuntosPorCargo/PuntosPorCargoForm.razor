@@ -1,21 +1,20 @@
-﻿@* [Diana desde v4.0 OBSOLETO] Esta página fue reemplazada por PuntosPorCargo *@
-@page "/cargos/nuevo"
-@using DocentesApp.Shared.DTOs.Cargos
+@page "/puntosporcargo/nuevo"
+@using DocentesApp.Shared.DTOs.PuntosPorCargo
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
-@using DocentesApp.Shared.Validators.Cargos
+@using DocentesApp.Shared.Validators.PuntosPorCargo
 @attribute [Authorize]
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
 
-<PageTitle>Nuevo Cargo</PageTitle>
+<PageTitle>Nuevos puntos por cargo</PageTitle>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Nuevo Cargo</h2>
+        <h2>Nuevos puntos por cargo</h2>
         <button class="btn btn-outline-secondary"
-                @onclick='() => Navigation.NavigateTo("cargos")'>
+                @onclick='() => Navigation.NavigateTo("puntosporcargo")'>
             Volver
         </button>
     </div>
@@ -30,14 +29,14 @@
         <div class="alert alert-success">@successMessage</div>
     }
 
-    <EditForm Model="cargoDto" OnSubmit="HandleSubmit">
+    <EditForm Model="puntosPorCargoDto" OnSubmit="HandleSubmit">
         <div class="card mb-4">
-            <div class="card-header">Datos del cargo</div>
+            <div class="card-header">Datos de puntos por cargo</div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Denominación <span class="text-danger">*</span></label>
-                        <InputSelect class="form-select" @bind-Value="cargoDto.Denominacion">
+                        <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.Denominacion">
                             <option value="">-- Seleccionar --</option>
                             @foreach (var (value, display) in denominaciones)
                             {
@@ -47,7 +46,7 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Tipo <span class="text-danger">*</span></label>
-                        <InputSelect class="form-select" @bind-Value="cargoDto.TipoCargo">
+                        <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.TipoCargo">
                             <option value="">-- Seleccionar --</option>
                             @foreach (var (value, display) in tipos)
                             {
@@ -56,22 +55,8 @@
                         </InputSelect>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Condición <span class="text-danger">*</span></label>
-                        <InputSelect class="form-select" @bind-Value="cargoDto.Condicion">
-                            <option value="">-- Seleccionar --</option>
-                            @foreach (var (value, display) in condiciones)
-                            {
-                                <option value="@value">@display</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="col-md-4 mb-3">
                         <label class="form-label">Puntos base <span class="text-danger">*</span></label>
-                        <InputNumber class="form-control" @bind-Value="cargoDto.PuntosBase" />
-                    </div>
-                    <div class="col-md-8 mb-3">
-                        <label class="form-label">Observaciones</label>
-                        <InputTextArea class="form-control" @bind-Value="cargoDto.Observaciones" rows="3" />
+                        <InputNumber class="form-control" @bind-Value="puntosPorCargoDto.PuntosBase" />
                     </div>
                 </div>
             </div>
@@ -79,7 +64,7 @@
 
         <div class="d-flex justify-content-end gap-2">
             <button type="button" class="btn btn-outline-secondary"
-                    @onclick='() => Navigation.NavigateTo("cargos")'
+                    @onclick='() => Navigation.NavigateTo("puntosporcargo")'
                     disabled="@isSaving">
                 Cancelar
             </button>
@@ -91,7 +76,7 @@
 </div>
 
 @code {
-    private CreateCargoDto cargoDto = new();
+    private CreatePuntosPorCargoDto puntosPorCargoDto = new();
     private bool isSaving;
     private string? errorMessage;
     private string? successMessage;
@@ -100,8 +85,6 @@
         EnumHelper.GetOptions<DenominacionCargo>();
     private readonly List<(TipoCargo Value, string Display)> tipos =
         EnumHelper.GetOptions<TipoCargo>();
-    private readonly List<(Condicion Value, string Display)> condiciones =
-        EnumHelper.GetOptions<Condicion>();
 
     private async Task HandleSubmit()
     {
@@ -109,8 +92,8 @@
         successMessage = null;
 
         // Validación client-side
-        var validator = new CreateCargoDtoValidator();
-        var result = await validator.ValidateAsync(cargoDto);
+        var validator = new CreatePuntosPorCargoDtoValidator();
+        var result = await validator.ValidateAsync(puntosPorCargoDto);
         if (!result.IsValid)
         {
             errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
@@ -120,14 +103,14 @@
         try
         {
             isSaving = true;
-            await Client.CargosPOSTAsync(cargoDto);
-            Navigation.NavigateTo("cargos", new NavigationOptions { ReplaceHistoryEntry = true });
+            await Client.PuntosPorCargoPOSTAsync(puntosPorCargoDto);
+            Navigation.NavigateTo("puntosporcargo", new NavigationOptions { ReplaceHistoryEntry = true });
         }
         catch (ApiException ex)
         {
             errorMessage = ex.StatusCode switch
             {
-                400 => "Ya existe un cargo con esa combinación.",
+                400 => "Ya existen puntos por cargo con esa combinación.",
                 401 => "No tiene permisos para realizar esta acción.",
                 403 => "No tiene permisos para realizar esta acción.",
                 _ => "Error al guardar. Intentá de nuevo."

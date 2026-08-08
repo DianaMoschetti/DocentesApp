@@ -1,19 +1,19 @@
-﻿@* [Diana desde v4.0 OBSOLETO] Esta página fue reemplazada por atributos en DetalleDesignacion *@
-@page "/dedicaciones"
-@using DocentesApp.Shared.DTOs.Dedicaciones
+@page "/puntosporcargo"
+@using DocentesApp.Shared.DTOs.PuntosPorCargo
+@using DocentesApp.Domain.Enums
 @attribute [Authorize]
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
 
-<PageTitle>Dedicaciones</PageTitle>
+<PageTitle>Puntos por cargo</PageTitle>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Dedicaciones</h2>
+        <h2>Puntos por cargo</h2>
         <button class="btn btn-primary"
-                @onclick='() => Navigation.NavigateTo("dedicaciones/nuevo")'>
-            + Nueva dedicación
+                @onclick='() => Navigation.NavigateTo("puntosporcargo/nuevo")'>
+            + Nuevo
         </button>
     </div>
 
@@ -25,9 +25,9 @@
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
-    else if (!dedicaciones.Any())
+    else if (!puntosPorCargo.Any())
     {
-        <div class="alert alert-info">No hay dedicaciones cargadas todavía.</div>
+        <div class="alert alert-info">No hay puntos por cargo cargados todavía.</div>
     }
     else
     {
@@ -35,21 +35,19 @@
             <thead>
                 <tr>
                     <th>Descripción</th>
-                    <th>Horas</th>
-                    <th>Cantidad dedicación</th>
+                    <th>Puntos base</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var dedicacion in dedicaciones)
+                @foreach (var punto in puntosPorCargo)
                 {
                     <tr>
-                        <td>@dedicacion.Descripcion</td>
-                        <td>@dedicacion.CantidadHoras</td>
-                        <td>@dedicacion.CantidadDedicacion</td>
+                        <td>@punto.Descripcion</td>
+                        <td>@punto.PuntosBase</td>
                         <td>
                             <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => ConfirmarEliminar(dedicacion)">
+                                    @onclick="() => ConfirmarEliminar(punto)">
                                 Eliminar
                             </button>
                         </td>
@@ -60,7 +58,8 @@
     }
 </div>
 
-@if (dedicacionAEliminar != null)
+@* Modal de confirmación de eliminación *@
+@if (puntoAEliminar != null)
 {
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
@@ -69,7 +68,7 @@
                     <h5 class="modal-title">Confirmar eliminación</h5>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás segura que querés eliminar la dedicación <strong>@dedicacionAEliminar.Descripcion</strong>?</p>
+                    <p>¿Estás segura que querés eliminar los puntos por cargo <strong>@puntoAEliminar.Descripcion</strong>?</p>
                     @if (deleteErrorMessage != null)
                     {
                         <div class="alert alert-danger">@deleteErrorMessage</div>
@@ -93,30 +92,31 @@
 }
 
 @code {
-    private ICollection<ListDedicacionDto> dedicaciones = new List<ListDedicacionDto>();
+    private ICollection<PuntosPorCargoDto> puntosPorCargo = new List<PuntosPorCargoDto>();
     private bool isLoading = true;
     private string? errorMessage;
 
-    private ListDedicacionDto? dedicacionAEliminar;
+    // Estado del modal de eliminación
+    private PuntosPorCargoDto? puntoAEliminar;
     private bool isDeleting;
     private string? deleteErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarDedicaciones();
+        await CargarPuntosPorCargo();
     }
 
-    private async Task CargarDedicaciones()
+    private async Task CargarPuntosPorCargo()
     {
         try
         {
             isLoading = true;
             errorMessage = null;
-            dedicaciones = await Client.DedicacionesAllAsync();
+            puntosPorCargo = await Client.PuntosPorCargoAllAsync();
         }
         catch (ApiException)
         {
-            errorMessage = "Error al cargar las dedicaciones.";
+            errorMessage = "Error al cargar los puntos por cargo.";
         }
         finally
         {
@@ -124,37 +124,37 @@
         }
     }
 
-    private void ConfirmarEliminar(ListDedicacionDto dedicacion)
+    private void ConfirmarEliminar(PuntosPorCargoDto punto)
     {
-        dedicacionAEliminar = dedicacion;
+        puntoAEliminar = punto;
         deleteErrorMessage = null;
     }
 
     private void CancelarEliminar()
     {
-        dedicacionAEliminar = null;
+        puntoAEliminar = null;
         deleteErrorMessage = null;
     }
 
     private async Task EjecutarEliminar()
     {
-        if (dedicacionAEliminar == null) return;
+        if (puntoAEliminar == null) return;
 
         try
         {
             isDeleting = true;
             deleteErrorMessage = null;
-            await Client.DedicacionesDELETEAsync(dedicacionAEliminar.Id);
-            dedicacionAEliminar = null;
-            await CargarDedicaciones();
+            await Client.PuntosPorCargoDELETEAsync(puntoAEliminar.Id);
+            puntoAEliminar = null;
+            await CargarPuntosPorCargo();
         }
         catch (ApiException ex)
         {
             deleteErrorMessage = ex.StatusCode switch
             {
-                409 => "No se puede eliminar la dedicación porque tiene designaciones asociadas.",
-                404 => "La dedicación no existe.",
-                _ => "Error al eliminar la dedicación."
+                409 => "No se pueden eliminar los puntos por cargo porque tienen designaciones asociadas.",
+                404 => "Los puntos por cargo no existen.",
+                _ => "Error al eliminar los puntos por cargo."
             };
         }
         finally
