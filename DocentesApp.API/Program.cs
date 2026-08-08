@@ -188,6 +188,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.SeedIdentityDataAsync();
+await app.SeedDocentesAsync();
+await app.SeedUdbsAsync();
+await app.SeedDocenteUdbAsync();
+//await app.SeedAsignaturasAsync();
 
 app.Run();
 

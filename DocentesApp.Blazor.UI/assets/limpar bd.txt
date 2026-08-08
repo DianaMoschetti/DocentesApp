@@ -1,0 +1,20 @@
+﻿-- Limpiar en orden por dependencias
+DELETE FROM DetallesDesignacion
+DELETE FROM Designaciones
+DELETE FROM AsignaturaModulos
+DELETE FROM DocentesUdb
+DELETE FROM PlantaDocenteSnapshots
+DELETE FROM PlantaSnapshots
+DELETE FROM Asignaturas
+DELETE FROM Cursos
+DELETE FROM PuntosPorCargo
+DELETE FROM Udbs
+DELETE FROM Docentes
+
+-- sacar materias
+SELECT a.Id, a.Nombre, a.Frecuencia, a.Nivel, a.EsVigente, a.UdbId, u.Nombre as NombreUdb
+FROM Asignaturas a
+JOIN Udbs u ON a.UdbId = u.Id
+ORDER BY u.Nombre, a.Nivel, a.Nombre
+
+-- UDBs

@@ -6,6 +6,7 @@ namespace DocentesApp.Domain.Enums
         Director = 1,
         Secretario = 2,
         Becario = 3,
-        Apoyo = 4
+        Apoyo = 4,
+        Docente = 5
     }
 }

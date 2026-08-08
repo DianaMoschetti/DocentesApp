@@ -15,7 +15,7 @@ namespace DocentesApp.Data.Configurations
             builder.HasIndex(d => d.Legajo).IsUnique();
 
             // Campos de Persona
-            builder.Property(d => d.Dni).IsRequired().HasMaxLength(20);
+            builder.Property(d => d.Dni).HasMaxLength(20);
             builder.Property(d => d.Nombre).IsRequired().HasMaxLength(120);
             builder.Property(d => d.Apellido).IsRequired().HasMaxLength(120);
             builder.HasIndex(d => d.Dni).IsUnique();
