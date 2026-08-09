@@ -11,10 +11,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Puntos por cargo</h2>
-        <button class="btn btn-primary"
-                @onclick='() => Navigation.NavigateTo("puntosporcargo/nuevo")'>
-            + Nuevo
-        </button>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <button class="btn btn-primary"
+                        @onclick='() => Navigation.NavigateTo("puntosporcargo/nuevo")'>
+                    + Nuevo
+                </button>
+            </Authorized>
+        </AuthorizeView>
     </div>
 
     @if (isLoading)
@@ -46,10 +50,14 @@
                         <td>@punto.Descripcion</td>
                         <td>@punto.PuntosBase</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => ConfirmarEliminar(punto)">
-                                Eliminar
-                            </button>
+                            <AuthorizeView Roles="Admin">
+                                <Authorized>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => ConfirmarEliminar(punto)">
+                                        Eliminar
+                                    </button>
+                                </Authorized>
+                            </AuthorizeView>
                         </td>
                     </tr>
                 }
@@ -75,16 +83,20 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
-                            @onclick="CancelarEliminar"
-                            disabled="@isDeleting">
-                        Cancelar
-                    </button>
-                    <button class="btn btn-danger"
-                            @onclick="EjecutarEliminar"
-                            disabled="@isDeleting">
-                        @(isDeleting ? "Eliminando..." : "Eliminar")
-                    </button>
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <button class="btn btn-secondary"
+                                    @onclick="CancelarEliminar"
+                                    disabled="@isDeleting">
+                                Cancelar
+                            </button>
+                            <button class="btn btn-danger"
+                                    @onclick="EjecutarEliminar"
+                                    disabled="@isDeleting">
+                                @(isDeleting ? "Eliminando..." : "Eliminar")
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>

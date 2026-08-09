@@ -24,13 +24,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorizationCore();
 
+// Necesario para que el Task<AuthenticationState> cascada llegue a los componentes
+// renderizados con @rendermode InteractiveServer (el <CascadingAuthenticationState />
+// de Routes.razor no cruza ese lÃ­mite de render mode).
+builder.Services.AddCascadingAuthenticationState();
+
 // Blazor auth
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Handler JWT — antes del AddHttpClient
+// Handler JWT ï¿½ antes del AddHttpClient
 builder.Services.AddTransient<AuthorizationMessageHandler>();
 
 // Cliente NSwag
@@ -64,7 +69,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Minimal API para manejar el login/logout, ya que Blazor Server no
-// tiene un mecanismo de navegación tradicional para redirigir a una página de logout
+// tiene un mecanismo de navegaciï¿½n tradicional para redirigir a una pï¿½gina de logout
 // El endpoint setea la cookie y redirige a /
 app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
 {

@@ -11,7 +11,12 @@
         <h3 class="login-title">Iniciar Sesión</h3>
         @if (!string.IsNullOrEmpty(_errorMessage))
         {
-            <div class="alert alert-danger">@_errorMessage</div>
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <div class="alert @(Expired ? "alert-warning" : "alert-danger")">
+                    @_errorMessage
+                </div>
+            }
         }
         <EditForm Model="_loginDto" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
@@ -65,5 +70,14 @@
             _errorMessage = "Usuario o contraseña incorrectos.";
             _isLoading = false;
         }
+    }
+
+    [SupplyParameterFromQuery(Name = "expired")]
+    public bool Expired { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Expired)
+            _errorMessage = "Tu sesión expiró. Por favor ingresá nuevamente.";
     }
 }

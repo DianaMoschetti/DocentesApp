@@ -49,6 +49,26 @@ namespace DocentesApp.API.Extensions
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
+
+            var userEmail = "user@docentesapp.com";
+            var userUserName = "user";
+            var commonUser = await userManager.FindByEmailAsync(userEmail);
+            if (commonUser == null)
+            {
+                commonUser = new ApplicationUser
+                {
+                    UserName = userUserName,
+                    Email = userEmail,
+                    Nombre = "Usuario",
+                    Apellido = "Consulta",
+                    EmailConfirmed = true
+                };
+                var result = await userManager.CreateAsync(commonUser, "User123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(commonUser, "User");
+                }
+            }
         }
 
         public static async Task SeedDocentesAsync(this IApplicationBuilder app)

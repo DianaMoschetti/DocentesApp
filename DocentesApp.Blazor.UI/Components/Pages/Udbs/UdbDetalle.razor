@@ -1,0 +1,85 @@
+@page "/udbs/{Id:int}"
+@using DocentesApp.Shared.DTOs.Udbs
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Detalle UDB</PageTitle>
+
+<div class="container mt-4">
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (udb != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>@udb.Nombre</h2>
+            <div>
+                <button class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("udbs")'>
+                    Volver
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Datos de la UDB</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Nombre</label>
+                        <p>@udb.Nombre</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Director</label>
+                        <p>@(udb.DirectorNombreCompleto ?? "-")</p>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="fw-bold">Secretario</label>
+                        <p>@(udb.SecretarioNombreCompleto ?? "-")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private UdbDto? udb;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarUdb();
+    }
+
+    private async Task CargarUdb()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            udb = await Client.UdbsGETAsync(Id);
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró la UDB."
+                : "Error al cargar la UDB.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

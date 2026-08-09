@@ -10,10 +10,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Designaciones</h2>
-        <button class="btn btn-primary"
-                @onclick='() => Navigation.NavigateTo("designaciones/nuevo")'>
-            + Nueva designación
-        </button>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <button class="btn btn-primary"
+                        @onclick='() => Navigation.NavigateTo("designaciones/nuevo")'>
+                    + Nueva designación
+                </button>
+            </Authorized>
+        </AuthorizeView>
     </div>
 
     @* Filtros *@
@@ -103,10 +107,14 @@
                             </button>
                             @if (d.EsVigente)
                             {
-                                <button class="btn btn-sm btn-outline-warning"
-                                        @onclick="() => ConfirmarCerrar(d)">
-                                    Cerrar
-                                </button>
+                                <AuthorizeView Roles="Admin">
+                                    <Authorized>
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                @onclick="() => ConfirmarCerrar(d)">
+                                            Cerrar
+                                        </button>
+                                    </Authorized>
+                                </AuthorizeView>
                             }
                         </td>
                     </tr>
@@ -135,16 +143,20 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
-                            @onclick="CancelarCerrar"
-                            disabled="@isCerrando">
-                        Cancelar
-                    </button>
-                    <button class="btn btn-warning"
-                            @onclick="EjecutarCerrar"
-                            disabled="@isCerrando">
-                        @(isCerrando ? "Cerrando..." : "Cerrar designación")
-                    </button>
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <button class="btn btn-secondary"
+                                    @onclick="CancelarCerrar"
+                                    disabled="@isCerrando">
+                                Cancelar
+                            </button>
+                            <button class="btn btn-warning"
+                                    @onclick="EjecutarCerrar"
+                                    disabled="@isCerrando">
+                                @(isCerrando ? "Cerrando..." : "Cerrar designación")
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>

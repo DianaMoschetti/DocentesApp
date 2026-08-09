@@ -24,10 +24,14 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>@docente.NombreCompleto</h2>
             <div>
-                <button class="btn btn-outline-secondary me-2"
-                        @onclick='() => Navigation.NavigateTo($"docentes/{Id}/editar")'>
-                    Editar
-                </button>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <button class="btn btn-outline-secondary me-2"
+                                @onclick='() => Navigation.NavigateTo($"docentes/{Id}/editar")'>
+                            Editar
+                        </button>
+                    </Authorized>
+                </AuthorizeView>
                 <button class="btn btn-outline-secondary"
                         @onclick='() => Navigation.NavigateTo("docentes")'>
                     Volver

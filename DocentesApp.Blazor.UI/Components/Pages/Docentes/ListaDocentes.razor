@@ -13,10 +13,14 @@
             <h2> Docentes</h2>
         </div>
         <div class="col text-end">
-            <button class="btn btn-primary"
-                    @onclick='() => Navigation.NavigateTo("docentes/nuevo")'>
-                + Nuevo Docente
-            </button>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <button class="btn btn-primary"
+                            @onclick='() => Navigation.NavigateTo("docentes/nuevo")'>
+                        + Nuevo Docente
+                    </button>
+                </Authorized>
+            </AuthorizeView>
         </div>
     </div>
 
@@ -53,20 +57,22 @@
                         <td>@docente.Dni</td>
                         <td>@docente.Email</td>
                         <td>
-                        <td>
                             <button class="btn btn-sm btn-outline-primary me-1"
                                     @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}"))">
                                 Ver
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary me-1"
-                                    @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}/editar"))">
-                                Editar
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="@(() => ConfirmarEliminar(docente.Id, docente.NombreCompleto))">
-                                Eliminar
-                            </button>
-                        </td>
+                            <AuthorizeView Roles="Admin">
+                                <Authorized>
+                                    <button class="btn btn-sm btn-outline-secondary me-1"
+                                            @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}/editar"))">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="@(() => ConfirmarEliminar(docente.Id, docente.NombreCompleto))">
+                                        Eliminar
+                                    </button>
+                                </Authorized>
+                            </AuthorizeView>
                         </td>
                     </tr>
                 }
@@ -86,13 +92,17 @@
                         ¿Estás segura que querés eliminar a <strong>@_nombreAEliminar</strong>?
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary"
-                                @onclick="() => _mostrarConfirmacion = false">
-                            Cancelar
-                        </button>
-                        <button class="btn btn-danger" @onclick="EliminarDocente">
-                            Eliminar
-                        </button>
+                        <AuthorizeView Roles="Admin">
+                            <Authorized>
+                                <button class="btn btn-secondary"
+                                        @onclick="() => _mostrarConfirmacion = false">
+                                    Cancelar
+                                </button>
+                                <button class="btn btn-danger" @onclick="EliminarDocente">
+                                    Eliminar
+                                </button>
+                            </Authorized>
+                        </AuthorizeView>
                     </div>
                 </div>
             </div>
