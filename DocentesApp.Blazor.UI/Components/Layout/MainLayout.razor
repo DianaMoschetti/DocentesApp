@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Navigation
 
 <div class="page">
     <div class="sidebar">
@@ -9,6 +11,15 @@
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
+
+        @if (_mostrarAvisoExpiracion)
+        {
+            <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+                Tu sesión expira en 5 minutos. Guardá tu trabajo y volvé a iniciar sesión.
+                <button type="button" class="btn-close" aria-label="Close"
+                        @onclick="() => _mostrarAvisoExpiracion = false"></button>
+            </div>
+        }
 
         <article class="content px-4">
             @Body
@@ -21,3 +32,68 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private static readonly TimeSpan TiempoAvisoExpiracion = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan IntervaloChequeo = TimeSpan.FromSeconds(30);
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    private CancellationTokenSource _cts = new();
+    private DateTimeOffset? _expiracionSesion;
+    private bool _mostrarAvisoExpiracion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateTask == null)
+            return;
+
+        var authState = await AuthenticationStateTask;
+        var expClaim = authState.User.FindFirst("exp")?.Value;
+
+        if (long.TryParse(expClaim, out var exp))
+        {
+            _expiracionSesion = DateTimeOffset.FromUnixTimeSeconds(exp);
+            _ = IniciarChequeoSesionAsync(_cts.Token);
+        }
+    }
+
+    private async Task IniciarChequeoSesionAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(IntervaloChequeo, ct);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+
+            if (_expiracionSesion == null) return;
+
+            var tiempoRestante = _expiracionSesion.Value - DateTimeOffset.UtcNow;
+
+            if (tiempoRestante <= TimeSpan.Zero)
+            {
+                Navigation.NavigateTo("/login?expired=true", forceLoad: true);
+                return;
+            }
+
+            if (tiempoRestante <= TiempoAvisoExpiracion && !_mostrarAvisoExpiracion)
+            {
+                _mostrarAvisoExpiracion = true;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}
+

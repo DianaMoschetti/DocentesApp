@@ -10,10 +10,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>UDBs</h2>
-        <button class="btn btn-primary"
-                @onclick='() => Navigation.NavigateTo("udbs/nuevo")'>
-            + Nueva UDB
-        </button>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <button class="btn btn-primary"
+                        @onclick='() => Navigation.NavigateTo("udbs/nuevo")'>
+                    + Nueva UDB
+                </button>
+            </Authorized>
+        </AuthorizeView>
     </div>
 
     @if (isLoading)
@@ -43,14 +47,22 @@
                     <tr>
                         <td>@udb.Nombre</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-secondary me-1"
-                                    @onclick='() => Navigation.NavigateTo($"udbs/{udb.Id}/editar")'>
-                                Editar
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick='() => Navigation.NavigateTo($"udbs/{udb.Id}")'>
+                                Ver
                             </button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => ConfirmarEliminar(udb)">
-                                Eliminar
-                            </button>
+                            <AuthorizeView Roles="Admin">
+                                <Authorized>
+                                    <button class="btn btn-sm btn-outline-secondary me-1"
+                                            @onclick='() => Navigation.NavigateTo($"udbs/{udb.Id}/editar")'>
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => ConfirmarEliminar(udb)">
+                                        Eliminar
+                                    </button>
+                                </Authorized>
+                            </AuthorizeView>
                         </td>
                     </tr>
                 }
@@ -75,16 +87,20 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
-                            @onclick="CancelarEliminar"
-                            disabled="@isDeleting">
-                        Cancelar
-                    </button>
-                    <button class="btn btn-danger"
-                            @onclick="EjecutarEliminar"
-                            disabled="@isDeleting">
-                        @(isDeleting ? "Eliminando..." : "Eliminar")
-                    </button>
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <button class="btn btn-secondary"
+                                    @onclick="CancelarEliminar"
+                                    disabled="@isDeleting">
+                                Cancelar
+                            </button>
+                            <button class="btn btn-danger"
+                                    @onclick="EjecutarEliminar"
+                                    disabled="@isDeleting">
+                                @(isDeleting ? "Eliminando..." : "Eliminar")
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>
