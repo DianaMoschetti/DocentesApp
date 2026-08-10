@@ -1,0 +1,146 @@
+﻿@page "/reportes/planta-udb"
+@using DocentesApp.Shared.DTOs.Reportes
+@using DocentesApp.Shared.DTOs.Udbs
+@using DocentesApp.Blazor.UI.Services.Base
+@inject IClient Client
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Reporte — Planta Docente por UDB</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Planta Docente por UDB</h2>
+    </div>
+
+    @* Filtro de UDB *@
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">Seleccioná una UDB</label>
+                    <select class="form-select" @onchange="OnUdbChanged">
+                        <option value="0">-- Seleccionar UDB --</option>
+                        @foreach (var udb in udbs)
+                        {
+                            <option value="@udb.Id">@udb.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100"
+                            @onclick="CargarReporte"
+                            disabled="@(udbSeleccionada == 0 || isLoading)">
+                        @(isLoading ? "Cargando..." : "Ver planta")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (planta.Any())
+    {
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>@udbs.FirstOrDefault(u => u.Id == udbSeleccionada)?.Nombre</strong>
+                    — @planta.Count() docentes activos
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Docente</th>
+                            <th>Legajo</th>
+                            <th>Categoría</th>
+                            <th>Dedicación</th>
+                            <th>Especificación</th>
+                            <th>Asignatura</th>
+                            <th>Puntos</th>
+                            <th>Resolución</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fila in planta)
+                        {
+                            <tr>
+                                <td>@fila.NombreCompleto</td>
+                                <td>@fila.Legajo</td>
+                                <td>@($"{fila.Denominacion} {fila.TipoCargo} {fila.Condicion}")</td>
+                                <td>@($"{fila.CantidadDedicacion} {fila.TipoDedicacion}")</td>
+                                <td>@fila.Especificacion</td>
+                                <td>@(fila.Asignatura ?? "—")</td>
+                                <td>@fila.PuntosAsignados</td>
+                                <td>@(fila.NroResolucion ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else if (!isLoading && udbSeleccionada > 0 && hasBuscado)
+    {
+        <div class="alert alert-info">No hay docentes con designaciones vigentes en esta UDB.</div>
+    }
+</div>
+
+@code {
+    private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
+    private IEnumerable<PlantaDocenteReporteDto> planta = new List<PlantaDocenteReporteDto>();
+    private int udbSeleccionada;
+    private bool isLoading;
+    private bool hasBuscado;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            udbs = await Client.UdbsAllAsync();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "Error al cargar las UDBs.";
+        }
+    }
+
+    private void OnUdbChanged(ChangeEventArgs e)
+    {
+        udbSeleccionada = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        planta = new List<PlantaDocenteReporteDto>();
+        hasBuscado = false;
+        errorMessage = null;
+    }
+
+    private async Task CargarReporte()
+    {
+        if (udbSeleccionada == 0) return;
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            planta = await Client.UdbAsync(udbSeleccionada);
+            hasBuscado = true;
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró la UDB seleccionada."
+                : "Error al cargar el reporte.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

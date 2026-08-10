@@ -7,7 +7,7 @@ namespace DocentesApp.Domain.Enums
     {
         Docencia = 1,
         Gestion = 2,
-        Investigación = 3,
+        Investigacion = 3,
         //[Description("Docencia y Gestión")]
         //DocenciaYGestion = 4,
         [Description("Jefe de Cátedra")]
