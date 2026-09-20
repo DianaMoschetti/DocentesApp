@@ -1,0 +1,160 @@
+@page "/designaciones/{Id:int}"
+@using DocentesApp.Shared.DTOs.Designaciones
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Blazor.UI.Helpers
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject IClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Detalle Designación</PageTitle>
+
+<div class="container mt-4">
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (designacion != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                @designacion.NombreCompletoDocente
+                @if (designacion.EsVigente)
+                {
+                    <span class="badge bg-success">Vigente</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Finalizada</span>
+                }
+            </h2>
+            <div>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <button class="btn btn-outline-secondary me-2"
+                                @onclick='() => Navigation.NavigateTo($"designaciones/{Id}/editar")'>
+                            Editar
+                        </button>
+                    </Authorized>
+                </AuthorizeView>
+                <button class="btn btn-outline-secondary"
+                        @onclick='() => Navigation.NavigateTo("designaciones")'>
+                    Volver al listado
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Datos de la designación</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Docente</dt>
+                    <dd class="col-sm-9">@designacion.NombreCompletoDocente</dd>
+
+                    <dt class="col-sm-3">Estado</dt>
+                    <dd class="col-sm-9">@EnumHelper.GetDisplay(designacion.EstadoDesignacion)</dd>
+
+                    <dt class="col-sm-3">Fecha de alta</dt>
+                    <dd class="col-sm-9">@designacion.FechaInicio.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-3">Fecha de baja</dt>
+                    <dd class="col-sm-9">@(designacion.FechaFin?.ToString("dd/MM/yyyy") ?? "-")</dd>
+
+                    <dt class="col-sm-3">Nro. Resolución</dt>
+                    <dd class="col-sm-9">@(designacion.NroResolucion ?? "-")</dd>
+
+                    <dt class="col-sm-3">Nro. Nota</dt>
+                    <dd class="col-sm-9">@(designacion.NroNota ?? "-")</dd>
+
+                    <dt class="col-sm-3">Puntos libres</dt>
+                    <dd class="col-sm-9">@(designacion.PuntosLibres?.ToString() ?? "-")</dd>
+
+                    <dt class="col-sm-3">Observaciones</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(designacion.Observaciones) ? "-" : designacion.Observaciones)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Detalles de actividad</div>
+            <div class="card-body">
+                @if (!designacion.Detalles.Any())
+                {
+                    <p class="text-muted mb-0">Sin actividades cargadas.</p>
+                }
+                else
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Denominación</th>
+                                <th>Tipo</th>
+                                <th>Condición</th>
+                                <th>Dedicación</th>
+                                <th>Asignatura</th>
+                                <th>Curso</th>
+                                <th>Puntos</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var det in designacion.Detalles)
+                            {
+                                <tr>
+                                    <td>@EnumHelper.GetDisplay(det.Especificacion)</td>
+                                    <td>@EnumHelper.GetDisplay(det.Denominacion)</td>
+                                    <td>@EnumHelper.GetDisplay(det.TipoCargo)</td>
+                                    <td>@EnumHelper.GetDisplay(det.Condicion)</td>
+                                    <td>@EnumHelper.GetDisplay(det.TipoDedicacion) (@det.CantidadDedicacion)</td>
+                                    <td>@(det.NombreAsignatura ?? "-")</td>
+                                    <td>@(det.DescripcionCurso ?? "-")</td>
+                                    <td>@(det.PuntosAsignados?.ToString() ?? "-")</td>
+                                    <td>@(string.IsNullOrWhiteSpace(det.Observaciones) ? "-" : det.Observaciones)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private DesignacionDto? designacion;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarDesignacion();
+    }
+
+    private async Task CargarDesignacion()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            designacion = await Client.DesignacionesGETAsync(Id);
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró la designación."
+                : "Error al cargar la designación.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

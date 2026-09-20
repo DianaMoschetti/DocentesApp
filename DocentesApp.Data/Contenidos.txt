@@ -1,6 +1,6 @@
 ﻿Entidades + Enums:  Extensions de enums (DisplayName) en carpeta Extensions/ (solo lógica pura, sin EF) 
 
-Implementaciones concretas de repos/servicios (si decidís usarlos) 
+Implementaciones concretas de repos/servicios
 
 DocentesDbContext 
 
