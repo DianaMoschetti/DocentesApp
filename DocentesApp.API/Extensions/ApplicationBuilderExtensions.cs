@@ -374,34 +374,34 @@ namespace DocentesApp.API.Extensions
             }
         }
 
-        // SEED ASIGNATURAS — descomentar si se necesita resetear la BD
-        // private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
-        // {
-        //     using var scope = app.ApplicationServices.CreateScope();
-        //     var context = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
-        //
-        //     if (await context.Asignaturas.AnyAsync()) return;
-        //
-        //     var asignaturas = new List<Asignatura>
-        //     {
-        //         // UDB Matemática (UdbId = 5)
-        //         new Asignatura { Nombre = "Algebra y Geometría Analítica", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-        //         new Asignatura { Nombre = "Análisis Matemático I",         Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-        //         new Asignatura { Nombre = "Análisis Matemático II",        Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo,   EsVigente = true, UdbId = 5 },
-        //         new Asignatura { Nombre = "Probabilidad y Estadística",    Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero,   EsVigente = true, UdbId = 5 },
-        //
-        //         // UDB Física (UdbId = 6)
-        //         new Asignatura { Nombre = "Física I",  Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 6 },
-        //         new Asignatura { Nombre = "Física II", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 6 },
-        //
-        //         // UDB Cultura e Idiomas (UdbId = 10)
-        //         new Asignatura { Nombre = "Ingeniería y Sociedad", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 10 },
-        //         new Asignatura { Nombre = "Inglés I",              Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 10 },
-        //         new Asignatura { Nombre = "Inglés II",             Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero, EsVigente = true, UdbId = 10 },
-        //     };
-        //
-        //     await context.Asignaturas.AddRangeAsync(asignaturas);
-        //     await context.SaveChangesAsync();
-        // }
+        SEED ASIGNATURAS — descomentar si se necesita resetear la BD
+         private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
+
+            if (await context.Asignaturas.AnyAsync()) return;
+
+            var asignaturas = new List<Asignatura>
+             {
+                 // UDB Matemática (UdbId = 5)
+                 new Asignatura { Nombre = "Algebra y Geometría Analítica", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
+                 new Asignatura { Nombre = "Análisis Matemático I",         Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
+                 new Asignatura { Nombre = "Análisis Matemático II",        Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo,   EsVigente = true, UdbId = 5 },
+                 new Asignatura { Nombre = "Probabilidad y Estadística",    Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero,   EsVigente = true, UdbId = 5 },
+        
+                 // UDB Física (UdbId = 6)
+                 new Asignatura { Nombre = "Física I",  Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 6 },
+                 new Asignatura { Nombre = "Física II", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 6 },
+        
+                 // UDB Cultura e Idiomas (UdbId = 10)
+                 new Asignatura { Nombre = "Ingeniería y Sociedad", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 10 },
+                 new Asignatura { Nombre = "Inglés I",              Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 10 },
+                 new Asignatura { Nombre = "Inglés II",             Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero, EsVigente = true, UdbId = 10 },
+             };
+
+            await context.Asignaturas.AddRangeAsync(asignaturas);
+            await context.SaveChangesAsync();
+        }
     }
 }
