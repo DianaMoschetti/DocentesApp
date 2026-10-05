@@ -19,7 +19,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        // [Diana desde v4.0 OBSOLETO]
+        // options.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+        // La cookie no debe vivir más que el JWT. La expiración real la fija /auth/signin
+        // con ExpiresUtc = jwt.ValidTo; esto es solo el valor por defecto, alineado con
+        // Jwt:DurationInMinutes de la API (15).
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+
+        // SlidingExpiration renovaría la cookie en requests HTTP más allá del vencimiento del JWT
+        // (cookie válida + token vencido = 401). Además, dentro de un circuito de Blazor Server
+        // no hay requests HTTP, así que el sliding no tendría efecto práctico igual.
+        options.SlidingExpiration = false;
     });
 
 builder.Services.AddAuthorizationCore();
@@ -35,6 +46,9 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Aviso de sesión expirada / 401, uno por circuito (ver SessionExpirationWatcher)
+builder.Services.AddScoped<SessionExpirationService>();
+
 // Handler JWT � antes del AddHttpClient
 builder.Services.AddTransient<AuthorizationMessageHandler>();
 
@@ -47,7 +61,15 @@ builder.Services.AddScoped<IClient>(sp =>
 {
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     var httpClient = factory.CreateClient("DocentesAPI");
-    return new Client("https://localhost:7270", httpClient);
+    // [Diana desde v4.0 OBSOLETO]
+    // return new Client("https://localhost:7270", httpClient);
+
+    // El Client se crea en el scope del circuito, así que puede avisar los 401
+    // al SessionExpirationService del mismo circuito.
+    return new Client("https://localhost:7270", httpClient)
+    {
+        SessionExpiration = sp.GetRequiredService<SessionExpirationService>()
+    };
 });
 
 builder.Services.AddHttpClient("BlazorInternal", cl =>
@@ -99,10 +121,19 @@ app.MapPost("/auth/signout", async (HttpContext ctx) =>
     return Results.Ok();
 });
 
-app.MapGet("/auth/signout", async (HttpContext ctx) =>
+// [Diana desde v4.0 OBSOLETO]
+// app.MapGet("/auth/signout", async (HttpContext ctx) =>
+// {
+//     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+//     ctx.Response.Redirect("/login");
+// });
+
+// Borra la cookie y redirige al login. Con ?expired=true (lo usa SessionExpirationWatcher)
+// el login muestra el mensaje de sesión expirada.
+app.MapGet("/auth/signout", async (HttpContext ctx, bool? expired) =>
 {
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    ctx.Response.Redirect("/login");
+    ctx.Response.Redirect(expired == true ? "/login?expired=true" : "/login");
 });
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

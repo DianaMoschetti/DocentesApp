@@ -374,7 +374,7 @@ namespace DocentesApp.API.Extensions
             }
         }
 
-        SEED ASIGNATURAS — descomentar si se necesita resetear la BD
+        // SEED ASIGNATURAS — descomentar si se necesita resetear la BD
          private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();

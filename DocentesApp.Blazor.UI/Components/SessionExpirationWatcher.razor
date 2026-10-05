@@ -1,0 +1,140 @@
+@using System.IdentityModel.Tokens.Jwt
+@implements IDisposable
+@inject AuthenticationStateProvider AuthStateProvider
+@inject SessionExpirationService SessionExpiration
+@inject NavigationManager Navigation
+
+@* Vigila la expiración de la sesión dentro del circuito de Blazor Server.
+   Se coloca en MainLayout con @rendermode InteractiveServer (MainLayout es SSR estático,
+   por eso el chequeo que estaba en el layout nunca llegaba a correr).
+   NO se usa en EmptyLayout / Login para evitar loops de redirección. *@
+
+@if (_mostrarAvisoExpiracion)
+{
+    <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+        Tu sesión expira en 5 minutos. Guardá tu trabajo y volvé a iniciar sesión.
+        <button type="button" class="btn-close" aria-label="Close"
+                @onclick="() => _mostrarAvisoExpiracion = false"></button>
+    </div>
+}
+
+@code {
+    private const string SignOutUrl = "/auth/signout?expired=true";
+    private static readonly TimeSpan TiempoAvisoExpiracion = TimeSpan.FromMinutes(5);
+
+    private Timer? _timerExpiracion;
+    private Timer? _timerAviso;
+    private bool _suscripto;
+    private bool _redirigiendo;
+    private bool _mostrarAvisoExpiracion;
+
+    // Se arranca en OnAfterRender (y no en OnInitialized) para no correr durante el prerender SSR:
+    // ahí no hay circuito y NavigateTo/timers no tienen sentido.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        SessionExpiration.SessionExpired += OnSessionExpired;
+        _suscripto = true;
+
+        // Por si el 401 llegó antes de que este componente se suscribiera.
+        if (SessionExpiration.IsExpired)
+        {
+            OnSessionExpired();
+            return;
+        }
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true)
+            return; // páginas anónimas: no hay sesión que vigilar
+
+        var expiracion = ObtenerExpiracion(authState);
+        if (expiracion == null)
+            return;
+
+        var restante = expiracion.Value - DateTimeOffset.UtcNow;
+        if (restante <= TimeSpan.Zero)
+        {
+            OnSessionExpired();
+            return;
+        }
+
+        // Timer que redirige justo al vencer el JWT, sin esperar a la próxima revalidación.
+        _timerExpiracion = new Timer(_ => OnSessionExpired(), null, Clamp(restante), Timeout.InfiniteTimeSpan);
+
+        var hastaAviso = restante - TiempoAvisoExpiracion;
+        if (hastaAviso <= TimeSpan.Zero)
+        {
+            _mostrarAvisoExpiracion = true;
+            StateHasChanged();
+        }
+        else
+        {
+            _timerAviso = new Timer(_ => _ = InvokeAsync(() =>
+            {
+                _mostrarAvisoExpiracion = true;
+                StateHasChanged();
+            }), null, Clamp(hastaAviso), Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private static DateTimeOffset? ObtenerExpiracion(AuthenticationState authState)
+    {
+        var token = authState.User.FindFirst("access_token")?.Value;
+        if (string.IsNullOrEmpty(token))
+            return null;
+
+        try
+        {
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            return jwt.ValidTo == DateTime.MinValue ? null : new DateTimeOffset(jwt.ValidTo, TimeSpan.Zero);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    // System.Threading.Timer no acepta más de ~49 días.
+    private static TimeSpan Clamp(TimeSpan t) =>
+        t > TimeSpan.FromDays(40) ? TimeSpan.FromDays(40) : t;
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            var state = await task;
+            if (state.User.Identity?.IsAuthenticated != true)
+                Redirigir();
+        });
+    }
+
+    // Puede venir del timer, del hilo de la respuesta HTTP (401) o del revalidador.
+    private void OnSessionExpired()
+    {
+        _ = InvokeAsync(Redirigir);
+    }
+
+    private void Redirigir()
+    {
+        if (_redirigiendo)
+            return;
+        _redirigiendo = true;
+
+        // /auth/signout borra la cookie y redirige a /login?expired=true.
+        Navigation.NavigateTo(SignOutUrl, forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        if (_suscripto)
+        {
+            AuthStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+            SessionExpiration.SessionExpired -= OnSessionExpired;
+        }
+        _timerExpiracion?.Dispose();
+        _timerAviso?.Dispose();
+    }
+}
