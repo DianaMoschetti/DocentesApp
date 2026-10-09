@@ -4,6 +4,7 @@ using DocentesApp.Blazor.UI.Services.Base;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,9 @@ builder.Services.AddRazorComponents()
 
 // HttpContext
 builder.Services.AddHttpContextAccessor();
+
+// Timeout por inactividad de la sesión (sin números mágicos; ver appsettings "Session").
+var idleTimeoutMinutes = builder.Configuration.GetValue("Session:IdleTimeoutMinutes", 15);
 
 // Cookie auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -25,12 +29,53 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         // La cookie no debe vivir más que el JWT. La expiración real la fija /auth/signin
         // con ExpiresUtc = jwt.ValidTo; esto es solo el valor por defecto, alineado con
         // Jwt:DurationInMinutes de la API (15).
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+        // [Diana desde v4.0 OBSOLETO]
+        // options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
 
         // SlidingExpiration renovaría la cookie en requests HTTP más allá del vencimiento del JWT
         // (cookie válida + token vencido = 401). Además, dentro de un circuito de Blazor Server
         // no hay requests HTTP, así que el sliding no tendría efecto práctico igual.
-        options.SlidingExpiration = false;
+        // [Diana desde v4.0 OBSOLETO]
+        // options.SlidingExpiration = false;
+
+        // [Diana desde v4.0] Timeout por INACTIVIDAD: la cookie expira a los
+        // Session:IdleTimeoutMinutes sin actividad, y con SlidingExpiration cada request HTTP
+        // (el keepalive mientras el usuario está activo) la renueva. El tope ABSOLUTO lo sigue
+        // fijando el JWT (Jwt:DurationInMinutes en la API): OnValidatePrincipal rechaza el
+        // principal cuando el exp del token ya pasó, así una cookie deslizante nunca sobrevive
+        // al token.
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(idleTimeoutMinutes);
+        options.SlidingExpiration = true;
+
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async context =>
+            {
+                var token = context.Principal?.FindFirst("access_token")?.Value;
+
+                var expirado = true;
+                if (!string.IsNullOrEmpty(token))
+                {
+                    try
+                    {
+                        // Solo lectura: la firma la valida la API.
+                        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                        expirado = jwt.ValidTo <= DateTime.UtcNow;
+                    }
+                    catch (ArgumentException)
+                    {
+                        expirado = true;
+                    }
+                }
+
+                if (expirado)
+                {
+                    context.RejectPrincipal();
+                    await context.HttpContext.SignOutAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme);
+                }
+            }
+        };
     });
 
 builder.Services.AddAuthorizationCore();
@@ -109,11 +154,27 @@ app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
         new AuthenticationProperties
         {
             IsPersistent = false,
-            ExpiresUtc = jwt.ValidTo
+            // [Diana desde v4.0 OBSOLETO]
+            // Fijaba la expiración de la cookie al vencimiento del JWT (tope absoluto).
+            // Ahora la cookie usa ExpireTimeSpan (ventana de inactividad, deslizante) y el tope
+            // absoluto del JWT lo hace cumplir OnValidatePrincipal. Pinchar ExpiresUtc acá
+            // rompía el sliding: la ventana deslizante pasaba a ser la del JWT en vez de
+            // Session:IdleTimeoutMinutes.
+            // ExpiresUtc = jwt.ValidTo
         });
 
     ctx.Response.Redirect("/");
 });
+
+// [Diana desde v4.0] Endpoint "latido": renueva la cookie deslizante mientras el usuario
+// está activo. Su único fin es ser un request HTTP real (dentro del circuito de Blazor Server
+// no hay requests, así que el sliding no se renovaría solo). Lo pinguea sessionActivity.js.
+// La renovación deslizante recién ocurre pasada la mitad de ExpireTimeSpan, por eso el cliente
+// pinguea periódicamente. No cambia la expiración absoluta del JWT.
+app.MapGet("/auth/keepalive", (HttpContext ctx) =>
+    ctx.User.Identity?.IsAuthenticated == true
+        ? Results.NoContent()
+        : Results.Unauthorized());
 
 app.MapPost("/auth/signout", async (HttpContext ctx) =>
 {
