@@ -3,6 +3,8 @@
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo("/login", forceLoad: false);
+        // [Diana desde v4.0 OBSOLETO]
+        // Navigation.NavigateTo("/login", forceLoad: false);
+        Navigation.NavigateTo("/login", forceLoad: true);
     }
 }
