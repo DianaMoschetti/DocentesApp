@@ -45,6 +45,7 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // DNI duplicado
         public async Task<ActionResult<DocenteDto>> PostDocente([FromBody] CreateDocenteDto dto)
         {
             var result = await _docenteService.CreateAsync(dto);
@@ -62,6 +63,7 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // DNI de otro docente
         public async Task<IActionResult> PutDocente(int id, [FromBody] UpdateDocenteDto dto)
         {
             await _docenteService.UpdateAsync(id, dto);

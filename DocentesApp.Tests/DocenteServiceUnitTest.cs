@@ -193,7 +193,9 @@ public class DocenteServiceUnitTests
     }
 
     [Fact]
-    public async Task CreateAsync_WhenDniExists_ThrowsBadRequestException()
+    // [Diana desde v4.0 OBSOLETO] DNI duplicado ahora lanza ConflictException (409)
+    //public async Task CreateAsync_WhenDniExists_ThrowsBadRequestException()
+    public async Task CreateAsync_WhenDniExists_ThrowsConflictException()
     {
         // Arrange
         var dto = new CreateDocenteDto
@@ -216,9 +218,13 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.CreateAsync(dto);
 
         // Assert
+        // [Diana desde v4.0 OBSOLETO]
+        //await act.Should()
+        //    .ThrowAsync<BadRequestException>()
+        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
-            .ThrowAsync<BadRequestException>()
-            .WithMessage("Ya existe un docente con ese DNI.");
+            .ThrowAsync<ConflictException>()
+            .WithMessage("Ya existe un docente con el DNI 12.345.678.");
 
         _docenteRepositoryMock.Verify(r => r.ExistsByLegajoAsync(dto.Legajo), Times.Once);
         _docenteRepositoryMock.Verify(r => r.ExistsByDniAsync(dto.Dni), Times.Once);
@@ -412,7 +418,9 @@ public class DocenteServiceUnitTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenDniAlreadyExistsInAnotherDocente_ThrowsBadRequestException()
+    // [Diana desde v4.0 OBSOLETO] DNI de otro docente ahora lanza ConflictException (409)
+    //public async Task UpdateAsync_WhenDniAlreadyExistsInAnotherDocente_ThrowsBadRequestException()
+    public async Task UpdateAsync_WhenDniAlreadyExistsInAnotherDocente_ThrowsConflictException()
     {
         // Arrange
         var docente = new Docente
@@ -445,9 +453,13 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.UpdateAsync(1, dto);
 
         // Assert
+        // [Diana desde v4.0 OBSOLETO]
+        //await act.Should()
+        //    .ThrowAsync<BadRequestException>()
+        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
-            .ThrowAsync<BadRequestException>()
-            .WithMessage("Ya existe un docente con ese DNI.");
+            .ThrowAsync<ConflictException>()
+            .WithMessage("Ya existe otro docente con el DNI 22.222.222.");
 
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(dto.Dni!, 1), Times.Once);
@@ -510,7 +522,9 @@ public class DocenteServiceUnitTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenUniqueConstraintFailsOnSave_ThrowsBadRequestException()
+    // [Diana desde v4.0 OBSOLETO] violación del índice único de DNI ahora se mapea a ConflictException (409)
+    //public async Task UpdateAsync_WhenUniqueConstraintFailsOnSave_ThrowsBadRequestException()
+    public async Task UpdateAsync_WhenDniUniqueConstraintFailsOnSave_ThrowsConflictException()
     {
         // Arrange
         var docente = new Docente
@@ -539,9 +553,45 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.UpdateAsync(1, dto);
 
         // Assert
+        // [Diana desde v4.0 OBSOLETO]
+        //await act.Should()
+        //    .ThrowAsync<BadRequestException>()
+        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
-            .ThrowAsync<BadRequestException>()
+            .ThrowAsync<ConflictException>()
             .WithMessage("Ya existe un docente con ese DNI.");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenKeepsOwnDni_DoesNotCheckDniAndUpdates()
+    {
+        // Arrange: guarda el docente sin cambiar su propio DNI
+        var docente = new Docente
+        {
+            Id = 1,
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Dni = "11.111.111",
+            Legajo = 12345
+        };
+
+        var dto = new UpdateDocenteDto
+        {
+            Nombre = "Juan Carlos",
+            Apellido = "Perez",
+            Dni = "11.111.111",
+            Legajo = 12345
+        };
+
+        _docenteRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(docente);
+
+        // Act
+        await _service.UpdateAsync(1, dto);
+
+        // Assert
+        _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]

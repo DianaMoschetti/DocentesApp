@@ -132,7 +132,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task PostDocente_WhenDniExists_ReturnsBadRequest()
+    // [Diana desde v4.0 OBSOLETO] DNI duplicado ahora devuelve 409 Conflict
+    //public async Task PostDocente_WhenDniExists_ReturnsBadRequest()
+    public async Task PostDocente_WhenDniExists_ReturnsConflict()
     {
         // Arrange
         var admin = await Auth.CreateAdminClientAsync();
@@ -141,7 +143,8 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             Nombre = "Duplicado",
             Apellido = "Dni",
             Dni = "11.111.111",
-            Legajo = 88888
+            Legajo = 88888,
+            MaxNivelAcademico = Titulo.Universitario // obligatorio: sin esto el validator corta con 400 antes de llegar al chequeo de DNI
         };
 
         // Act
@@ -149,11 +152,26 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
 
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        // [Diana desde v4.0 OBSOLETO]
+        //response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var body = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict, body);
 
-        var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>(); 
+        // el stream del TestServer no se puede leer dos veces: se deserializa desde el string
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+
+        // ProblemDetails: el mensaje para el usuario va en "detail"
+        var problem = System.Text.Json.JsonSerializer.Deserialize<Microsoft.AspNetCore.Mvc.ProblemDetails>(body, jsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Status.Should().Be(409);
+        problem.Detail.Should().Be("Ya existe un docente con el DNI 11.111.111.");
+
+        // se mantiene compatibilidad con ApiErrorResponse (extensión "message")
+        var error = System.Text.Json.JsonSerializer.Deserialize<ApiErrorResponse>(body, jsonOptions);
         error.Should().NotBeNull();
-        error!.Message.Should().Be("Ya existe un docente con ese DNI.");
+        // [Diana desde v4.0 OBSOLETO]
+        //error!.Message.Should().Be("Ya existe un docente con ese DNI.");
+        error!.Message.Should().Be("Ya existe un docente con el DNI 11.111.111.");
     }
 
     [Fact]
@@ -242,6 +260,56 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         var error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
         error.Should().NotBeNull();
         error!.Message.Should().Be("No se encontró el docente con ID 999.");
+    }
+
+    [Fact]
+    public async Task PutDocente_WhenDniBelongsToAnotherDocente_ReturnsConflict()
+    {
+        // Arrange: el docente 1 (11.111.111) intenta tomar el DNI del docente 2 (22.222.222)
+        var admin = await Auth.CreateAdminClientAsync();
+        var dto = new UpdateDocenteDto
+        {
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Dni = "22.222.222",
+            Legajo = 12345,
+            MaxNivelAcademico = Titulo.Universitario
+        };
+
+        // Act
+        var response = await admin.PutAsJsonAsync("/api/docentes/1", dto);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict, body);
+
+        var problem = System.Text.Json.JsonSerializer.Deserialize<Microsoft.AspNetCore.Mvc.ProblemDetails>(
+            body, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Be("Ya existe otro docente con el DNI 22.222.222.");
+    }
+
+    [Fact]
+    public async Task PutDocente_WhenKeepsOwnDni_ReturnsNoContent()
+    {
+        // Arrange: el docente 1 guarda sin cambiar su propio DNI
+        var admin = await Auth.CreateAdminClientAsync();
+        var dto = new UpdateDocenteDto
+        {
+            Nombre = "Juan",
+            Apellido = "Perez",
+            Dni = "11.111.111",
+            Legajo = 12345,
+            MaxNivelAcademico = Titulo.Universitario,
+            Observaciones = "Mismo DNI"
+        };
+
+        // Act
+        var response = await admin.PutAsJsonAsync("/api/docentes/1", dto);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent, body);
     }
     #endregion
 

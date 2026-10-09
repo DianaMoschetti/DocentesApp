@@ -45,8 +45,11 @@ namespace DocentesApp.Application.Services
             {
                 var yaExisteDni = await _docenteRepository.ExistsByDniAsync(dto.Dni);
 
+                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
+                //if (yaExisteDni)
+                //    throw new BadRequestException("Ya existe un docente con ese DNI.");
                 if (yaExisteDni)
-                    throw new BadRequestException("Ya existe un docente con ese DNI.");
+                    throw new ConflictException($"Ya existe un docente con el DNI {dto.Dni}.");
             }
 
             var docente = _mapper.Map<Docente>(dto);
@@ -82,8 +85,11 @@ namespace DocentesApp.Application.Services
             {
                 var yaExisteDni = await _docenteRepository.ExistsAnotherByDniAsync(dto.Dni, id);
 
+                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
+                //if (yaExisteDni)
+                //    throw new BadRequestException("Ya existe un docente con ese DNI.");
                 if (yaExisteDni)
-                    throw new BadRequestException("Ya existe un docente con ese DNI.");
+                    throw new ConflictException($"Ya existe otro docente con el DNI {dto.Dni}.");
             }
 
             _mapper.Map(dto, docente);
@@ -180,7 +186,9 @@ namespace DocentesApp.Application.Services
 
             if ((normalized.Contains("ix_docentes_dni") || normalized.Contains("dni")) && normalized.Contains("unique"))
             {
-                mappedException = new BadRequestException("Ya existe un docente con ese DNI.");
+                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
+                //mappedException = new BadRequestException("Ya existe un docente con ese DNI.");
+                mappedException = new ConflictException("Ya existe un docente con ese DNI.");
                 return true;
             }
 

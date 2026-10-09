@@ -256,43 +256,60 @@
                 Navigation.NavigateTo("docentes", new NavigationOptions { ReplaceHistoryEntry = true });
             }
         }
+        // [Diana desde v4.0 OBSOLETO] para status 400 NSwag deja ex.Response vacío (lee el stream directo),
+        // así que el Deserialize fallaba y errorMessage quedaba "" -> no se mostraba nada.
+        // Reemplazado por ApiErrorHelper.GetMessage (lee ProblemDetails.Detail o el body crudo).
+        //catch (ApiException ex)
+        //{
+        //    if (ex.StatusCode == 400)
+        //    {
+        //        // extraer errores de validación del JSON de respuesta
+        //        try
+        //        {
+        //            var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ValidationErrorResponse>(
+        //                ex.Response,
+        //                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        //
+        //            if (errorResponse?.Errors != null && errorResponse.Errors.Any())
+        //            {
+        //                // Armamos un mensaje con todos los errores
+        //                errorMessage = string.Join(" | ",
+        //                    errorResponse.Errors.SelectMany(e => e.Value));
+        //            }
+        //            else
+        //            {
+        //                errorMessage = ex.Response; // mostramos el JSON crudo si no podemos parsearlo
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            errorMessage = ex.Response; // fallback al texto crudo
+        //        }
+        //    }
+        //    else
+        //    {
+        //        errorMessage = ex.StatusCode switch
+        //        {
+        //            401 => "No tiene permisos para realizar esta acción.",
+        //            403 => "No tiene permisos para realizar esta acción.",
+        //            409 => "Ya existe un docente con ese DNI o legajo.",
+        //            _ => "Error al guardar. Intentá de nuevo."
+        //        };
+        //    }
+        //}
         catch (ApiException ex)
         {
-            if (ex.StatusCode == 400)
+            errorMessage = ex.StatusCode switch
             {
-                // extraer errores de validación del JSON de respuesta
-                try
-                {
-                    var errorResponse = System.Text.Json.JsonSerializer.Deserialize<ValidationErrorResponse>(
-                        ex.Response,
-                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                    if (errorResponse?.Errors != null && errorResponse.Errors.Any())
-                    {
-                        // Armamos un mensaje con todos los errores
-                        errorMessage = string.Join(" | ",
-                            errorResponse.Errors.SelectMany(e => e.Value));
-                    }
-                    else
-                    {
-                        errorMessage = ex.Response; // mostramos el JSON crudo si no podemos parsearlo
-                    }
-                }
-                catch
-                {
-                    errorMessage = ex.Response; // fallback al texto crudo
-                }
-            }
-            else
-            {
-                errorMessage = ex.StatusCode switch
-                {
-                    401 => "No tiene permisos para realizar esta acción.",
-                    403 => "No tiene permisos para realizar esta acción.",
-                    409 => "Ya existe un docente con ese DNI o legajo.",
-                    _ => "Error al guardar. Intentá de nuevo."
-                };
-            }
+                401 => "No tiene permisos para realizar esta acción.",
+                403 => "No tiene permisos para realizar esta acción.",
+                _ => ApiErrorHelper.GetMessage(ex) // 400, 404, 409 (DNI/legajo duplicado), 500...
+            };
+        }
+        catch (Exception)
+        {
+            // errores no esperados (API caída, timeout, etc.): mensaje genérico, sin romper el circuito
+            errorMessage = "Error al guardar. Intentá de nuevo.";
         }
         finally
         {
