@@ -5,6 +5,7 @@ using DocentesApp.Application.Common.Constants;
 using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Application.Common.Responses;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DocentesApp.API.Middleware
 {
@@ -138,12 +139,48 @@ namespace DocentesApp.API.Middleware
 
             context.Response.StatusCode = statusCode;
 
-            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            // [Diana desde v4.0 OBSOLETO] ahora se devuelve ProblemDetails (lo que espera el cliente NSwag)
+            //var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            //{
+            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            //});
+
+            // ProblemDetails estándar: el mensaje para el usuario va en "detail".
+            // Se mantienen statusCode/message/details/traceId como extensiones para no romper
+            // a quien todavía lee el body como ApiErrorResponse.
+            var problem = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = GetTitle(statusCode),
+                Detail = response.Message,
+                Instance = context.Request.Path
+            };
+            problem.Extensions["statusCode"] = response.StatusCode;
+            problem.Extensions["message"] = response.Message;
+            problem.Extensions["details"] = response.Details;
+            problem.Extensions["traceId"] = response.TraceId;
+
+            context.Response.ContentType = "application/problem+json";
+
+            var json = JsonSerializer.Serialize(problem, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
             await context.Response.WriteAsync(json);
+        }
+
+        private static string GetTitle(int statusCode)
+        {
+            return statusCode switch
+            {
+                StatusCodes.Status400BadRequest => UserMessages.BadRequest,
+                StatusCodes.Status401Unauthorized => UserMessages.Unauthorized,
+                StatusCodes.Status403Forbidden => UserMessages.Forbidden,
+                StatusCodes.Status404NotFound => UserMessages.NotFound,
+                StatusCodes.Status409Conflict => UserMessages.Conflict,
+                _ => UserMessages.Error500
+            };
         }
     }
 }
