@@ -9,6 +9,8 @@ namespace DocentesApp.Application.Interfaces.Services
         Task<PuntosPorCargoDto> GetByIdAsync(int id);
         Task<PuntosPorCargoDto> CreateAsync(CreatePuntosPorCargoDto dto);
         Task DeleteAsync(int id);
-        Task<decimal> GetPuntosAsync(DenominacionCargo denominacion, TipoCargo tipoCargo);
+        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente
+        //Task<decimal> GetPuntosAsync(DenominacionCargo denominacion, TipoCargo tipoCargo);
+        Task<decimal> GetPuntosAsync(CargoDocente cargo);
     }
 }

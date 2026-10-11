@@ -17,6 +17,10 @@ namespace DocentesApp.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Cargo> builder)
         {
+            // v5: Designacion ya no tiene CargoId. Sin esto EF crea por convención la columna sombra
+            // Designaciones.CargoId (FK a Cargos) a partir de Cargo.Designaciones.
+            builder.Ignore(c => c.Designaciones);
+
             //builder.ToTable("Cargos");
             //builder.HasKey(c => c.Id);
 

@@ -26,6 +26,14 @@ namespace DocentesApp.Data.Configurations
                 .UsingEntity(j => j.ToTable("DocentesLaboratorios")); //tabla puente
 
             builder.HasIndex(l => l.Nombre).IsUnique(); //no puede haber dos laboratorios con el mismo nombre
+
+            // Director: FK explícita a DirectorDocenteId (mismo criterio que UdbConfig). Sin esto EF crea
+            // una columna sombra DirectorId y DirectorDocenteId queda sin FK.
+            // ClientSetNull = comportamiento que tenía por convención (en la BD: NO ACTION).
+            builder.HasOne(l => l.Director)
+                .WithMany()
+                .HasForeignKey(l => l.DirectorDocenteId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

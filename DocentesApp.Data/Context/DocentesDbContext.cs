@@ -30,7 +30,10 @@ namespace DocentesApp.Data.Context
         public DbSet<Laboratorio> Laboratorios => Set<Laboratorio>();
         public DbSet<PlantaSnapshot> PlantaSnapshots => Set<PlantaSnapshot>();
         public DbSet<PlantaDocenteSnapshot> PlantaDocenteSnapshots => Set<PlantaDocenteSnapshot>();
-        public DbSet<DetalleDesignacion> DetalleDesignaciones => Set<DetalleDesignacion>();
+        // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por CargoDesignacion + Actividad
+        //public DbSet<DetalleDesignacion> DetalleDesignaciones => Set<DetalleDesignacion>();
+        public DbSet<CargoDesignacion> CargosDesignacion => Set<CargoDesignacion>();
+        public DbSet<Actividad> Actividades => Set<Actividad>();
         public DbSet<PuntosPorCargo> PuntosPorCargo => Set<PuntosPorCargo>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

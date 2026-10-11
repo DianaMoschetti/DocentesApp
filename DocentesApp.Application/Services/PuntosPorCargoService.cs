@@ -56,9 +56,15 @@ namespace DocentesApp.Application.Services
             await _puntosPorCargoRepository.SaveChangesAsync();
         }
 
-        public async Task<decimal> GetPuntosAsync(DenominacionCargo denominacion, TipoCargo tipoCargo)
+        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente
+        //public async Task<decimal> GetPuntosAsync(DenominacionCargo denominacion, TipoCargo tipoCargo)
+        //{
+        //    var puntosPorCargo = await _puntosPorCargoRepository.GetByCargoAsync(denominacion, tipoCargo);
+        //    return puntosPorCargo?.PuntosBase ?? 0;
+        //}
+        public async Task<decimal> GetPuntosAsync(CargoDocente cargo)
         {
-            var puntosPorCargo = await _puntosPorCargoRepository.GetByCargoAsync(denominacion, tipoCargo);
+            var puntosPorCargo = await _puntosPorCargoRepository.GetByCargoAsync(cargo);
             return puntosPorCargo?.PuntosBase ?? 0;
         }
     }

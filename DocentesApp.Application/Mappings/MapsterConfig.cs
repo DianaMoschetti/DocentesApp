@@ -69,13 +69,16 @@ namespace DocentesApp.Application.Mappings
                 .Map(dest => dest.DescripcionCurso, src => src.Curso != null
                     ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
 
-            config.NewConfig<CreateDesignacionDto, Designacion>()
-                .Map(dest => dest.Detalles, src => src.Detalles);
+            // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5); el mapeo de cargos se rehace en la etapa Application
+            //config.NewConfig<CreateDesignacionDto, Designacion>()
+            //    .Map(dest => dest.Detalles, src => src.Detalles);
+            config.NewConfig<CreateDesignacionDto, Designacion>();
 
             config.NewConfig<UpdateDesignacionDto, Designacion>()
                 .Ignore(dest => dest.Id)
-                .Ignore(dest => dest.DocenteId)
-                .Map(dest => dest.Detalles, src => src.Detalles);
+                .Ignore(dest => dest.DocenteId);
+                // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5)
+                //.Map(dest => dest.Detalles, src => src.Detalles);
 
             config.NewConfig<Designacion, ListDesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
@@ -94,7 +97,9 @@ namespace DocentesApp.Application.Mappings
                 //     ? src.Cargo.Denominacion.ToString() : string.Empty)
                 // .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
                 //     ? src.Dedicacion.DescTipo.ToString() : string.Empty)
-                .Map(dest => dest.Detalles, src => src.Detalles);
+                // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5); el mapeo de cargos se rehace en la etapa Application
+                //.Map(dest => dest.Detalles, src => src.Detalles);
+                ;
             #endregion
 
             #region Docente
@@ -172,8 +177,10 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<CreatePuntosPorCargoDto, PuntosPorCargo>();
 
             config.NewConfig<PuntosPorCargo, PuntosPorCargoDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.Denominacion} {src.TipoCargo}");
+                // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente; el DTO se adapta en la etapa Shared
+                //.Map(dest => dest.Descripcion, src =>
+                //    $"{src.Denominacion} {src.TipoCargo}");
+                .Map(dest => dest.Descripcion, src => src.Cargo.ToString());
             #endregion
         }
 

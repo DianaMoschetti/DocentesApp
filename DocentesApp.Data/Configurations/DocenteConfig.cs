@@ -11,8 +11,12 @@ namespace DocentesApp.Data.Configurations
             builder.ToTable("Docentes");
             builder.HasKey(d => d.Id);
 
-            builder.Property(d => d.Legajo).IsRequired();
-            builder.HasIndex(d => d.Legajo).IsUnique();
+            // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional; si tiene valor es único
+            //builder.Property(d => d.Legajo).IsRequired();
+            //builder.HasIndex(d => d.Legajo).IsUnique();
+            builder.HasIndex(d => d.Legajo)
+                .IsUnique()
+                .HasFilter("[Legajo] IS NOT NULL");
 
             // Campos de Persona
             builder.Property(d => d.Dni).HasMaxLength(20);

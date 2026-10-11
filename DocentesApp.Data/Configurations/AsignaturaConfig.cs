@@ -21,6 +21,7 @@ namespace DocentesApp.Data.Configurations
             builder.HasOne(x => x.Udb)
              .WithMany(u => u.Asignaturas)
              .HasForeignKey(x => x.UdbId)
+             .IsRequired() // v5: toda asignatura pertenece a una UDB
              .OnDelete(DeleteBehavior.Restrict);
             // Unicidad lógica: una asignatura no se puede repetir en una misma udb con el mismo nombre y nivel
             // [Diana desde v4.0 OBSOLETO] índice anterior usaba NombreAsignatura (enum)
@@ -28,10 +29,11 @@ namespace DocentesApp.Data.Configurations
             builder.HasIndex(x => new { x.UdbId, x.Nombre, x.Nivel })
              .IsUnique();
             // Una asignatura tiene muchas designaciones y una designación pertenece a una asignatura
-            builder.HasMany(x => x.DetalleDesignacion)
-             .WithOne(d => d.Asignatura)
-             .HasForeignKey(d => d.AsignaturaId)
-             .OnDelete(DeleteBehavior.Restrict);
+            // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por Actividad (relación configurada en ActividadConfig)
+            //builder.HasMany(x => x.DetalleDesignacion)
+            // .WithOne(d => d.Asignatura)
+            // .HasForeignKey(d => d.AsignaturaId)
+            // .OnDelete(DeleteBehavior.Restrict);
             // Una asignatura tiene muchos asignatura-modulos y un asignatura-modulo pertenece a una asignatura VER
             builder.HasMany(x => x.AsignaturaModulos)
              .WithOne(am => am.Asignatura)

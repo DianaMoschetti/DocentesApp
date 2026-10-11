@@ -60,5 +60,17 @@ namespace DocentesApp.Data.Repositories
             return await _context.Asignaturas
                 .AnyAsync(a => a.UdbId == udbId);
         }
+
+        public async Task<bool> EsMiembroAsync(int docenteId, int udbId)
+        {
+            return await _context.DocenteUdbs
+                .AnyAsync(du => du.DocenteId == docenteId && du.UdbId == udbId);
+        }
+
+        // Solo agrega al contexto: se guarda junto con la designación (mismo DbContext scoped, un solo SaveChanges)
+        public async Task AddMiembroAsync(DocenteUdb docenteUdb)
+        {
+            await _context.DocenteUdbs.AddAsync(docenteUdb);
+        }
     }
 }

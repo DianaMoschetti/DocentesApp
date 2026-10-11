@@ -630,6 +630,11 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // db.Dedicaciones.Add(dedicacion);
         // await db.SaveChangesAsync();
 
+        // v5: el cargo necesita una UDB (FK obligatoria)
+        var udb = new Udb { Nombre = $"UDB Test {Guid.NewGuid():N}" };
+        db.Udbs.Add(udb);
+        await db.SaveChangesAsync();
+
         var designacion = new Designacion
         {
             DocenteId = docenteId,
@@ -640,19 +645,36 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             FechaFin = null,
             EstadoDesignacion = Estado.Activa,
             Observaciones = "Designación para test",
-            Detalles = new List<DetalleDesignacion>
-        {
-            new DetalleDesignacion
+            // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
+        //    Detalles = new List<DetalleDesignacion>
+        //{
+        //    new DetalleDesignacion
+        //    {
+        //        Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
+        //        TipoCargo = TipoCargo.Adjunto,
+        //        Condicion = Condicion.Interino,
+        //        TipoDedicacion = TipoDedicacion.Simple,
+        //        CantidadDedicacion = 1,
+        //        Especificacion = EspecificacionCargo.Docencia,
+        //        PuntosAsignados = 119
+        //    }
+        //}
+            Cargos = new List<CargoDesignacion>
             {
-                Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
-                TipoCargo = TipoCargo.Adjunto,
-                Condicion = Condicion.Interino,
-                TipoDedicacion = TipoDedicacion.Simple,
-                CantidadDedicacion = 1,
-                Especificacion = EspecificacionCargo.Docencia,
-                PuntosAsignados = 119
+                new CargoDesignacion
+                {
+                    Cargo = CargoDocente.JefeTrabajosPracticos,
+                    Condicion = Condicion.Interino,
+                    TipoDedicacion = TipoDedicacion.Simple,
+                    CantidadDedicacion = 1,
+                    UdbId = udb.Id,
+                    Puntos = 119,
+                    Actividades = new List<Actividad>
+                    {
+                        new Actividad { Especificacion = EspecificacionCargo.Docencia }
+                    }
+                }
             }
-        }
         };
 
         db.Designaciones.Add(designacion);

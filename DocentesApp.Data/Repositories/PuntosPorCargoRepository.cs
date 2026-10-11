@@ -23,11 +23,22 @@ namespace DocentesApp.Data.Repositories
             return await _context.PuntosPorCargo
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
-        public async Task<PuntosPorCargo?> GetByCargoAsync(DenominacionCargo denominacion, TipoCargo tipoCargo)
+        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente
+        //public async Task<PuntosPorCargo?> GetByCargoAsync(DenominacionCargo denominacion, TipoCargo tipoCargo)
+        //{
+        //    return await _context.PuntosPorCargo
+        //        .FirstOrDefaultAsync(p => p.Denominacion == denominacion
+        //            && p.TipoCargo == tipoCargo);
+        //}
+        public async Task<PuntosPorCargo?> GetByCargoAsync(CargoDocente cargo)
         {
             return await _context.PuntosPorCargo
-                .FirstOrDefaultAsync(p => p.Denominacion == denominacion
-                    && p.TipoCargo == tipoCargo);
+                .FirstOrDefaultAsync(p => p.Cargo == cargo);
+        }
+        public async Task<bool> EstaEnUsoAsync(CargoDocente cargo)
+        {
+            return await _context.CargosDesignacion
+                .AnyAsync(c => c.Cargo == cargo);
         }
         public async Task AddAsync(PuntosPorCargo puntosPorCargo)
         {

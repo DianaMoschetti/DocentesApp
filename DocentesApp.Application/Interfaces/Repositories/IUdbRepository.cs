@@ -12,5 +12,8 @@ namespace DocentesApp.Application.Interfaces.Repositories
         void Delete(Udb udb);
         Task SaveChangesAsync();
         Task<bool> HasAsignaturasAsync(int udbId);
+        // Membresía docente-UDB (v5): al crear un cargo en una UDB a la que el docente no pertenece, se agrega
+        Task<bool> EsMiembroAsync(int docenteId, int udbId);
+        Task AddMiembroAsync(DocenteUdb docenteUdb);
     }
 }
