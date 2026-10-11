@@ -151,7 +151,8 @@ namespace DocentesApp.Application.Services
                     "La designación debe tener al menos un cargo.");
 
             // Validaciones que necesitan la BD (UDB, catálogo de puntos, asignaturas, cursos, suplencias)
-            var puntosBase = await ValidarCargosAsync(dto.DocenteId, dto.Cargos);
+            // En el alta no hay cargos existentes: todas las suplencias son nuevas y se validan.
+            var puntosBase = await ValidarCargosAsync(dto.DocenteId, dto.Cargos, new Dictionary<int, int?>());
 
             // Mapster arma solo la cabecera; los cargos se arman acá porque los puntos los calcula el backend
             var designacion = _mapper.Map<Designacion>(dto);
@@ -224,7 +225,9 @@ namespace DocentesApp.Application.Services
             if (idAjeno != null)
                 throw new BadRequestException($"El cargo con ID {idAjeno} no pertenece a esta designación.");
 
-            var puntosBase = await ValidarCargosAsync(designacion.DocenteId, dto.Cargos);
+            // ReemplazaACargoId actual de cada cargo: si no cambia, no se revalida la suplencia
+            var reemplazosActuales = existentes.ToDictionary(kv => kv.Key, kv => kv.Value.ReemplazaACargoId);
+            var puntosBase = await ValidarCargosAsync(designacion.DocenteId, dto.Cargos, reemplazosActuales);
 
             // Cargos quitados
             var idsEnviados = dto.Cargos.Where(c => c.Id.HasValue).Select(c => c.Id!.Value).ToHashSet();
@@ -300,7 +303,11 @@ namespace DocentesApp.Application.Services
 
         // Validaciones de los cargos que necesitan la BD. Devuelve los PuntosBase vigentes del catálogo por cargo.
         // (Las reglas sin BD — actividades por especificación, Ayudante de 2° solo Simple, etc. — están en los validadores de Shared.)
-        private async Task<Dictionary<CargoDocente, decimal>> ValidarCargosAsync(int docenteId, IEnumerable<UpsertCargoDesignacionDto> cargos)
+        // reemplazosActuales: Id de cargo existente -> su ReemplazaACargoId guardado (vacío en el alta).
+        private async Task<Dictionary<CargoDocente, decimal>> ValidarCargosAsync(
+            int docenteId,
+            IEnumerable<UpsertCargoDesignacionDto> cargos,
+            IReadOnlyDictionary<int, int?> reemplazosActuales)
         {
             var puntosBase = new Dictionary<CargoDocente, decimal>();
             var udbsValidadas = new HashSet<int>();
@@ -350,7 +357,15 @@ namespace DocentesApp.Application.Services
                     if (!reemplazados.Add(reemplazadoId))
                         throw new BadRequestException("Dos cargos de la designación no pueden reemplazar al mismo cargo.");
 
-                    await ValidarReemplazoAsync(docenteId, cargo, reemplazadoId);
+                    // Las reglas (b), (c), (d), (f), (g) se validan solo si la suplencia es nueva o cambió.
+                    // Si un cargo existente mantiene su ReemplazaACargoId no se revalida: si no, un suplente cuyo
+                    // reemplazado volvió de la licencia (o cuya designación se cerró) no se podría volver a editar.
+                    var mantieneReemplazo = cargo.Id.HasValue
+                        && reemplazosActuales.TryGetValue(cargo.Id.Value, out var reemplazoActual)
+                        && reemplazoActual == reemplazadoId;
+
+                    if (!mantieneReemplazo)
+                        await ValidarReemplazoAsync(docenteId, cargo, reemplazadoId);
                 }
             }
 

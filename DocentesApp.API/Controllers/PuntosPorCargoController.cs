@@ -45,10 +45,29 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // ya hay puntos para ese cargo
         public async Task<ActionResult<PuntosPorCargoDto>> PostPuntosPorCargo([FromBody] CreatePuntosPorCargoDto dto)
         {
             var result = await _puntosPorCargoService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetPuntosPorCargo), new { id = result.Id }, result);
+        }
+
+        #endregion
+
+        #region Update
+
+        // Solo cambia PuntosBase; no recalcula los puntos guardados en designaciones existentes
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutPuntosPorCargo(int id, [FromBody] UpdatePuntosPorCargoDto dto)
+        {
+            await _puntosPorCargoService.UpdateAsync(id, dto);
+            return NoContent();
         }
 
         #endregion
@@ -61,7 +80,9 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        // [Diana desde v4.0 OBSOLETO] ahora documenta el cuerpo ProblemDetails del 409
+        //[ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // el cargo se usa en designaciones
         public async Task<IActionResult> DeletePuntosPorCargo(int id)
         {
             await _puntosPorCargoService.DeleteAsync(id);

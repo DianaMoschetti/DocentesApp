@@ -53,6 +53,18 @@ namespace DocentesApp.API.Controllers
             return Ok(result);
         }
 
+        // Opciones del selector "Reemplaza a": cargos en licencia de la UDB, en designaciones vigentes y sin suplente vigente
+        [HttpGet("cargos-en-licencia")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<CargoEnLicenciaDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)] // UDB inexistente
+        public async Task<ActionResult<IEnumerable<CargoEnLicenciaDto>>> GetCargosEnLicencia([FromQuery] int udbId)
+        {
+            var result = await _designacionService.GetCargosEnLicenciaAsync(udbId);
+            return Ok(result);
+        }
+
         #endregion
 
         #region Create
@@ -63,6 +75,8 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)] // docente, UDB, asignatura, curso o cargo reemplazado inexistente
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // el cargo reemplazado ya tiene suplente vigente
         public async Task<ActionResult<DesignacionDto>> PostDesignacion([FromBody] CreateDesignacionDto dto)
         {
             var result = await _designacionService.CreateAsync(dto);
@@ -80,6 +94,7 @@ namespace DocentesApp.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // suplente vigente duplicado o cargo quitado que otro reemplaza
         public async Task<IActionResult> PutDesignacion(int id, [FromBody] UpdateDesignacionDto dto)
         {
             await _designacionService.UpdateAsync(id, dto);
