@@ -2,6 +2,8 @@ using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
+    // [Diana desde v4.0 OBSOLETO] reemplazado por CargoDesignacion (cargo) + Actividad (actividades)
+    [Obsolete("Usar CargoDesignacion y Actividad.")]
     public class DetalleDesignacion
     {
         public int Id { get; set; }

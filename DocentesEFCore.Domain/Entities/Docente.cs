@@ -6,7 +6,9 @@ namespace DocentesApp.Domain.Entities
     public class Docente : Persona
     {
         public int Id { get; set; }
-        public int Legajo { get; set; }
+        // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional: los docentes nuevos suelen empezar antes de tenerlo
+        //public int Legajo { get; set; }
+        public int? Legajo { get; set; } // si tiene valor, es único (índice filtrado)
         public Titulo Titulo { get; set; } // terciario / universitario / posgrado
         public string MaxNivelAcademico { get; set; } = string.Empty;// especialista / maestro / doctor / investigador
         public string? Observaciones { get; set; } = string.Empty;

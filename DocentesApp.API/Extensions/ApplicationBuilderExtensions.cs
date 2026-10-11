@@ -271,8 +271,11 @@ namespace DocentesApp.API.Extensions
 
                 var docentesPorLegajo = await context.Docentes
                     .AsNoTracking()
-                    .Where(d => legajos.Contains(d.Legajo))
-                    .ToDictionaryAsync(d => d.Legajo, d => d.Id);
+                    // [Diana desde v4.0 OBSOLETO] Legajo ahora es int? (opcional)
+                    //.Where(d => legajos.Contains(d.Legajo))
+                    //.ToDictionaryAsync(d => d.Legajo, d => d.Id);
+                    .Where(d => d.Legajo.HasValue && legajos.Contains(d.Legajo.Value))
+                    .ToDictionaryAsync(d => d.Legajo!.Value, d => d.Id);
 
                 for (var i = 0; i < udbsData.Count; i++)
                 {
@@ -338,7 +341,10 @@ namespace DocentesApp.API.Extensions
 
                 var docentesPorLegajo = await context.Docentes
                     .AsNoTracking()
-                    .ToDictionaryAsync(d => d.Legajo, d => d.Id);
+                    // [Diana desde v4.0 OBSOLETO] Legajo ahora es int? (opcional): se excluyen los docentes sin legajo
+                    //.ToDictionaryAsync(d => d.Legajo, d => d.Id);
+                    .Where(d => d.Legajo.HasValue)
+                    .ToDictionaryAsync(d => d.Legajo!.Value, d => d.Id);
 
                 var udbsPorNombre = await context.Udbs
                     .AsNoTracking()

@@ -2,6 +2,9 @@
 
 namespace DocentesApp.Domain.Enums
 {
+    // [Diana desde v4.0 OBSOLETO] reemplazado por CargoDocente (Denominacion + TipoCargo en un solo enum).
+    // Becario, Adscripto y Administrativo no forman parte de CargoDocente.
+    [Obsolete("Usar CargoDocente.")]
     public enum DenominacionCargo
     {
         Profesor = 1,
