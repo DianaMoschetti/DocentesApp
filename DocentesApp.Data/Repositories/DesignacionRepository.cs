@@ -121,6 +121,11 @@ namespace DocentesApp.Data.Repositories
                     && c.Designacion.EstadoDesignacion == Estado.Activa
                     && (c.Designacion.FechaFin == null || c.Designacion.FechaFin > hoy));
         }
+        public async Task<bool> TieneReemplazosAsync(int cargoId)
+        {
+            return await _context.CargosDesignacion
+                .AnyAsync(c => c.ReemplazaACargoId == cargoId);
+        }
         public async Task AddAsync(Designacion designacion)
         {
             await _context.Designaciones.AddAsync(designacion);

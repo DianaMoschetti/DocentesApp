@@ -12,5 +12,7 @@ namespace DocentesApp.Application.Interfaces.Services
         Task<DesignacionDto> CreateAsync(CreateDesignacionDto dto);
         Task UpdateAsync(int id, UpdateDesignacionDto dto);
         Task CerrarAsync(int id);
+        // Opciones del selector "Reemplaza a" (cargos en licencia de la UDB sin suplente vigente)
+        Task<IEnumerable<CargoEnLicenciaDto>> GetCargosEnLicenciaAsync(int udbId);
     }
 }

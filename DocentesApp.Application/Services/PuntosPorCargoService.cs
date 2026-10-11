@@ -3,6 +3,7 @@ using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Interfaces.Services;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Domain.Extensions;
 using DocentesApp.Shared.DTOs.PuntosPorCargo;
 using MapsterMapper;
 
@@ -37,6 +38,11 @@ namespace DocentesApp.Application.Services
 
         public async Task<PuntosPorCargoDto> CreateAsync(CreatePuntosPorCargoDto dto)
         {
+            // Una sola fila por cargo (índice único en Cargo)
+            var existente = await _puntosPorCargoRepository.GetByCargoAsync(dto.Cargo);
+            if (existente != null)
+                throw new ConflictException($"Ya hay puntos cargados para el cargo {dto.Cargo.Descripcion()}.");
+
             var puntosPorCargo = _mapper.Map<PuntosPorCargo>(dto);
 
             await _puntosPorCargoRepository.AddAsync(puntosPorCargo);
@@ -45,12 +51,29 @@ namespace DocentesApp.Application.Services
             return _mapper.Map<PuntosPorCargoDto>(puntosPorCargo);
         }
 
+        // Solo cambia los puntos base. Los puntos ya guardados en designaciones existentes NO se recalculan.
+        public async Task UpdateAsync(int id, UpdatePuntosPorCargoDto dto)
+        {
+            var puntosPorCargo = await _puntosPorCargoRepository.GetByIdAsync(id);
+
+            if (puntosPorCargo == null)
+                throw new NotFoundException($"No se encontraron puntos por cargo con ID {id}.");
+
+            puntosPorCargo.PuntosBase = dto.PuntosBase;
+            await _puntosPorCargoRepository.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(int id)
         {
             var puntosPorCargo = await _puntosPorCargoRepository.GetByIdAsync(id);
 
             if (puntosPorCargo == null)
                 throw new NotFoundException($"No se encontraron puntos por cargo con ID {id}.");
+
+            // No se puede borrar la fila de un cargo que ya se usa en designaciones
+            if (await _puntosPorCargoRepository.EstaEnUsoAsync(puntosPorCargo.Cargo))
+                throw new ConflictException(
+                    $"No se pueden eliminar los puntos de {puntosPorCargo.Cargo.Descripcion()} porque hay designaciones con ese cargo.");
 
             _puntosPorCargoRepository.Delete(puntosPorCargo);
             await _puntosPorCargoRepository.SaveChangesAsync();

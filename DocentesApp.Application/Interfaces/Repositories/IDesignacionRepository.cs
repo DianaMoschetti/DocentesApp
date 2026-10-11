@@ -26,6 +26,8 @@ namespace DocentesApp.Application.Interfaces.Repositories
         Task<CargoDesignacion?> GetCargoByIdAsync(int cargoId);
         // Regla (f): un cargo en licencia tiene a lo sumo un suplente vigente
         Task<bool> ExisteSuplenteActivoAsync(int cargoReemplazadoId, int? excludeCargoId = null);
+        // true si algún cargo (vigente o no) lo referencia como reemplazado: no se puede quitar (FK sin cascada)
+        Task<bool> TieneReemplazosAsync(int cargoId);
         Task AddAsync(Designacion designacion);
         void Update(Designacion designacion);
         Task SaveChangesAsync();
