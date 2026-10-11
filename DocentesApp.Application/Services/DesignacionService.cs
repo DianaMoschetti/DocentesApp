@@ -82,9 +82,13 @@ namespace DocentesApp.Application.Services
             //         "Ya existe una designación activa para ese docente con ese cargo.");
 
             // DIANA VER Validar que tenga al menos un detalle (regla 25)
-            if (dto.Detalles == null || !dto.Detalles.Any())
+            // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5); la creación completa se reescribe en la etapa Application
+            //if (dto.Detalles == null || !dto.Detalles.Any())
+            //    throw new BadRequestException(
+            //        "La designación debe tener al menos un detalle de actividad.");
+            if (dto.Cargos == null || !dto.Cargos.Any())
                 throw new BadRequestException(
-                    "La designación debe tener al menos un detalle de actividad.");
+                    "La designación debe tener al menos un cargo.");
 
             // Mapster crea la cabecera y los detalles juntos
             var designacion = _mapper.Map<Designacion>(dto);
@@ -113,9 +117,13 @@ namespace DocentesApp.Application.Services
             //             "Ya existe una designación activa para ese docente con ese cargo.");
             // }
 
-            if (dto.Detalles == null || !dto.Detalles.Any())
+            // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5); la edición completa se reescribe en la etapa Application
+            //if (dto.Detalles == null || !dto.Detalles.Any())
+            //    throw new BadRequestException(
+            //        "La designación debe tener al menos un detalle de actividad.");
+            if (dto.Cargos == null || !dto.Cargos.Any())
                 throw new BadRequestException(
-                    "La designación debe tener al menos un detalle de actividad.");
+                    "La designación debe tener al menos un cargo.");
 
             _mapper.Map(dto, designacion);
             _designacionRepository.Update(designacion);

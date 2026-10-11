@@ -1,6 +1,8 @@
 ﻿using DocentesApp.Domain.Enums;
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
+    // [Diana desde v4.0 OBSOLETO] reemplazado por UpsertCargoDesignacionDto + UpsertActividadDto
+    [Obsolete("Usar UpsertCargoDesignacionDto y UpsertActividadDto.")]
     public class CreateDetalleDesignacionDto
     {
         // sin id pq se genera cuando se inserta en la db

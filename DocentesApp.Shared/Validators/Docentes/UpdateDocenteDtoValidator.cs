@@ -17,12 +17,20 @@ namespace DocentesApp.Shared.Validators.Docentes
                 .NotEmpty().WithMessage("El apellido es obligatorio.")
                 .MaximumLength(100).WithMessage("El apellido no puede superar los 100 caracteres.");
 
+            // [Diana desde v4.0 OBSOLETO] el DNI pasa a ser obligatorio también al editar (v5)
+            //RuleFor(x => x.Dni)
+            //    .MaximumLength(15).WithMessage("El DNI no puede superar los 15 caracteres.")
+            //    .When(x => !string.IsNullOrWhiteSpace(x.Dni));
             RuleFor(x => x.Dni)
-                .MaximumLength(15).WithMessage("El DNI no puede superar los 15 caracteres.")
-                .When(x => !string.IsNullOrWhiteSpace(x.Dni));
+                .NotEmpty().WithMessage("El DNI es obligatorio.")
+                .MaximumLength(15).WithMessage("El DNI no puede superar los 15 caracteres.");
 
+            // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
+            //RuleFor(x => x.Legajo)
+            //    .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.");
             RuleFor(x => x.Legajo)
-                .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.");
+                .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.")
+                .When(x => x.Legajo.HasValue);
 
             RuleFor(x => x.Email)
                 .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email))

@@ -1,6 +1,8 @@
 ﻿using DocentesApp.Domain.Enums;
 namespace DocentesApp.Shared.DTOs.Designaciones
 {
+    // [Diana desde v4.0 OBSOLETO] reemplazado por CargoDesignacionDto + ActividadDto
+    [Obsolete("Usar CargoDesignacionDto y ActividadDto.")]
     public class DetalleDesignacionDto
     {
         public int Id { get; set; }

@@ -1,6 +1,8 @@
 ﻿
 namespace DocentesApp.Shared.DTOs.Reportes
 {
+    // [Diana desde v4.0 OBSOLETO] reemplazado por PlantaUdbFilaDto / PlantaUdbReporteDto (v5)
+    [Obsolete("Usar PlantaUdbFilaDto y PlantaUdbReporteDto.")]
     public class PlantaDocenteReporteDto
     {
         public string NombreCompleto { get; set; } = string.Empty;

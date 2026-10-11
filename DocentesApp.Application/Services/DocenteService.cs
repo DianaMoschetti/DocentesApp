@@ -36,10 +36,18 @@ namespace DocentesApp.Application.Services
 
         public async Task<DocenteDto> CreateAsync(CreateDocenteDto dto)
         {
-            var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
+            // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): solo se valida si viene
+            //var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
+            //
+            //if (yaExisteLegajo)
+            //    throw new BadRequestException("Ya existe un docente con ese legajo.");
+            if (dto.Legajo.HasValue)
+            {
+                var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo.Value);
 
-            if (yaExisteLegajo)
-                throw new BadRequestException("Ya existe un docente con ese legajo.");
+                if (yaExisteLegajo)
+                    throw new BadRequestException("Ya existe un docente con ese legajo.");
+            }
 
             if (!string.IsNullOrWhiteSpace(dto.Dni))
             {
@@ -74,9 +82,13 @@ namespace DocentesApp.Application.Services
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            if (dto.Legajo != docente.Legajo)
+            // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): solo se valida si viene y cambió
+            //if (dto.Legajo != docente.Legajo)
+            //{
+            //    var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
+            if (dto.Legajo.HasValue && dto.Legajo != docente.Legajo)
             {
-                var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
+                var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo.Value);
 
                 if (yaExisteLegajo)
                     throw new BadRequestException("Ya existe un docente con ese legajo.");

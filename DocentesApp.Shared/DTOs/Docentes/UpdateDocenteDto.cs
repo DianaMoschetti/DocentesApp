@@ -13,7 +13,9 @@ namespace DocentesApp.Shared.DTOs.Docentes
         public string? Dni { get; set; }
        
         [Range(1, 8)]
-        public int Legajo { get; set; }
+        // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
+        //public int Legajo { get; set; }
+        public int? Legajo { get; set; }
         [EmailAddress]
         public string? Email { get; set; }
         [EmailAddress]
