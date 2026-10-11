@@ -167,7 +167,8 @@ namespace DocentesApp.API.Extensions
                     (96743, "PERALTA", "LETICIA", "26739666"),
                     (26756, "PEREZ SOTTILE", "RICARDO", "16985592"),
                     (66213, "PEREZ", "MARIANA DEL VALLE", "22828780"),
-                    (47538, "PIETROBON", "ORNELLA", null),
+                    // [Diana desde v4.0 OBSOLETO] docente duplicado: el legajo correcto es 95028
+                    //(47538, "PIETROBON", "ORNELLA", null),
                     (95028, "PIETROBON", "ORNELLA", "42609063"),
                     (33128, "POMATA", "DANIELA NOEMI", "18113040"),
                     (86615, "PROPERZI", "MARIA FLORENCIA", "34168691"),
@@ -331,7 +332,9 @@ namespace DocentesApp.API.Extensions
                     ["UDB Química"] = new[] { 73637 },
                     ["UDB Sistemas de Representación"] = new[] { 26796, 36007, 47016 },
                     ["UDB Legislación y Economía"] = new[] { 27824, 19980, 89685, 86247, 80228, 93509, 50784, 58475, 92990 },
-                    ["UDB Cultura e Idiomas"] = new[] { 19576, 63411, 47538, 90541, 89816, 90540, 91330, 91679, 89817 },
+                    // [Diana desde v4.0 OBSOLETO] PIETROBON 47538 era un duplicado: su membresía pasa a 95028
+                    //["UDB Cultura e Idiomas"] = new[] { 19576, 63411, 47538, 90541, 89816, 90540, 91330, 91679, 89817 },
+                    ["UDB Cultura e Idiomas"] = new[] { 19576, 63411, 95028, 90541, 89816, 90540, 91330, 91679, 89817 },
                     ["Laboratorio de Informática"] = new[]
                     {
                         44951, 26775, 82408, 92338, 75257, 89219, 96063, 55179, 38137, 89579,
