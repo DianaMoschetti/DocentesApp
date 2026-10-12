@@ -12,9 +12,11 @@ namespace DocentesApp.Shared.DTOs.Docentes
         [MaxLength(15)]
         public string? Dni { get; set; }
        
-        [Range(1, 8)]
+        // [Diana desde v4.0 OBSOLETO] Range(1, 8) rechazaba casi cualquier legajo real
+        //[Range(1, 8)]
         // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
         //public int Legajo { get; set; }
+        [Range(1, int.MaxValue)] // opcional; si viene, mayor a 0 (Range ignora null), igual que UpdateDocenteDtoValidator
         public int? Legajo { get; set; }
         [EmailAddress]
         public string? Email { get; set; }

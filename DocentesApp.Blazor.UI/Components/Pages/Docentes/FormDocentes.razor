@@ -73,7 +73,9 @@
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Legajo <span class="text-danger">*</span></label>
+                            @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5)
+                            <label class="form-label">Legajo <span class="text-danger">*</span></label> *@
+                            <label class="form-label">Legajo</label>
                                 <InputNumber class="form-control" @bind-Value="docenteDto.Legajo" />
                                 <ValidationMessage For="@(() => docenteDto.Legajo)" />
                         </div>

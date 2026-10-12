@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using DocentesApp.Domain.Extensions;
 
 namespace DocentesApp.Blazor.UI.Helpers
 {
@@ -29,11 +30,18 @@ namespace DocentesApp.Blazor.UI.Helpers
         /// <summary>
         /// Devuelve todos los valores de un enum como lista de (valor, texto).
         /// Útil para construir dropdowns.
+        /// Los valores marcados con [Obsolete] no se ofrecen (ej. Condicion.Becario, las "Media ..." de TipoDedicacion).
         /// </summary>
         public static List<(T Value, string Display)> GetOptions<T>() where T : Enum
         {
+            // [Diana desde v4.0 OBSOLETO] ahora se excluyen los valores obsoletos
+            //return Enum.GetValues(typeof(T))
+            //    .Cast<T>()
+            //    .Select(e => (e, GetDisplayName(e)))
+            //    .ToList();
             return Enum.GetValues(typeof(T))
                 .Cast<T>()
+                .Where(e => !e.EsObsoleto())
                 .Select(e => (e, GetDisplayName(e)))
                 .ToList();
         }

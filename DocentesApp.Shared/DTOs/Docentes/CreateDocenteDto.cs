@@ -8,9 +8,9 @@ namespace DocentesApp.Shared.DTOs.Docentes
         [Required]
         [MaxLength(15)]
         public string Dni { get; set; } = null!;
-        [Range(1, int.MaxValue)]
         // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
         //public int Legajo { get; set; }
+        [Range(1, int.MaxValue)] // opcional; si viene, mayor a 0 (Range ignora null)
         public int? Legajo { get; set; }
         [Required]        
         public string Nombre { get; set; } = null!;
