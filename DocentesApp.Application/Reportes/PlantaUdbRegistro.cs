@@ -11,6 +11,10 @@ namespace DocentesApp.Application.Reportes
         public string DocenteNombre { get; set; } = string.Empty;
         public int? Legajo { get; set; }
 
+        // UDB del cargo (permite agrupar el reporte por docente cuando tiene cargos en varias UDB)
+        public int UdbId { get; set; }
+        public string NombreUdb { get; set; } = string.Empty;
+
         public CargoDocente Cargo { get; set; }
         public Condicion Condicion { get; set; }
         public TipoDedicacion TipoDedicacion { get; set; }
