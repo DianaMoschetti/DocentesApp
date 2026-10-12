@@ -383,34 +383,124 @@ namespace DocentesApp.API.Extensions
             }
         }
 
+        // [Diana desde v4.0 OBSOLETO] UdbIds hardcodeados de una BD anterior (en la BD v5 apuntan a otras UDB o no existen)
+        // y no era método de extensión (no se podía llamar). Reemplazado por el SeedAsignaturasAsync de abajo.
         // SEED ASIGNATURAS — descomentar si se necesita resetear la BD
-         private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
+         //private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
+        //{
+            //using var scope = app.ApplicationServices.CreateScope();
+            //var context = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
+
+            //if (await context.Asignaturas.AnyAsync()) return;
+
+            //var asignaturas = new List<Asignatura>
+             //{
+                 //// UDB Matemática (UdbId = 5)
+                 //new Asignatura { Nombre = "Algebra y Geometría Analítica", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
+                 //new Asignatura { Nombre = "Análisis Matemático I",         Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
+                 //new Asignatura { Nombre = "Análisis Matemático II",        Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo,   EsVigente = true, UdbId = 5 },
+                 //new Asignatura { Nombre = "Probabilidad y Estadística",    Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero,   EsVigente = true, UdbId = 5 },
+        
+                 //// UDB Física (UdbId = 6)
+                 //new Asignatura { Nombre = "Física I",  Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 6 },
+                 //new Asignatura { Nombre = "Física II", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 6 },
+        
+                 //// UDB Cultura e Idiomas (UdbId = 10)
+                 //new Asignatura { Nombre = "Ingeniería y Sociedad", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 10 },
+                 //new Asignatura { Nombre = "Inglés I",              Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 10 },
+                 //new Asignatura { Nombre = "Inglés II",             Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero, EsVigente = true, UdbId = 10 },
+             //};
+
+            //await context.Asignaturas.AddRangeAsync(asignaturas);
+            //await context.SaveChangesAsync();
+        //}
+
+        // Inserta solo las asignaturas que faltan (por UDB + Nombre, sin distinguir mayúsculas; el Nivel no se compara).
+        // Nunca actualiza ni borra las existentes: las cargadas a mano no se duplican.
+        // Nivel = el nivel más habitual; algunas asignaturas se dictan en distintos años según la carrera
+        // (el año real lo da el Curso).
+        public static async Task SeedAsignaturasAsync(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
+
             var context = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(ApplicationBuilderExtensions));
 
-            if (await context.Asignaturas.AnyAsync()) return;
+            try
+            {
+                // Nombre de la Udb (igual que en SeedUdbsAsync), Nombre, Nivel, Frecuencia
+                var asignaturasData = new List<(string Udb, string Nombre, Nivel Nivel, Frecuencia Frecuencia)>
+                {
+                    ("UDB Matemática", "Análisis Matemático I", Nivel.Primero, Frecuencia.Anual),
+                    ("UDB Matemática", "Álgebra y Geometría Analítica", Nivel.Primero, Frecuencia.Anual),
+                    ("UDB Matemática", "Análisis Matemático II", Nivel.Segundo, Frecuencia.Anual),
+                    ("UDB Matemática", "Probabilidad y Estadística", Nivel.Segundo, Frecuencia.Anual),
 
-            var asignaturas = new List<Asignatura>
-             {
-                 // UDB Matemática (UdbId = 5)
-                 new Asignatura { Nombre = "Algebra y Geometría Analítica", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-                 new Asignatura { Nombre = "Análisis Matemático I",         Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-                 new Asignatura { Nombre = "Análisis Matemático II",        Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo,   EsVigente = true, UdbId = 5 },
-                 new Asignatura { Nombre = "Probabilidad y Estadística",    Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero,   EsVigente = true, UdbId = 5 },
-        
-                 // UDB Física (UdbId = 6)
-                 new Asignatura { Nombre = "Física I",  Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 6 },
-                 new Asignatura { Nombre = "Física II", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 6 },
-        
-                 // UDB Cultura e Idiomas (UdbId = 10)
-                 new Asignatura { Nombre = "Ingeniería y Sociedad", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 10 },
-                 new Asignatura { Nombre = "Inglés I",              Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 10 },
-                 new Asignatura { Nombre = "Inglés II",             Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero, EsVigente = true, UdbId = 10 },
-             };
+                    ("UDB Física", "Física I", Nivel.Primero, Frecuencia.Anual),
+                    ("UDB Física", "Física II", Nivel.Segundo, Frecuencia.Anual),
+                    ("UDB Física", "Taller de Óptica Geométrica", Nivel.Primero, Frecuencia.Taller),
 
-            await context.Asignaturas.AddRangeAsync(asignaturas);
-            await context.SaveChangesAsync();
+                    ("UDB Química", "Química General", Nivel.Primero, Frecuencia.Anual),
+                    ("UDB Química", "Química Aplicada a la Informática", Nivel.Segundo, Frecuencia.Cuatrimestral),
+
+                    ("UDB Cultura e Idiomas", "Inglés I", Nivel.Primero, Frecuencia.Anual),
+                    ("UDB Cultura e Idiomas", "Inglés II", Nivel.Segundo, Frecuencia.Anual),
+                    ("UDB Cultura e Idiomas", "Ingeniería y Sociedad", Nivel.Primero, Frecuencia.Anual),
+
+                    ("UDB Legislación y Economía", "Economía", Nivel.Tercero, Frecuencia.Anual),
+                    ("UDB Legislación y Economía", "Legislación", Nivel.Cuarto, Frecuencia.Anual),
+                    ("UDB Legislación y Economía", "Organización y Administración de Empresas", Nivel.Quinto, Frecuencia.Anual),
+
+                    ("UDB Sistemas de Representación", "Sistemas de Representación", Nivel.Primero, Frecuencia.Anual),
+                };
+
+                var udbsPorNombre = await context.Udbs
+                    .AsNoTracking()
+                    .ToDictionaryAsync(u => u.Nombre, u => u.Id);
+
+                // Asignaturas existentes como (UdbId, Nombre) para no duplicarlas
+                var existentes = (await context.Asignaturas
+                        .AsNoTracking()
+                        .Select(a => new { a.UdbId, a.Nombre })
+                        .ToListAsync())
+                    .Select(a => (a.UdbId, Nombre: a.Nombre.Trim().ToUpperInvariant()))
+                    .ToHashSet();
+
+                var nuevas = new List<Asignatura>();
+
+                foreach (var data in asignaturasData)
+                {
+                    if (!udbsPorNombre.TryGetValue(data.Udb, out var udbId))
+                    {
+                        logger.LogWarning("Seed de asignaturas: no se encontró la UDB '{Udb}'; se omite '{Asignatura}'.", data.Udb, data.Nombre);
+                        continue;
+                    }
+
+                    if (!existentes.Add((udbId, data.Nombre.Trim().ToUpperInvariant())))
+                        continue;
+
+                    nuevas.Add(new Asignatura
+                    {
+                        Nombre = data.Nombre,
+                        Nivel = data.Nivel,
+                        Frecuencia = data.Frecuencia,
+                        EsVigente = true,
+                        UdbId = udbId
+                    });
+                }
+
+                if (nuevas.Count == 0)
+                    return;
+
+                await context.Asignaturas.AddRangeAsync(nuevas);
+                await context.SaveChangesAsync();
+
+                logger.LogInformation("Seed de asignaturas: se insertaron {Cantidad} asignaturas.", nuevas.Count);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error al seedear Asignaturas");
+            }
         }
     }
 }

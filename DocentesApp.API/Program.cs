@@ -195,6 +195,7 @@ await app.SeedDocentesAsync();
 await app.SeedUdbsAsync();
 await app.SeedDocenteUdbAsync();
 //await app.SeedAsignaturasAsync();
+await app.SeedAsignaturasAsync();
 
 app.Run();
 
