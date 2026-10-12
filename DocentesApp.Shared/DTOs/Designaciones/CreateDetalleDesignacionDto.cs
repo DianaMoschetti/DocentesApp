@@ -1,22 +1,23 @@
-﻿using DocentesApp.Domain.Enums;
-namespace DocentesApp.Shared.DTOs.Designaciones
-{
-    // [Diana desde v4.0 OBSOLETO] reemplazado por UpsertCargoDesignacionDto + UpsertActividadDto
-    [Obsolete("Usar UpsertCargoDesignacionDto y UpsertActividadDto.")]
-    public class CreateDetalleDesignacionDto
-    {
-        // sin id pq se genera cuando se inserta en la db
-        public DenominacionCargo Denominacion { get; set; }
-        public TipoCargo TipoCargo { get; set; }
-        public Condicion Condicion { get; set; }
-        public TipoDedicacion TipoDedicacion { get; set; }
-        public float CantidadDedicacion { get; set; }
-        public EspecificacionCargo Especificacion { get; set; }
-        public int? AsignaturaId { get; set; }
-        public int? CursoId { get; set; }
-        // [Diana desde v4.0 OBSOLETO] PuntosUtilizados renombrado a PuntosAsignados
-        // public decimal? PuntosUtilizados { get; set; }
-        public decimal? PuntosAsignados { get; set; } // calculado desde PuntosPorCargo
-        public string? Observaciones { get; set; }
-    }
-}
+﻿// [Diana desde v4.0 OBSOLETO] archivo completo comentado: reemplazado por UpsertCargoDesignacionDto + UpsertActividadDto (v5).
+//using DocentesApp.Domain.Enums;
+//namespace DocentesApp.Shared.DTOs.Designaciones
+//{
+//    // [Diana desde v4.0 OBSOLETO] reemplazado por UpsertCargoDesignacionDto + UpsertActividadDto
+//    [Obsolete("Usar UpsertCargoDesignacionDto y UpsertActividadDto.")]
+//    public class CreateDetalleDesignacionDto
+//    {
+//        // sin id pq se genera cuando se inserta en la db
+//        public DenominacionCargo Denominacion { get; set; }
+//        public TipoCargo TipoCargo { get; set; }
+//        public Condicion Condicion { get; set; }
+//        public TipoDedicacion TipoDedicacion { get; set; }
+//        public float CantidadDedicacion { get; set; }
+//        public EspecificacionCargo Especificacion { get; set; }
+//        public int? AsignaturaId { get; set; }
+//        public int? CursoId { get; set; }
+//        // [Diana desde v4.0 OBSOLETO] PuntosUtilizados renombrado a PuntosAsignados
+//        // public decimal? PuntosUtilizados { get; set; }
+//        public decimal? PuntosAsignados { get; set; } // calculado desde PuntosPorCargo
+//        public string? Observaciones { get; set; }
+//    }
+//}

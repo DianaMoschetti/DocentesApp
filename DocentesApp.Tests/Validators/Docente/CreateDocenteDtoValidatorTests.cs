@@ -33,6 +33,18 @@ public class CreateDocenteDtoValidatorTests
             .WithErrorMessage("El legajo debe ser mayor a 0.");
     }
 
+    // v5: el legajo es opcional
+    [Fact]
+    public void Should_Not_Have_Error_When_Legajo_Is_Null()
+    {
+        var dto = BuildValidDto();
+        dto.Legajo = null;
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.Legajo);
+    }
+
     [Fact]
     public void Should_Have_Error_When_Observaciones_Exceeds_Max_Length()
     {
