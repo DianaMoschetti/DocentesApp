@@ -74,6 +74,7 @@
                     <th>Nro. Resolución</th>
                     <th>Fecha inicio</th>
                     <th>Fecha fin</th>
+                    <th class="text-end">Puntos</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -90,6 +91,7 @@
                         <td>@d.NroResolucion</td>
                         <td>@d.FechaInicio.ToString("dd/MM/yyyy")</td>
                         <td>@(d.FechaFin?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td class="text-end">@d.TotalPuntos.ToString("0.##")</td>
                         <td>
                             @if (d.EsVigente)
                             {

@@ -18,9 +18,8 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         // public decimal? PuntosLibres { get; set; }
         public Estado EstadoDesignacion { get; set; }
         public string? Observaciones { get; set; }
-        // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5). Se comenta cuando se reescriba el form de Blazor.
-        [Obsolete("Usar Cargos.")]
-        public List<CreateDetalleDesignacionDto> Detalles { get; set; } = new();
+        // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5)
+        //public List<CreateDetalleDesignacionDto> Detalles { get; set; } = new();
         public List<UpsertCargoDesignacionDto> Cargos { get; set; } = new(); // 1..N
     }
 }

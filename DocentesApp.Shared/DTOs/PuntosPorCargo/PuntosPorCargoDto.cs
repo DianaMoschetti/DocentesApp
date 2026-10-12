@@ -5,11 +5,9 @@ namespace DocentesApp.Shared.DTOs.PuntosPorCargo
     public class PuntosPorCargoDto
     {
         public int Id { get; set; }
-        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser Cargo (CargoDocente). Se comentan cuando se reescriba DesignacionesForm.
-        [Obsolete("Usar Cargo.")]
-        public DenominacionCargo Denominacion { get; set; }
-        [Obsolete("Usar Cargo.")]
-        public TipoCargo TipoCargo { get; set; }
+        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser Cargo (CargoDocente)
+        //public DenominacionCargo Denominacion { get; set; }
+        //public TipoCargo TipoCargo { get; set; }
         public CargoDocente Cargo { get; set; }
         public decimal PuntosBase { get; set; }
         // [Diana desde v4.0 OBSOLETO] antes "{Denominacion} {TipoCargo}"

@@ -71,8 +71,11 @@
                     <dt class="col-sm-3">Nro. Nota</dt>
                     <dd class="col-sm-9">@(designacion.NroNota ?? "-")</dd>
 
+                    @* [Diana desde v4.0 OBSOLETO] PuntosLibres reemplazado por el total de puntos de los cargos
                     <dt class="col-sm-3">Puntos libres</dt>
-                    <dd class="col-sm-9">@(designacion.PuntosLibres?.ToString() ?? "-")</dd>
+                    <dd class="col-sm-9">@(designacion.PuntosLibres?.ToString() ?? "-")</dd> *@
+                    <dt class="col-sm-3">Total de puntos</dt>
+                    <dd class="col-sm-9">@designacion.TotalPuntos.ToString("0.##")</dd>
 
                     <dt class="col-sm-3">Observaciones</dt>
                     <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(designacion.Observaciones) ? "-" : designacion.Observaciones)</dd>
@@ -80,6 +83,7 @@
             </div>
         </div>
 
+        @* [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
         <div class="card mb-4">
             <div class="card-header">Detalles de actividad</div>
             <div class="card-body">
@@ -123,6 +127,66 @@
                 }
             </div>
         </div>
+        *@
+
+        @* v5: un bloque por cargo; los puntos son del cargo (se cuentan una vez) y las actividades solo se listan *@
+        <h4 class="mb-3">Cargos</h4>
+        @if (!designacion.Cargos.Any())
+        {
+            <p class="text-muted">Sin cargos cargados.</p>
+        }
+        @foreach (var cargo in designacion.Cargos)
+        {
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        <strong>@cargo.CargoTexto</strong>
+                        — @EnumHelper.GetDisplay(cargo.Condicion)
+                        — @cargo.DedicacionTexto
+                        — @(cargo.NombreUdb ?? "-")
+                        @if (cargo.EnLicencia)
+                        {
+                            <span class="badge bg-warning text-dark ms-2">En licencia</span>
+                        }
+                    </span>
+                    <span><strong>@cargo.Puntos.ToString("0.##")</strong> puntos</span>
+                </div>
+                <div class="card-body">
+                    @if (cargo.ReemplazaACargoId.HasValue)
+                    {
+                        <p class="mb-2"><strong>Reemplaza a:</strong> @(cargo.ReemplazaADescripcion ?? $"cargo {cargo.ReemplazaACargoId}")</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(cargo.Observaciones))
+                    {
+                        <p class="mb-2"><strong>Observaciones:</strong> @cargo.Observaciones</p>
+                    }
+
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Asignatura</th>
+                                <th>Curso</th>
+                                <th>Horario</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var act in cargo.Actividades)
+                            {
+                                <tr>
+                                    <td>@EnumHelper.GetDisplay(act.Especificacion)</td>
+                                    <td>@(act.NombreAsignatura ?? "-")</td>
+                                    <td>@(act.DescripcionCurso ?? "-")</td>
+                                    <td>@(string.IsNullOrWhiteSpace(act.Horario) ? "-" : act.Horario)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(act.Observaciones) ? "-" : act.Observaciones)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
     }
 </div>
 

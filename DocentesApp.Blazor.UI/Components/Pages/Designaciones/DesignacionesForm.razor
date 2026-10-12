@@ -1,4 +1,5 @@
 ﻿@page "/designaciones/nuevo"
+@page "/designaciones/{Id:int}/editar"
 @using DocentesApp.Shared.DTOs.Designaciones
 @using DocentesApp.Shared.DTOs.Docentes
 @using DocentesApp.Shared.DTOs.Asignaturas
@@ -11,6 +12,9 @@
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
+@using DocentesApp.Shared.Validators.Designaciones
+@using System.Text.RegularExpressions
+@* [Diana desde v4.0 OBSOLETO] formulario v4 (cargo y actividad en una sola fila de "Detalles"), reemplazado por el formulario v5 de más abajo
 
 <PageTitle>Nueva Designación</PageTitle>
 
@@ -36,7 +40,9 @@
 
         <EditForm Model="dto" OnSubmit="HandleSubmit">
 
+*@
             @* Cabecera *@
+@* [Diana desde v4.0 OBSOLETO] (continúa el formulario v4)
             <div class="card mb-4">
                 <div class="card-header">Datos de la designación</div>
                 <div class="card-body">
@@ -75,7 +81,9 @@
                 </div>
             </div>
 
+*@
             @* Detalles *@
+@* [Diana desde v4.0 OBSOLETO] (continúa el formulario v4)
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Detalles de actividad</span>
@@ -225,6 +233,9 @@
     }
 </div>
 
+*@
+
+@* [Diana desde v4.0 OBSOLETO] código del formulario v4
 @code {
     private CreateDesignacionDto dto = new()
     {
@@ -374,5 +385,353 @@
         {
             isSaving = false;
         }
+    }
+}
+*@
+
+@* v5: Designacion -> Cargos (tarjetas) -> Actividades (sub-tabla expandible). Sirve para alta y edición. *@
+<PageTitle>@(esEdicion ? "Editar Designación" : "Nueva Designación")</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(esEdicion ? "Editar Designación" : "Nueva Designación")</h2>
+        <button class="btn btn-outline-secondary" @onclick="Volver">
+            Volver
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Cargando datos...</p>
+    }
+    else
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <EditForm Model="dto" OnSubmit="HandleSubmit">
+
+            @* Cabecera de la designación *@
+            <div class="card mb-4">
+                <div class="card-header">Datos de la designación</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Docente <span class="text-danger">*</span></label>
+                            @if (esEdicion)
+                            {
+                                @* El docente no se cambia en la edición (UpdateDesignacionDto no lo lleva) *@
+                                <input class="form-control" value="@docenteNombre" disabled />
+                            }
+                            else
+                            {
+                                <InputSelect class="form-select" @bind-Value="dto.DocenteId">
+                                    <option value="0">-- Seleccionar docente --</option>
+                                    @foreach (var docente in docentes)
+                                    {
+                                        <option value="@docente.Id">@docente.NombreCompleto</option>
+                                    }
+                                </InputSelect>
+                            }
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Fecha inicio <span class="text-danger">*</span></label>
+                            <InputDate class="form-control" @bind-Value="dto.FechaInicio" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Fecha fin</label>
+                            <InputDate class="form-control" @bind-Value="dto.FechaFin" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nro. Resolución</label>
+                            <InputText class="form-control" @bind-Value="dto.NroResolucion" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nro. Nota</label>
+                            <InputText class="form-control" @bind-Value="dto.NroNota" />
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <InputTextArea class="form-control" @bind-Value="dto.Observaciones" rows="2" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Cargos: los puntos son del cargo y se cuentan una vez, aunque tenga varias actividades *@
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">Cargos</h4>
+                <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AgregarCargo">
+                    + Agregar cargo
+                </button>
+            </div>
+
+            @if (!dto.Cargos.Any())
+            {
+                <p class="text-muted">No hay cargos cargados. Agregá al menos uno.</p>
+            }
+
+            @foreach (var (cargo, index) in dto.Cargos.Select((c, i) => (c, i)))
+            {
+                <CargoDesignacionEditor @key="cargo"
+                                        Cargo="cargo"
+                                        Numero="index + 1"
+                                        Udbs="udbs"
+                                        Asignaturas="asignaturas"
+                                        Cursos="cursos"
+                                        PuntosPorCargo="puntosPorCargo"
+                                        DescripcionReemplazoActual="@DescripcionReemplazo(cargo)"
+                                        OnQuitar="() => QuitarCargo(cargo)"
+                                        OnCambio="RecalcularTotal" />
+            }
+
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger mt-3">@errorMessage</div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span>Total de puntos (vista previa): <strong>@TextoTotalPuntos</strong></span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="Volver"
+                            disabled="@isSaving">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Guardar")
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; } // null = alta, con valor = edición
+    private bool esEdicion => Id.HasValue;
+
+    // El formulario edita siempre un CreateDesignacionDto; en la edición se convierte a UpdateDesignacionDto al guardar
+    private CreateDesignacionDto dto = NuevaDesignacion();
+    private string docenteNombre = string.Empty;
+    // Edición: descripción del cargo que ya reemplaza cada cargo suplente ("Perez, Juan – PAd 1 DE")
+    private Dictionary<UpsertCargoDesignacionDto, string?> descripcionesReemplazo = new();
+
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+
+    // Catálogos para los dropdowns
+    private ICollection<ListDocenteDto> docentes = new List<ListDocenteDto>();
+    private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
+    private ICollection<ListCursoDto> cursos = new List<ListCursoDto>();
+    private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
+    // Puntos por cargo — para la vista previa de puntos
+    private ICollection<PuntosPorCargoDto> puntosPorCargo = new List<PuntosPorCargoDto>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            // Cargamos todos los catálogos en paralelo para ser más eficientes
+            var docentesTask = Client.DocentesAllAsync();
+            var asignaturasTask = Client.AsignaturasAllAsync();
+            var cursosTask = Client.CursosAllAsync();
+            var udbsTask = Client.UdbsAllAsync();
+            var puntosTask = Client.PuntosPorCargoAllAsync();
+
+            await Task.WhenAll(docentesTask, asignaturasTask, cursosTask, udbsTask, puntosTask);
+
+            docentes = await docentesTask;
+            asignaturas = await asignaturasTask;
+            cursos = await cursosTask;
+            udbs = await udbsTask;
+            puntosPorCargo = await puntosTask;
+
+            if (esEdicion)
+                await CargarDesignacionAsync(Id!.Value);
+            else
+            {
+                dto = NuevaDesignacion();
+                dto.Cargos.Add(NuevoCargo());
+                descripcionesReemplazo = new();
+            }
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró la designación."
+                : "Error al cargar los datos. Intentá de nuevo.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Edición: DesignacionDto -> CreateDesignacionDto, conservando los Id de cargos y actividades
+    private async Task CargarDesignacionAsync(int id)
+    {
+        var designacion = await Client.DesignacionesGETAsync(id);
+
+        docenteNombre = designacion.NombreCompletoDocente;
+        descripcionesReemplazo = new();
+        dto = new CreateDesignacionDto
+        {
+            DocenteId = designacion.DocenteId,
+            FechaInicio = designacion.FechaInicio,
+            FechaFin = designacion.FechaFin,
+            NroResolucion = designacion.NroResolucion,
+            NroNota = designacion.NroNota,
+            EstadoDesignacion = designacion.EstadoDesignacion,
+            Observaciones = designacion.Observaciones
+        };
+
+        foreach (var c in designacion.Cargos)
+        {
+            var cargo = new UpsertCargoDesignacionDto
+            {
+                Id = c.Id,
+                Cargo = c.Cargo,
+                Condicion = c.Condicion,
+                TipoDedicacion = c.TipoDedicacion,
+                CantidadDedicacion = c.CantidadDedicacion,
+                UdbId = c.UdbId,
+                EnLicencia = c.EnLicencia,
+                ReemplazaACargoId = c.ReemplazaACargoId,
+                Observaciones = c.Observaciones,
+                Actividades = c.Actividades.Select(a => new UpsertActividadDto
+                {
+                    Id = a.Id,
+                    Especificacion = a.Especificacion,
+                    AsignaturaId = a.AsignaturaId,
+                    CursoId = a.CursoId,
+                    Horario = a.Horario,
+                    Observaciones = a.Observaciones
+                }).ToList()
+            };
+            dto.Cargos.Add(cargo);
+            descripcionesReemplazo[cargo] = c.ReemplazaADescripcion;
+        }
+    }
+
+    private static CreateDesignacionDto NuevaDesignacion() => new()
+    {
+        FechaInicio = DateTime.Today,
+        EstadoDesignacion = Estado.Activa
+    };
+
+    private static UpsertCargoDesignacionDto NuevoCargo() => new()
+    {
+        Cargo = CargoDocente.ProfesorAdjunto,
+        Condicion = Condicion.Interino,
+        TipoDedicacion = TipoDedicacion.Simple,
+        CantidadDedicacion = 1,
+        Actividades = new List<UpsertActividadDto>
+        {
+            new UpsertActividadDto { Especificacion = EspecificacionCargo.Docencia }
+        }
+    };
+
+    private string? DescripcionReemplazo(UpsertCargoDesignacionDto cargo) =>
+        descripcionesReemplazo.TryGetValue(cargo, out var descripcion) ? descripcion : null;
+
+    private void AgregarCargo() => dto.Cargos.Add(NuevoCargo());
+
+    private void QuitarCargo(UpsertCargoDesignacionDto cargo) => dto.Cargos.Remove(cargo);
+
+    // El total se recalcula en cada render; este callback solo fuerza el re-render del padre
+    private void RecalcularTotal() { }
+
+    private string TextoTotalPuntos
+    {
+        get
+        {
+            var previews = dto.Cargos.Select(c => PuntosPreviewHelper.Calcular(c, puntosPorCargo)).ToList();
+            var total = previews.Sum(p => p ?? 0);
+            return previews.Any(p => p == null)
+                ? $"{total:0.##} (hay cargos sin puntos en el catálogo)"
+                : total.ToString("0.##");
+        }
+    }
+
+    private void Volver() =>
+        Navigation.NavigateTo(esEdicion ? $"designaciones/{Id}" : "designaciones");
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+
+        // Validaciones client-side (las mismas reglas que valida la API)
+        var errores = esEdicion
+            ? (await new UpdateDesignacionDtoValidator().ValidateAsync(ArmarUpdateDto())).Errors
+            : (await new CreateDesignacionDtoValidator().ValidateAsync(dto)).Errors;
+        if (errores.Any())
+        {
+            errorMessage = string.Join(" | ", errores.Select(e => Prefijo(e.PropertyName) + e.ErrorMessage).Distinct());
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            if (esEdicion)
+            {
+                await Client.DesignacionesPUTAsync(Id!.Value, ArmarUpdateDto());
+                Navigation.NavigateTo($"designaciones/{Id}", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+            else
+            {
+                var creada = await Client.DesignacionesPOSTAsync(dto);
+                Navigation.NavigateTo($"designaciones/{creada.Id}", new NavigationOptions { ReplaceHistoryEntry = true });
+            }
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode switch
+            {
+                401 => "No tiene permisos para realizar esta acción.",
+                403 => "No tiene permisos para realizar esta acción.",
+                _ => ApiErrorHelper.GetMessage(ex) // 400, 404, 409 (suplente duplicado, cargo reemplazado), 500...
+            };
+        }
+        catch (Exception)
+        {
+            // errores no esperados (API caída, timeout, etc.): mensaje genérico, sin romper el circuito
+            errorMessage = "Error al guardar. Intentá de nuevo.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private UpdateDesignacionDto ArmarUpdateDto() => new()
+    {
+        FechaInicio = dto.FechaInicio,
+        FechaFin = dto.FechaFin,
+        NroResolucion = dto.NroResolucion,
+        NroNota = dto.NroNota,
+        EstadoDesignacion = dto.EstadoDesignacion,
+        Observaciones = dto.Observaciones,
+        Cargos = dto.Cargos
+    };
+
+    // "Cargos[1].Actividades[0].AsignaturaId" -> "Cargo 2, actividad 1: "
+    private static string Prefijo(string propertyName)
+    {
+        var m = Regex.Match(propertyName ?? string.Empty, @"^Cargos\[(\d+)\](?:\.Actividades\[(\d+)\])?");
+        if (!m.Success)
+            return string.Empty;
+
+        var cargo = int.Parse(m.Groups[1].Value) + 1;
+        return m.Groups[2].Success
+            ? $"Cargo {cargo}, actividad {int.Parse(m.Groups[2].Value) + 1}: "
+            : $"Cargo {cargo}: ";
     }
 }
