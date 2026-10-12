@@ -28,7 +28,9 @@ namespace DocentesApp.Data.Configurations
             builder.Property(d => d.Celular).HasMaxLength(30);
             builder.Property(d => d.Direccion).HasMaxLength(250);
             builder.Property(d => d.FechaNacimiento).HasMaxLength(20);
-            builder.Property(d => d.MaxNivelAcademico).HasMaxLength(120);
+            // [Diana desde v4.0 OBSOLETO] el máximo nivel académico pasa a ser opcional
+            //builder.Property(d => d.MaxNivelAcademico).HasMaxLength(120);
+            builder.Property(d => d.MaxNivelAcademico).HasMaxLength(120).IsRequired(false);
             builder.Property(d => d.Observaciones).HasMaxLength(500);
 
             // Relaciones

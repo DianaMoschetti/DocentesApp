@@ -448,7 +448,6 @@ namespace DocentesApp.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("MaxNivelAcademico")
-                        .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 

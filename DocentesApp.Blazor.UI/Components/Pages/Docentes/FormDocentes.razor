@@ -116,7 +116,10 @@
                     <h5 class="mb-3 mt-2">Académico</h5>
 
                     <div class="col-md-6 mb-3">
+                        @* [Diana desde v4.0 OBSOLETO] el máximo nivel académico pasa a ser opcional
                         <label class="form-label">Máximo nivel académico <span class="text-danger">*</span></label>
+                        *@
+                        <label class="form-label">Máximo nivel académico</label>
                         <InputSelect class="form-select" @bind-Value="docenteDto.MaxNivelAcademico">
                             <option value="">-- Seleccionar --</option>
                             @foreach (var (value, display) in titulos)

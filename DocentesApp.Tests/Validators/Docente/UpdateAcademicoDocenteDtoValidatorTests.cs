@@ -47,16 +47,28 @@ public class UpdateAcademicoDocenteDtoValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
+    // [Diana desde v4.0 OBSOLETO] el máximo nivel académico pasa a ser opcional
+    //[Fact]
+    //public void Should_Have_Error_When_MaxNivelAcademico_IsNull()
+    //{
+    //    var dto = new UpdateAcademicoDocenteDto
+    //    {
+    //        MaxNivelAcademico = null
+    //    };
+    //    var result = _validator.TestValidate(dto);
+    //    result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
+    //        .WithErrorMessage("El máximo nivel académico es obligatorio.");
+    //}
+
     [Fact]
-    public void Should_Have_Error_When_MaxNivelAcademico_IsNull()
+    public void Should_Not_Have_Error_When_MaxNivelAcademico_IsNull()
     {
         var dto = new UpdateAcademicoDocenteDto
         {
             MaxNivelAcademico = null
         };
         var result = _validator.TestValidate(dto);
-        result.ShouldHaveValidationErrorFor(x => x.MaxNivelAcademico)
-            .WithErrorMessage("El máximo nivel académico es obligatorio.");
+        result.ShouldNotHaveValidationErrorFor(x => x.MaxNivelAcademico);
     }
 
     [Fact]

@@ -45,6 +45,18 @@ public class CreateDocenteDtoValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.Legajo);
     }
 
+    // El máximo nivel académico es opcional
+    [Fact]
+    public void Should_Not_Have_Error_When_MaxNivelAcademico_Is_Null()
+    {
+        var dto = BuildValidDto();
+        dto.MaxNivelAcademico = null;
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.MaxNivelAcademico);
+    }
+
     [Fact]
     public void Should_Have_Error_When_Observaciones_Exceeds_Max_Length()
     {

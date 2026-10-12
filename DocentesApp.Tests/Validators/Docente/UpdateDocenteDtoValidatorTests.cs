@@ -70,6 +70,18 @@ public class UpdateDocenteDtoValidatorTests
             .WithErrorMessage("El legajo debe ser mayor a 0.");
     }
 
+    // El máximo nivel académico es opcional
+    [Fact]
+    public void Should_Not_Have_Error_When_MaxNivelAcademico_Is_Null()
+    {
+        var dto = BuildValidDto();
+        dto.MaxNivelAcademico = null;
+
+        var result = _validator.TestValidate(dto);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.MaxNivelAcademico);
+    }
+
     [Fact]
     public void Should_Not_Have_Error_When_Dto_Is_Valid()
     {
