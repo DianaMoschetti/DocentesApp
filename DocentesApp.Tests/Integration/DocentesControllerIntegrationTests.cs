@@ -12,8 +12,9 @@ namespace DocentesApp.Tests.Integration;
 
 public class DocentesControllerIntegrationTests : IntegrationTestBase
 {
-    private readonly HttpClient _client;
-    private readonly CustomWebApplicationFactory _factory;
+    // [Diana desde v4.0 OBSOLETO] nunca se asignaban (el constructor los tiene comentados): se usan Client y Factory de IntegrationTestBase
+    //private readonly HttpClient _client;
+    //private readonly CustomWebApplicationFactory _factory;
 
     public DocentesControllerIntegrationTests(CustomWebApplicationFactory factory) :base(factory)
     {
@@ -27,7 +28,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     public async Task GetDocentes_ReturnsOkAndList()
     {
         // Act
-        var response = await _client.GetAsync("/api/docentes");
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        //var response = await _client.GetAsync("/api/docentes");
+        var response = await Client.GetAsync("/api/docentes");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -42,7 +45,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     public async Task GetDocente_WhenExists_ReturnsOkAndDocente()
     {
         // Act
-        var response = await _client.GetAsync("/api/docentes/1");
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        //var response = await _client.GetAsync("/api/docentes/1");
+        var response = await Client.GetAsync("/api/docentes/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -57,7 +62,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     public async Task GetDocente_WhenDoesNotExist_ReturnsNotFound()
     {
         // Act
-        var response = await _client.GetAsync("/api/docentes/999");
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        //var response = await _client.GetAsync("/api/docentes/999");
+        var response = await Client.GetAsync("/api/docentes/999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -331,7 +338,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             Observaciones = "Creado para test de delete"
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/api/docentes", dto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var createResponse = await _client.PostAsJsonAsync("/api/docentes", dto);
+        var createResponse = await admin.PostAsJsonAsync("/api/docentes", dto);
         var createBody = await createResponse.Content.ReadAsStringAsync();
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
@@ -340,12 +350,14 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         docente.Should().NotBeNull();
 
         // Act
-        var deleteResponse = await _client.DeleteAsync($"/api/docentes/{docente!.Id}");
+        //var deleteResponse = await _client.DeleteAsync($"/api/docentes/{docente!.Id}");
+        var deleteResponse = await admin.DeleteAsync($"/api/docentes/{docente!.Id}");
 
         // Assert
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var getResponse = await _client.GetAsync($"/api/docentes/{docente.Id}");
+        //var getResponse = await _client.GetAsync($"/api/docentes/{docente.Id}");
+        var getResponse = await Client.GetAsync($"/api/docentes/{docente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -369,7 +381,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             Observaciones = "Creado para test de delete con designaciones"
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        var createResponse = await admin.PostAsJsonAsync("/api/docentes", createDto);
         var createBody = await createResponse.Content.ReadAsStringAsync();
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
@@ -380,7 +395,8 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         await SeedDesignacionForDocenteAsync(createdDocente!.Id);
 
         // Act
-        var deleteResponse = await _client.DeleteAsync($"/api/docentes/{createdDocente.Id}");
+        //var deleteResponse = await _client.DeleteAsync($"/api/docentes/{createdDocente.Id}");
+        var deleteResponse = await admin.DeleteAsync($"/api/docentes/{createdDocente.Id}");
         var deleteBody = await deleteResponse.Content.ReadAsStringAsync();
 
         // Assert
@@ -414,7 +430,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             Observaciones = "Docente para patch contacto"
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        var createResponse = await admin.PostAsJsonAsync("/api/docentes", createDto);
         var createBody = await createResponse.Content.ReadAsStringAsync();
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
@@ -431,13 +450,15 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         };
 
         // Act
-        var patchResponse = await _client.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/contacto", patchDto);
+        //var patchResponse = await _client.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/contacto", patchDto);
+        var patchResponse = await admin.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/contacto", patchDto);
         var patchBody = await patchResponse.Content.ReadAsStringAsync();
 
         // Assert
         patchResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, patchBody);
 
-        var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        //var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
@@ -517,7 +538,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
             Observaciones = "Observación inicial"
         };
 
-        var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var createResponse = await _client.PostAsJsonAsync("/api/docentes", createDto);
+        var createResponse = await admin.PostAsJsonAsync("/api/docentes", createDto);
         var createBody = await createResponse.Content.ReadAsStringAsync();
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
@@ -531,13 +555,15 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         };
 
         // Act
-        var patchResponse = await _client.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/observaciones", patchDto);
+        //var patchResponse = await _client.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/observaciones", patchDto);
+        var patchResponse = await admin.PatchAsJsonAsync($"/api/docentes/{createdDocente!.Id}/observaciones", patchDto);
         var patchBody = await patchResponse.Content.ReadAsStringAsync();
 
         // Assert
         patchResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, patchBody);
 
-        var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        //var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
@@ -555,7 +581,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         };
 
         // Act
-        var response = await _client.PatchAsJsonAsync("/api/docentes/999/contacto", patchDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var response = await _client.PatchAsJsonAsync("/api/docentes/999/contacto", patchDto);
+        var response = await admin.PatchAsJsonAsync("/api/docentes/999/contacto", patchDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -571,11 +600,17 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // Arrange
         var patchDto = new UpdateAcademicoDocenteDto
         {
-            MaxNivelAcademico = Titulo.Universitario
+            // [Diana desde v4.0 OBSOLETO] Universitario es un valor válido (devolvía 204 una vez autenticado);
+            // el máximo nivel académico es opcional, así que el body inválido es un valor fuera del enum
+            //MaxNivelAcademico = Titulo.Universitario
+            MaxNivelAcademico = (Titulo)99
         };
 
         // Act
-        var response = await _client.PatchAsJsonAsync("/api/docentes/1/academico", patchDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var response = await _client.PatchAsJsonAsync("/api/docentes/1/academico", patchDto);
+        var response = await admin.PatchAsJsonAsync("/api/docentes/1/academico", patchDto);
         var body = await response.Content.ReadAsStringAsync();
 
         // Assert
@@ -591,7 +626,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         };
 
         // Act
-        var response = await _client.PatchAsJsonAsync("/api/docentes/1/observaciones", patchDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var response = await _client.PatchAsJsonAsync("/api/docentes/1/observaciones", patchDto);
+        var response = await admin.PatchAsJsonAsync("/api/docentes/1/observaciones", patchDto);
         var body = await response.Content.ReadAsStringAsync();
 
         // Assert
@@ -608,7 +646,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         };
 
         // Act
-        var response = await _client.PatchAsJsonAsync("/api/docentes/1/contacto", patchDto);
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        var admin = await Auth.CreateAdminClientAsync();
+        //var response = await _client.PatchAsJsonAsync("/api/docentes/1/contacto", patchDto);
+        var response = await admin.PatchAsJsonAsync("/api/docentes/1/contacto", patchDto);
         var body = await response.Content.ReadAsStringAsync();
 
         // Assert
@@ -620,7 +661,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
     //Diana arreglar seed cuando esten definidos los cargos, cursos y demas en la bd
     private async Task SeedDesignacionForDocenteAsync(int docenteId)
     {
-        using var scope = _factory.Services.CreateScope();
+        // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
+        //using var scope = _factory.Services.CreateScope();
+        using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
 
         // [Diana desde v4.0 OBSOLETO] Cargo y Dedicacion eliminados como entidades independientes

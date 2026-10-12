@@ -9,30 +9,34 @@ public class UpdateAcademicoDocenteDtoValidatorTests
 {
     private readonly UpdateAcademicoDocenteDtoValidator _validator = new();
 
-    [Fact]
-    public void Should_Have_Error_When_MaxNivelAcademico_Is_Null()
-    {
-        var dto = new UpdateAcademicoDocenteDto();
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x)
-            .WithErrorMessage("Debe enviar el máximo nivel académico a actualizar.");
-    }
-
-    [Fact]
-    public void Should_Have_Error_When_MaxNivelAcademico_Is_Empty()
-    {
-        var dto = new UpdateAcademicoDocenteDto
-        {
-            MaxNivelAcademico = null
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x)
-            .WithErrorMessage("Debe enviar el máximo nivel académico a actualizar.");
-    }
+    // [Diana desde v4.0 OBSOLETO] probaban una regla que ya no existe (error sobre el objeto completo cuando falta
+    // el máximo nivel académico, que ahora es opcional). El comportamiento actual lo cubren
+    // Should_Not_Have_Error_When_MaxNivelAcademico_IsNull (null es válido) y
+    // Should_Have_Error_When_MaxNivelAcademico_IsInvalidEnum (valor fuera del enum).
+    //[Fact]
+    //public void Should_Have_Error_When_MaxNivelAcademico_Is_Null()
+    //{
+    //    var dto = new UpdateAcademicoDocenteDto();
+    //
+    //    var result = _validator.TestValidate(dto);
+    //
+    //    result.ShouldHaveValidationErrorFor(x => x)
+    //        .WithErrorMessage("Debe enviar el máximo nivel académico a actualizar.");
+    //}
+    //
+    //[Fact]
+    //public void Should_Have_Error_When_MaxNivelAcademico_Is_Empty()
+    //{
+    //    var dto = new UpdateAcademicoDocenteDto
+    //    {
+    //        MaxNivelAcademico = null
+    //    };
+    //
+    //    var result = _validator.TestValidate(dto);
+    //
+    //    result.ShouldHaveValidationErrorFor(x => x)
+    //        .WithErrorMessage("Debe enviar el máximo nivel académico a actualizar.");
+    //}
 
     [Fact]
     public void Should_Not_Have_Error_When_MaxNivelAcademico_Is_Valid()
