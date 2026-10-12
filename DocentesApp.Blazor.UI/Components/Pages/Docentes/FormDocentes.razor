@@ -73,7 +73,9 @@
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Legajo <span class="text-danger">*</span></label>
+                            @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5)
+                            <label class="form-label">Legajo <span class="text-danger">*</span></label> *@
+                            <label class="form-label">Legajo</label>
                                 <InputNumber class="form-control" @bind-Value="docenteDto.Legajo" />
                                 <ValidationMessage For="@(() => docenteDto.Legajo)" />
                         </div>
@@ -114,7 +116,10 @@
                     <h5 class="mb-3 mt-2">Académico</h5>
 
                     <div class="col-md-6 mb-3">
+                        @* [Diana desde v4.0 OBSOLETO] el máximo nivel académico pasa a ser opcional
                         <label class="form-label">Máximo nivel académico <span class="text-danger">*</span></label>
+                        *@
+                        <label class="form-label">Máximo nivel académico</label>
                         <InputSelect class="form-select" @bind-Value="docenteDto.MaxNivelAcademico">
                             <option value="">-- Seleccionar --</option>
                             @foreach (var (value, display) in titulos)

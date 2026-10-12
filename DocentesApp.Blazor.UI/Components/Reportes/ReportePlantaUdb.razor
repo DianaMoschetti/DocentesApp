@@ -45,6 +45,7 @@
         <div class="alert alert-danger">@errorMessage</div>
     }
 
+    @* [Diana desde v4.0 OBSOLETO] tabla v4 (PlantaDocenteReporteDto); reemplazada por las dos vistas v5 de abajo
     @if (planta.Any())
     {
         <div class="card">
@@ -91,11 +92,161 @@
     {
         <div class="alert alert-info">No hay docentes con designaciones vigentes en esta UDB.</div>
     }
+    *@
+
+    @if (porAsignatura != null && porDocente != null && porAsignatura.Filas.Any())
+    {
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <button class="nav-link @(tabActiva == TabAsignatura ? "active" : "")" @onclick="() => tabActiva = TabAsignatura">
+                    Por asignatura
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tabActiva == TabDocente ? "active" : "")" @onclick="() => tabActiva = TabDocente">
+                    Por docente
+                </button>
+            </li>
+        </ul>
+
+        <div class="card border-top-0">
+            <div class="card-header">
+                <strong>@porAsignatura.NombreUdb</strong>
+                — @porAsignatura.Filas.Select(f => f.CargoDesignacionId).Distinct().Count() cargos vigentes
+            </div>
+            <div class="card-body p-0">
+                @if (tabActiva == TabAsignatura)
+                {
+                    @* Vista por asignatura: una fila de título por sección (gestión, laboratorios e investigación, cada asignatura, otros) *@
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Curso</th>
+                                <th>Docente</th>
+                                <th>Legajo</th>
+                                <th>Cargo</th>
+                                <th>Cond.</th>
+                                <th>Dedicación</th>
+                                <th>Especificación</th>
+                                <th>Horario</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ string? seccionActual = null; }
+                            @foreach (var fila in porAsignatura.Filas)
+                            {
+                                if (fila.Seccion != seccionActual)
+                                {
+                                    seccionActual = fila.Seccion;
+                                    <tr class="table-secondary">
+                                        <td colspan="9">
+                                            <strong>@fila.Seccion</strong>
+                                            @if (!string.IsNullOrEmpty(fila.AC) && fila.Seccion == fila.Asignatura)
+                                            {
+                                                <span> (@fila.AC)</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td>@(fila.Curso ?? "—")</td>
+                                    <td>@fila.Docente</td>
+                                    <td>@(fila.Legajo?.ToString() ?? "-")</td>
+                                    <td>
+                                        @fila.CargoCorto
+                                        @if (fila.EnLicencia)
+                                        {
+                                            <span class="badge bg-warning text-dark">En licencia</span>
+                                        }
+                                    </td>
+                                    <td>@fila.CondicionCorta</td>
+                                    <td>@fila.Dedicacion</td>
+                                    <td>@fila.Especificacion</td>
+                                    <td>@(fila.Horario ?? "—")</td>
+                                    <td>@(fila.Observaciones ?? "")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8" class="text-end"><strong>Total de puntos</strong></td>
+                                <td><strong>@porAsignatura.TotalPuntos</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+                else
+                {
+                    @* Vista por docente: los puntos del cargo van solo en su primera fila *@
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Docente</th>
+                                <th>Legajo</th>
+                                <th>Cargo</th>
+                                <th>Cond.</th>
+                                <th>Dedicación</th>
+                                <th>Especificación</th>
+                                <th>Asignatura</th>
+                                <th>A/C</th>
+                                <th>Curso</th>
+                                <th>Horario</th>
+                                <th>Observaciones</th>
+                                <th>Puntos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var fila in porDocente.Filas)
+                            {
+                                <tr>
+                                    <td>@fila.Docente</td>
+                                    <td>@(fila.Legajo?.ToString() ?? "-")</td>
+                                    <td>
+                                        @fila.CargoCorto
+                                        @if (fila.EnLicencia)
+                                        {
+                                            <span class="badge bg-warning text-dark">En licencia</span>
+                                        }
+                                    </td>
+                                    <td>@fila.CondicionCorta</td>
+                                    <td>@fila.Dedicacion</td>
+                                    <td>@fila.Especificacion</td>
+                                    <td>@(fila.Asignatura ?? "—")</td>
+                                    <td>@(fila.AC ?? "")</td>
+                                    <td>@(fila.Curso ?? "—")</td>
+                                    <td>@(fila.Horario ?? "—")</td>
+                                    <td>@(fila.Observaciones ?? "")</td>
+                                    <td>@(fila.Puntos == 0 ? "" : fila.Puntos.ToString())</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="11" class="text-end"><strong>Total de puntos</strong></td>
+                                <td><strong>@porDocente.TotalPuntos</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+    else if (!isLoading && udbSeleccionada > 0 && hasBuscado)
+    {
+        <div class="alert alert-info">No hay docentes con designaciones vigentes en esta UDB.</div>
+    }
 </div>
 
 @code {
     private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
-    private IEnumerable<PlantaDocenteReporteDto> planta = new List<PlantaDocenteReporteDto>();
+    // [Diana desde v4.0 OBSOLETO] reemplazado por las dos vistas v5
+    //private IEnumerable<PlantaDocenteReporteDto> planta = new List<PlantaDocenteReporteDto>();
+    private const string TabAsignatura = "asignatura";
+    private const string TabDocente = "docente";
+    private PlantaUdbReporteDto? porAsignatura;
+    private PlantaUdbReporteDto? porDocente;
+    private string tabActiva = TabAsignatura;
     private int udbSeleccionada;
     private bool isLoading;
     private bool hasBuscado;
@@ -116,7 +267,10 @@
     private void OnUdbChanged(ChangeEventArgs e)
     {
         udbSeleccionada = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
-        planta = new List<PlantaDocenteReporteDto>();
+        // [Diana desde v4.0 OBSOLETO]
+        //planta = new List<PlantaDocenteReporteDto>();
+        porAsignatura = null;
+        porDocente = null;
         hasBuscado = false;
         errorMessage = null;
     }
@@ -129,7 +283,13 @@
         {
             isLoading = true;
             errorMessage = null;
-            planta = await Client.UdbAsync(udbSeleccionada);
+            // [Diana desde v4.0 OBSOLETO]
+            //planta = await Client.UdbAsync(udbSeleccionada);
+            var tareaAsignatura = Client.PorAsignaturaAsync(udbSeleccionada);
+            var tareaDocente = Client.PorDocenteAsync(udbSeleccionada);
+            await Task.WhenAll(tareaAsignatura, tareaDocente);
+            porAsignatura = tareaAsignatura.Result;
+            porDocente = tareaDocente.Result;
             hasBuscado = true;
         }
         catch (ApiException ex)

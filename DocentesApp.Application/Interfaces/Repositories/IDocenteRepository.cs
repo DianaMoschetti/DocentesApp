@@ -6,8 +6,11 @@ namespace DocentesApp.Application.Interfaces.Repositories
     {
         Task<IEnumerable<Docente>> GetAllAsync();
         Task<Docente?> GetByIdAsync(int id);
-        Task<Docente?> GetByLegajoAsync(int legajo);
-        Task<bool> ExistsByLegajoAsync(int legajo);
+        // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): sin legajo no hay docente ni duplicado
+        //Task<Docente?> GetByLegajoAsync(int legajo);
+        //Task<bool> ExistsByLegajoAsync(int legajo);
+        Task<Docente?> GetByLegajoAsync(int? legajo);
+        Task<bool> ExistsByLegajoAsync(int? legajo);
         Task<bool> ExistsByDniAsync(string dni);
         Task<bool> ExistsAnotherByDniAsync(string dni, int docenteId); // Para validar que no exista otro docente con el mismo DNI al actualizar un docente existente
         Task AddAsync(Docente docente);

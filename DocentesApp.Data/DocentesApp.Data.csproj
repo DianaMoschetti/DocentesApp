@@ -20,6 +20,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- [Diana desde v4.0 OBSOLETO] migraciones v4 archivadas: la BD se recrea desde cero con InitialCreate_v5.
+       Se conservan los archivos pero no se compilan (si no, EF vería dos historiales de migraciones). -->
+  <ItemGroup>
+    <Compile Remove="Migrations\_Obsoletas_v4\**" />
+    <None Include="Migrations\_Obsoletas_v4\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\DocentesApp.Application\DocentesApp.Application.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />

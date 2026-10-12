@@ -1,0 +1,124 @@
+@using DocentesApp.Shared.DTOs.Designaciones
+@using DocentesApp.Shared.DTOs.Asignaturas
+@using DocentesApp.Shared.DTOs.Cursos
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Domain.Services
+@using DocentesApp.Blazor.UI.Helpers
+
+@* Sub-tabla de actividades de un cargo (v5).
+   Qué campos se habilitan, exigen o limpian sale de ActividadReglas: las mismas reglas que validan Shared y el backend.
+   La dedicación NO se reparte entre actividades: solo se listan. *@
+
+<table class="table table-sm align-middle mb-2">
+    <thead>
+        <tr>
+            <th>Especificación</th>
+            <th>Asignatura</th>
+            <th>Curso</th>
+            <th>Horario</th>
+            <th>Observaciones</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var (actividad, index) in Actividades.Select((a, i) => (a, i)))
+        {
+            var reqAsignatura = ActividadReglas.Asignatura(actividad.Especificacion);
+            var reqCurso = ActividadReglas.Curso(actividad.Especificacion);
+            <tr>
+                <td>
+                    <InputSelect class="form-select form-select-sm"
+                                 @bind-Value="actividad.Especificacion"
+                                 @bind-Value:after="() => AplicarReglas(actividad)">
+                        @foreach (var (value, display) in especificaciones)
+                        {
+                            <option value="@value">@display</option>
+                        }
+                    </InputSelect>
+                </td>
+                <td>
+                    <InputSelect TValue="int?" class="form-select form-select-sm"
+                                 @bind-Value="actividad.AsignaturaId"
+                                 disabled="@(reqAsignatura == Requisito.Vacio)">
+                        <option value="">@TextoVacio(reqAsignatura, "asignatura")</option>
+                        @foreach (var asignatura in Asignaturas.Where(a => a.EsVigente || a.Id == actividad.AsignaturaId))
+                        {
+                            <option value="@asignatura.Id">@asignatura.Nombre</option>
+                        }
+                    </InputSelect>
+                </td>
+                <td>
+                    <InputSelect TValue="int?" class="form-select form-select-sm"
+                                 @bind-Value="actividad.CursoId"
+                                 disabled="@(reqCurso == Requisito.Vacio)">
+                        <option value="">@TextoVacio(reqCurso, "curso")</option>
+                        @foreach (var curso in Cursos)
+                        {
+                            <option value="@curso.Id">@curso.Descripcion</option>
+                        }
+                    </InputSelect>
+                </td>
+                <td>
+                    <InputText class="form-control form-control-sm"
+                               @bind-Value="actividad.Horario"
+                               placeholder="Ej: TM / MI 4º-5º-6º" />
+                </td>
+                <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="actividad.Observaciones" />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            title="Quitar actividad"
+                            @onclick="() => Quitar(index)">
+                        ✕
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button type="button" class="btn btn-sm btn-outline-primary" @onclick="Agregar">+ Actividad</button>
+@if (!Actividades.Any())
+{
+    <span class="text-danger small ms-2">El cargo debe tener al menos una actividad.</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public List<UpsertActividadDto> Actividades { get; set; } = new();
+    // Asignaturas de la UDB del cargo (el padre ya las filtra)
+    [Parameter] public IEnumerable<ListAsignaturaDto> Asignaturas { get; set; } = Array.Empty<ListAsignaturaDto>();
+    [Parameter] public IEnumerable<ListCursoDto> Cursos { get; set; } = Array.Empty<ListCursoDto>();
+    [Parameter] public EventCallback OnCambio { get; set; }
+
+    private readonly List<(EspecificacionCargo Value, string Display)> especificaciones =
+        EnumHelper.GetOptions<EspecificacionCargo>();
+
+    // Al cambiar la especificación se limpian los campos que deben quedar vacíos
+    private void AplicarReglas(UpsertActividadDto actividad)
+    {
+        if (ActividadReglas.Asignatura(actividad.Especificacion) == Requisito.Vacio)
+            actividad.AsignaturaId = null;
+        if (ActividadReglas.Curso(actividad.Especificacion) == Requisito.Vacio)
+            actividad.CursoId = null;
+    }
+
+    private static string TextoVacio(Requisito requisito, string campo) => requisito switch
+    {
+        Requisito.Obligatorio => $"-- Seleccionar {campo} (obligatorio) --",
+        Requisito.Vacio => $"(no lleva {campo})",
+        _ => $"-- Sin {campo} --"
+    };
+
+    private async Task Agregar()
+    {
+        Actividades.Add(new UpsertActividadDto { Especificacion = EspecificacionCargo.Docencia });
+        await OnCambio.InvokeAsync();
+    }
+
+    private async Task Quitar(int index)
+    {
+        Actividades.RemoveAt(index);
+        await OnCambio.InvokeAsync();
+    }
+}

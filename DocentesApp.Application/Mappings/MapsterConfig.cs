@@ -1,4 +1,6 @@
+using DocentesApp.Application.Common.Formatos;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Domain.Extensions;
 using DocentesApp.Shared.DTOs.Asignaturas;
 using DocentesApp.Shared.DTOs.Cargos;
 using DocentesApp.Shared.DTOs.Cursos;
@@ -59,27 +61,51 @@ namespace DocentesApp.Application.Mappings
             #endregion
 
             #region Designacion
-            config.NewConfig<CreateDetalleDesignacionDto, DetalleDesignacion>();
+            // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por CargoDesignacion + Actividad (v5)
+            //config.NewConfig<CreateDetalleDesignacionDto, DetalleDesignacion>();
+            //
+            //config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
+            //    // [Diana desde v4.0 OBSOLETO] NombreAsignatura antes usaba src.Asignatura.NombreAsignatura.ToString()
+            //    // ahora usa src.Asignatura.Nombre directamente
+            //    .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null
+            //        ? src.Asignatura.Nombre : null)
+            //    .Map(dest => dest.DescripcionCurso, src => src.Curso != null
+            //        ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
 
-            config.NewConfig<DetalleDesignacion, DetalleDesignacionDto>()
-                // [Diana desde v4.0 OBSOLETO] NombreAsignatura antes usaba src.Asignatura.NombreAsignatura.ToString()
-                // ahora usa src.Asignatura.Nombre directamente
-                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null
-                    ? src.Asignatura.Nombre : null)
-                .Map(dest => dest.DescripcionCurso, src => src.Curso != null
-                    ? $"{src.Curso.Año} - {src.Curso.Carrera} - Comisión {src.Curso.NroComision} - {src.Curso.Turno}" : null);
-
+            // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5); el mapeo de cargos se rehace en la etapa Application
+            //config.NewConfig<CreateDesignacionDto, Designacion>()
+            //    .Map(dest => dest.Detalles, src => src.Detalles);
+            // Mapster arma solo la cabecera: los cargos los arma DesignacionService (calcula los puntos y sincroniza por Id)
             config.NewConfig<CreateDesignacionDto, Designacion>()
-                .Map(dest => dest.Detalles, src => src.Detalles);
+                .Ignore(dest => dest.Cargos);
 
             config.NewConfig<UpdateDesignacionDto, Designacion>()
                 .Ignore(dest => dest.Id)
                 .Ignore(dest => dest.DocenteId)
-                .Map(dest => dest.Detalles, src => src.Detalles);
+                .Ignore(dest => dest.Cargos);
+                // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5)
+                //.Map(dest => dest.Detalles, src => src.Detalles);
+
+            // Lectura v5: Designacion -> Cargos -> Actividades
+            config.NewConfig<Actividad, ActividadDto>()
+                .Map(dest => dest.NombreAsignatura, src => src.Asignatura != null
+                    ? src.Asignatura.Nombre : null)
+                .Map(dest => dest.DescripcionCurso, src => src.Curso != null
+                    ? TextosDesignacion.Curso(src.Curso.Año, src.Curso.Carrera, src.Curso.NroComision, src.Curso.Turno) : null);
+
+            config.NewConfig<CargoDesignacion, CargoDesignacionDto>()
+                .Map(dest => dest.CargoTexto, src => src.Cargo.Descripcion())
+                .Map(dest => dest.CargoCorto, src => src.Cargo.NombreCorto())
+                .Map(dest => dest.CondicionCorta, src => src.Condicion.NombreCorto())
+                .Map(dest => dest.DedicacionTexto, src => TextosDesignacion.Dedicacion(src.CantidadDedicacion, src.TipoDedicacion))
+                .Map(dest => dest.NombreUdb, src => src.Udb != null ? src.Udb.Nombre : null)
+                .Map(dest => dest.ReemplazaADescripcion, src => TextosDesignacion.Reemplazo(src))
+                .Map(dest => dest.Actividades, src => src.Actividades);
 
             config.NewConfig<Designacion, ListDesignacionDto>()
                 .Map(dest => dest.NombreCompletoDocente, src => src.Docente != null
-                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty);
+                    ? $"{src.Docente.Apellido}, {src.Docente.Nombre}" : string.Empty)
+                .Map(dest => dest.TotalPuntos, src => src.Cargos.Sum(c => c.Puntos));
             // [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion eliminados de cabecera
             // .Map(dest => dest.DescripcionCargo, src => src.Cargo != null
             //     ? src.Cargo.Denominacion.ToString() : string.Empty)
@@ -94,7 +120,10 @@ namespace DocentesApp.Application.Mappings
                 //     ? src.Cargo.Denominacion.ToString() : string.Empty)
                 // .Map(dest => dest.DescripcionDedicacion, src => src.Dedicacion != null
                 //     ? src.Dedicacion.DescTipo.ToString() : string.Empty)
-                .Map(dest => dest.Detalles, src => src.Detalles);
+                // [Diana desde v4.0 OBSOLETO] Designacion.Detalles reemplazado por Cargos (v5); el mapeo de cargos se rehace en la etapa Application
+                //.Map(dest => dest.Detalles, src => src.Detalles);
+                .Map(dest => dest.Cargos, src => src.Cargos)
+                .Map(dest => dest.TotalPuntos, src => src.Cargos.Sum(c => c.Puntos));
             #endregion
 
             #region Docente
@@ -172,8 +201,10 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<CreatePuntosPorCargoDto, PuntosPorCargo>();
 
             config.NewConfig<PuntosPorCargo, PuntosPorCargoDto>()
-                .Map(dest => dest.Descripcion, src =>
-                    $"{src.Denominacion} {src.TipoCargo}");
+                // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente; el DTO se adapta en la etapa Shared
+                //.Map(dest => dest.Descripcion, src =>
+                //    $"{src.Denominacion} {src.TipoCargo}");
+                .Map(dest => dest.Descripcion, src => src.Cargo.Descripcion()); // "Profesor Adjunto"
             #endregion
         }
 

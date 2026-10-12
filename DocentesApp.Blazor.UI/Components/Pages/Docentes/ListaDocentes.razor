@@ -52,7 +52,9 @@
                 @foreach (var docente in _docentes)
                 {
                     <tr>
-                        <td>@docente.Legajo</td>
+                        @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): "-" si no tiene
+                        <td>@docente.Legajo</td> *@
+                        <td>@(docente.Legajo?.ToString() ?? "-")</td>
                         <td>@docente.NombreCompleto</td>
                         <td>@docente.Dni</td>
                         <td>@docente.Email</td>

@@ -45,7 +45,9 @@
                 <div class="row">
                     <div class="col-md-6 mb-2">
                         <label class="fw-bold">Legajo</label>
-                        <p>@docente.Legajo</p>
+                        @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): "-" si no tiene
+                        <p>@docente.Legajo</p> *@
+                        <p>@(docente.Legajo?.ToString() ?? "-")</p>
                     </div>
                     <div class="col-md-6 mb-2">
                         <label class="fw-bold">DNI</label>

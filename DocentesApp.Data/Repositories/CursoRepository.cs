@@ -65,8 +65,11 @@ namespace DocentesApp.Data.Repositories
 
             if (tieneModulos) return true;
 
-            return await _context.DetalleDesignaciones
-                .AnyAsync(d => d.CursoId == cursoId);
+            // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por Actividad (v5)
+            //return await _context.DetalleDesignaciones
+            //    .AnyAsync(d => d.CursoId == cursoId);
+            return await _context.Actividades
+                .AnyAsync(a => a.CursoId == cursoId);
         }
     }
 }

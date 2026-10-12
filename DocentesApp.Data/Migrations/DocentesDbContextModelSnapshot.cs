@@ -108,6 +108,45 @@ namespace DocentesApp.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.Actividad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AsignaturaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CargoDesignacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CursoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Especificacion")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Horario")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AsignaturaId");
+
+                    b.HasIndex("CargoDesignacionId");
+
+                    b.HasIndex("CursoId");
+
+                    b.ToTable("Actividades", (string)null);
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Asignatura", b =>
                 {
                     b.Property<int>("Id")
@@ -132,14 +171,13 @@ namespace DocentesApp.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("UdbId")
+                    b.Property<int>("UdbId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UdbId", "Nombre", "Nivel")
-                        .IsUnique()
-                        .HasFilter("[UdbId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Asignaturas", (string)null);
                 });
@@ -204,6 +242,60 @@ namespace DocentesApp.Data.Migrations
                     b.ToTable("Cargos");
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.CargoDesignacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CantidadDedicacion")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<int>("Cargo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Condicion")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DesignacionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EnLicencia")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Puntos")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int?>("ReemplazaACargoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoDedicacion")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UdbId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DesignacionId");
+
+                    b.HasIndex("ReemplazaACargoId");
+
+                    b.HasIndex("UdbId");
+
+                    b.ToTable("CargosDesignacion", (string)null);
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Curso", b =>
                 {
                     b.Property<int>("Id")
@@ -262,9 +354,6 @@ namespace DocentesApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CargoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -301,13 +390,7 @@ namespace DocentesApp.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("PuntosLibres")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CargoId");
 
                     b.HasIndex("DocenteId", "FechaFin");
 
@@ -316,60 +399,6 @@ namespace DocentesApp.Data.Migrations
                     b.HasIndex("EstadoDesignacion", "FechaInicio");
 
                     b.ToTable("Designaciones", (string)null);
-                });
-
-            modelBuilder.Entity("DocentesApp.Domain.Entities.DetalleDesignacion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AsignaturaId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("CantidadDedicacion")
-                        .HasColumnType("real");
-
-                    b.Property<int>("Condicion")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CursoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Denominacion")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DesignacionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Especificacion")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Observaciones")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("PuntosAsignados")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("TipoCargo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoDedicacion")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AsignaturaId");
-
-                    b.HasIndex("CursoId");
-
-                    b.HasIndex("DesignacionId", "Especificacion");
-
-                    b.ToTable("DetallesDesignacion", (string)null);
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Docente", b =>
@@ -415,11 +444,10 @@ namespace DocentesApp.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("date");
 
-                    b.Property<int>("Legajo")
+                    b.Property<int?>("Legajo")
                         .HasColumnType("int");
 
                     b.Property<string>("MaxNivelAcademico")
-                        .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
@@ -448,7 +476,8 @@ namespace DocentesApp.Data.Migrations
                         .HasFilter("[Dni] IS NOT NULL");
 
                     b.HasIndex("Legajo")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Legajo] IS NOT NULL");
 
                     b.ToTable("Docentes", (string)null);
                 });
@@ -488,9 +517,6 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int?>("DirectorDocenteId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DirectorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Lugar")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -509,7 +535,7 @@ namespace DocentesApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DirectorId");
+                    b.HasIndex("DirectorDocenteId");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
@@ -632,19 +658,16 @@ namespace DocentesApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Denominacion")
+                    b.Property<int>("Cargo")
                         .HasColumnType("int");
 
                     b.Property<decimal>("PuntosBase")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<int>("TipoCargo")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Denominacion", "TipoCargo")
+                    b.HasIndex("Cargo")
                         .IsUnique();
 
                     b.ToTable("PuntosPorCargo", (string)null);
@@ -653,44 +676,38 @@ namespace DocentesApp.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Denominacion = 1,
-                            PuntosBase = 138m,
-                            TipoCargo = 1
+                            Cargo = 1,
+                            PuntosBase = 138m
                         },
                         new
                         {
                             Id = 2,
-                            Denominacion = 1,
-                            PuntosBase = 157m,
-                            TipoCargo = 2
+                            Cargo = 2,
+                            PuntosBase = 157m
                         },
                         new
                         {
                             Id = 3,
-                            Denominacion = 1,
-                            PuntosBase = 176m,
-                            TipoCargo = 3
+                            Cargo = 3,
+                            PuntosBase = 176m
                         },
                         new
                         {
                             Id = 4,
-                            Denominacion = 2,
-                            PuntosBase = 119m,
-                            TipoCargo = 1
+                            Cargo = 4,
+                            PuntosBase = 119m
                         },
                         new
                         {
                             Id = 5,
-                            Denominacion = 3,
-                            PuntosBase = 100m,
-                            TipoCargo = 1
+                            Cargo = 5,
+                            PuntosBase = 100m
                         },
                         new
                         {
                             Id = 6,
-                            Denominacion = 4,
-                            PuntosBase = 80m,
-                            TipoCargo = 1
+                            Cargo = 6,
+                            PuntosBase = 80m
                         });
                 });
 
@@ -885,12 +902,38 @@ namespace DocentesApp.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.Actividad", b =>
+                {
+                    b.HasOne("DocentesApp.Domain.Entities.Asignatura", "Asignatura")
+                        .WithMany("Actividades")
+                        .HasForeignKey("AsignaturaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DocentesApp.Domain.Entities.CargoDesignacion", "CargoDesignacion")
+                        .WithMany("Actividades")
+                        .HasForeignKey("CargoDesignacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DocentesApp.Domain.Entities.Curso", "Curso")
+                        .WithMany()
+                        .HasForeignKey("CursoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Asignatura");
+
+                    b.Navigation("CargoDesignacion");
+
+                    b.Navigation("Curso");
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Asignatura", b =>
                 {
                     b.HasOne("DocentesApp.Domain.Entities.Udb", "Udb")
                         .WithMany("Asignaturas")
                         .HasForeignKey("UdbId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Udb");
                 });
@@ -914,12 +957,34 @@ namespace DocentesApp.Data.Migrations
                     b.Navigation("Curso");
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.CargoDesignacion", b =>
+                {
+                    b.HasOne("DocentesApp.Domain.Entities.Designacion", "Designacion")
+                        .WithMany("Cargos")
+                        .HasForeignKey("DesignacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DocentesApp.Domain.Entities.CargoDesignacion", "ReemplazaACargo")
+                        .WithMany("Reemplazos")
+                        .HasForeignKey("ReemplazaACargoId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DocentesApp.Domain.Entities.Udb", "Udb")
+                        .WithMany()
+                        .HasForeignKey("UdbId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Designacion");
+
+                    b.Navigation("ReemplazaACargo");
+
+                    b.Navigation("Udb");
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Designacion", b =>
                 {
-                    b.HasOne("DocentesApp.Domain.Entities.Cargo", null)
-                        .WithMany("Designaciones")
-                        .HasForeignKey("CargoId");
-
                     b.HasOne("DocentesApp.Domain.Entities.Docente", "Docente")
                         .WithMany("Designaciones")
                         .HasForeignKey("DocenteId")
@@ -927,31 +992,6 @@ namespace DocentesApp.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Docente");
-                });
-
-            modelBuilder.Entity("DocentesApp.Domain.Entities.DetalleDesignacion", b =>
-                {
-                    b.HasOne("DocentesApp.Domain.Entities.Asignatura", "Asignatura")
-                        .WithMany("DetalleDesignacion")
-                        .HasForeignKey("AsignaturaId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("DocentesApp.Domain.Entities.Curso", "Curso")
-                        .WithMany()
-                        .HasForeignKey("CursoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("DocentesApp.Domain.Entities.Designacion", "Designacion")
-                        .WithMany("Detalles")
-                        .HasForeignKey("DesignacionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Asignatura");
-
-                    b.Navigation("Curso");
-
-                    b.Navigation("Designacion");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.DocenteUdb", b =>
@@ -977,7 +1017,7 @@ namespace DocentesApp.Data.Migrations
                 {
                     b.HasOne("DocentesApp.Domain.Entities.Docente", "Director")
                         .WithMany()
-                        .HasForeignKey("DirectorId");
+                        .HasForeignKey("DirectorDocenteId");
 
                     b.Navigation("Director");
                 });
@@ -1078,14 +1118,16 @@ namespace DocentesApp.Data.Migrations
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Asignatura", b =>
                 {
-                    b.Navigation("AsignaturaModulos");
+                    b.Navigation("Actividades");
 
-                    b.Navigation("DetalleDesignacion");
+                    b.Navigation("AsignaturaModulos");
                 });
 
-            modelBuilder.Entity("DocentesApp.Domain.Entities.Cargo", b =>
+            modelBuilder.Entity("DocentesApp.Domain.Entities.CargoDesignacion", b =>
                 {
-                    b.Navigation("Designaciones");
+                    b.Navigation("Actividades");
+
+                    b.Navigation("Reemplazos");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Curso", b =>
@@ -1095,7 +1137,7 @@ namespace DocentesApp.Data.Migrations
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Designacion", b =>
                 {
-                    b.Navigation("Detalles");
+                    b.Navigation("Cargos");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Docente", b =>

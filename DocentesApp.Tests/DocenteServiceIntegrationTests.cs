@@ -492,19 +492,36 @@ public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictExceptio
             // DedicacionId = 1,
             FechaInicio = DateTime.UtcNow,
             EstadoDesignacion = Estado.Activa,
-            Detalles = new List<DetalleDesignacion>
-    {
-        new DetalleDesignacion
-        {
-            Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
-            TipoCargo = TipoCargo.Adjunto,
-            Condicion = Condicion.Interino,
-            TipoDedicacion = TipoDedicacion.Simple,
-            CantidadDedicacion = 1,
-            Especificacion = EspecificacionCargo.Docencia,
-            PuntosAsignados = 119
-        }
-    }
+            // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
+    //        Detalles = new List<DetalleDesignacion>
+    //{
+    //    new DetalleDesignacion
+    //    {
+    //        Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
+    //        TipoCargo = TipoCargo.Adjunto,
+    //        Condicion = Condicion.Interino,
+    //        TipoDedicacion = TipoDedicacion.Simple,
+    //        CantidadDedicacion = 1,
+    //        Especificacion = EspecificacionCargo.Docencia,
+    //        PuntosAsignados = 119
+    //    }
+    //}
+            Cargos = new List<CargoDesignacion>
+            {
+                new CargoDesignacion
+                {
+                    Cargo = CargoDocente.JefeTrabajosPracticos,
+                    Condicion = Condicion.Interino,
+                    TipoDedicacion = TipoDedicacion.Simple,
+                    CantidadDedicacion = 1,
+                    UdbId = 1,
+                    Puntos = 119,
+                    Actividades = new List<Actividad>
+                    {
+                        new Actividad { Especificacion = EspecificacionCargo.Docencia }
+                    }
+                }
+            }
         });
 
         await _context.SaveChangesAsync();

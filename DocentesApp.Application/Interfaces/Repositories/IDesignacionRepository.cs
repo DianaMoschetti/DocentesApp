@@ -20,6 +20,14 @@ namespace DocentesApp.Application.Interfaces.Repositories
         // Un docente puede tener múltiples designaciones activas con la misma categoría de cargo.
         // DIANA VER si se necesita alguna validación diferente a futuro
         // Task<bool> ExisteDesignacionActivaAsync(int docenteId, int cargoId, int? excludeId = null);
+        // Suplencias (v5): cargos en licencia de una UDB sin suplente vigente, para el selector "Reemplaza a"
+        Task<IEnumerable<CargoDesignacion>> GetCargosEnLicenciaAsync(int udbId);
+        // Cargo por id con su designación, para validar el cargo que se reemplaza
+        Task<CargoDesignacion?> GetCargoByIdAsync(int cargoId);
+        // Regla (f): un cargo en licencia tiene a lo sumo un suplente vigente
+        Task<bool> ExisteSuplenteActivoAsync(int cargoReemplazadoId, int? excludeCargoId = null);
+        // true si algún cargo (vigente o no) lo referencia como reemplazado: no se puede quitar (FK sin cascada)
+        Task<bool> TieneReemplazosAsync(int cargoId);
         Task AddAsync(Designacion designacion);
         void Update(Designacion designacion);
         Task SaveChangesAsync();

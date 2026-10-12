@@ -19,12 +19,15 @@ namespace DocentesApp.Domain.Entities
         public DateTime? FechaFin { get; set; } // historial
         public string? Observaciones { get; set; }
         //public decimal PuntosUtilizados { get; set; }
-        public decimal PuntosLibres { get; set; }     // diana ver si sirve de algo, 
+        // [Diana desde v4.0 OBSOLETO] reemplazado por el total de puntos de los cargos (TotalPuntos en el DTO)
+        //public decimal PuntosLibres { get; set; }     // diana ver si sirve de algo,
         public Estado EstadoDesignacion { get; set; } // Activa, Finalizada
         //public int CursoId { get; set; }
         //public Curso? Curso { get; set; }
 
         // Navigation Properties
-        public ICollection<DetalleDesignacion> Detalles { get; set; } = new HashSet<DetalleDesignacion>();
+        // [Diana desde v4.0 OBSOLETO] reemplazado por Cargos (v5)
+        //public ICollection<DetalleDesignacion> Detalles { get; set; } = new HashSet<DetalleDesignacion>();
+        public ICollection<CargoDesignacion> Cargos { get; set; } = new HashSet<CargoDesignacion>(); // 1..N
     }
 }

@@ -6,7 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="FluentValidation" Version="11.*" />
+		<!-- [Diana desde v4.0 OBSOLETO] misma versión de FluentValidation en toda la solución -->
+		<!--<PackageReference Include="FluentValidation" Version="11.*" />-->
+		<PackageReference Include="FluentValidation" Version="12.2.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="DTOs\CasosDeUso\" />

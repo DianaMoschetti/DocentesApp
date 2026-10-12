@@ -13,8 +13,12 @@ namespace DocentesApp.Shared.Validators.Docentes
                 .NotEmpty().WithMessage("El DNI es obligatorio.")
                 .MaximumLength(15).WithMessage("El DNI no puede superar los 15 caracteres.");
 
+            // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
+            //RuleFor(x => x.Legajo)
+            //    .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.");
             RuleFor(x => x.Legajo)
-                .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.");
+                .GreaterThan(0).WithMessage("El legajo debe ser mayor a 0.")
+                .When(x => x.Legajo.HasValue);
 
             RuleFor(x => x.Nombre)
                 .NotEmpty().WithMessage("El nombre es obligatorio.")
@@ -43,9 +47,10 @@ namespace DocentesApp.Shared.Validators.Docentes
             RuleFor(x => x.MaxNivelAcademico)
                 .Must(v => v == null || Enum.IsDefined(typeof(Titulo), v))
                 .WithMessage("El nivel académico seleccionado no es válido.");
-            RuleFor(x => x.MaxNivelAcademico)
-                .NotNull().WithMessage("El máximo nivel académico es obligatorio.")
-                .IsInEnum().WithMessage("El nivel académico seleccionado no es válido.");
+            // [Diana desde v4.0 OBSOLETO] el máximo nivel académico pasa a ser opcional; si viene, lo valida la regla de arriba
+            //RuleFor(x => x.MaxNivelAcademico)
+            //    .NotNull().WithMessage("El máximo nivel académico es obligatorio.")
+            //    .IsInEnum().WithMessage("El nivel académico seleccionado no es válido.");
 
             RuleFor(x => x.Observaciones)
                 .MaximumLength(500).When(x => !string.IsNullOrWhiteSpace(x.Observaciones))

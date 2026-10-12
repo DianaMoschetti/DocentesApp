@@ -18,7 +18,10 @@ namespace DocentesApp.Shared.DTOs.Designaciones
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public Estado EstadoDesignacion { get; set; }
-        public bool EsVigente => FechaFin == null || FechaFin > DateTime.Now;
+        // [Diana desde v4.0 OBSOLETO] vigente = Activa y sin FechaFin o con FechaFin futura
+        //public bool EsVigente => FechaFin == null || FechaFin > DateTime.Now;
+        public bool EsVigente => EstadoDesignacion == Estado.Activa && (FechaFin == null || FechaFin > DateTime.Now);
+        public decimal TotalPuntos { get; set; } // suma de los puntos de los cargos
         // public string? NroResolucion { get; set; }
         // public string? NroNota { get; set; }
         // public decimal? PuntosUtilizados { get; set; }

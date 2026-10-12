@@ -60,8 +60,11 @@ namespace DocentesApp.Data.Repositories
         }
         public async Task<bool> HasDetallesDesignacionAsync(int asignaturaId)
         {
-            return await _context.DetalleDesignaciones
-                .AnyAsync(d => d.AsignaturaId == asignaturaId);
+            // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por Actividad (v5)
+            //return await _context.DetalleDesignaciones
+            //    .AnyAsync(d => d.AsignaturaId == asignaturaId);
+            return await _context.Actividades
+                .AnyAsync(a => a.AsignaturaId == asignaturaId);
         }
     }
 }

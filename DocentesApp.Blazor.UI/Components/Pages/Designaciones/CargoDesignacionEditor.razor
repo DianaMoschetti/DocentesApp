@@ -1,0 +1,266 @@
+@using DocentesApp.Shared.DTOs.Designaciones
+@using DocentesApp.Shared.DTOs.Asignaturas
+@using DocentesApp.Shared.DTOs.Cursos
+@using DocentesApp.Shared.DTOs.PuntosPorCargo
+@using DocentesApp.Shared.DTOs.Udbs
+@using DocentesApp.Domain.Enums
+@using DocentesApp.Domain.Services
+@using DocentesApp.Blazor.UI.Helpers
+@inject IClient Client
+
+@* Tarjeta de un cargo de la designación (v5): datos del cargo + actividades expandibles.
+   Los puntos se muestran como vista previa; el valor real lo calcula y guarda el backend. *@
+
+<div class="card mb-3 @(Cargo.EnLicencia ? "border-warning" : "")">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            <strong>Cargo @Numero</strong>
+            @if (Cargo.EnLicencia)
+            {
+                <span class="badge bg-warning text-dark ms-2">En licencia</span>
+            }
+        </span>
+        <span>
+            <span class="me-3">Puntos: <strong>@TextoPuntos</strong></span>
+            <button type="button" class="btn btn-sm btn-outline-secondary me-1"
+                    @onclick="() => expandido = !expandido">
+                @(expandido ? "▾" : "▸") Actividades (@Cargo.Actividades.Count)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    title="Quitar cargo"
+                    @onclick="OnQuitar">
+                ✕
+            </button>
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                <InputSelect class="form-select form-select-sm"
+                             @bind-Value="Cargo.Cargo"
+                             @bind-Value:after="OnCargoCambiado">
+                    @foreach (var (value, display) in cargos)
+                    {
+                        <option value="@value">@display</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Condición <span class="text-danger">*</span></label>
+                <InputSelect class="form-select form-select-sm"
+                             @bind-Value="Cargo.Condicion"
+                             @bind-Value:after="OnCondicionCambiada">
+                    @foreach (var (value, display) in condiciones)
+                    {
+                        <option value="@value">@display</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Dedicación <span class="text-danger">*</span></label>
+                <InputSelect class="form-select form-select-sm"
+                             @bind-Value="Cargo.TipoDedicacion"
+                             @bind-Value:after="Notificar">
+                    @* El Ayudante de 2° solo puede tener dedicación Simple *@
+                    @foreach (var (value, display) in dedicaciones.Where(d => CalculadoraPuntos.EsDedicacionValida(Cargo.Cargo, d.Value)))
+                    {
+                        <option value="@value">@display</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">Cant.</label>
+                <InputNumber class="form-control form-control-sm" step="0.5" min="0.5"
+                             @bind-Value="Cargo.CantidadDedicacion"
+                             @bind-Value:after="Notificar" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">UDB <span class="text-danger">*</span></label>
+                <InputSelect class="form-select form-select-sm"
+                             @bind-Value="Cargo.UdbId"
+                             @bind-Value:after="OnUdbCambiada">
+                    <option value="0">-- Seleccionar UDB --</option>
+                    @foreach (var udb in Udbs)
+                    {
+                        <option value="@udb.Id">@udb.Nombre</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <div class="form-check mb-1">
+                    <InputCheckbox class="form-check-input" id="@($"licencia-{Numero}")"
+                                   @bind-Value="Cargo.EnLicencia"
+                                   @bind-Value:after="Notificar" />
+                    <label class="form-check-label" for="@($"licencia-{Numero}")">En licencia</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2 mt-1">
+            @if (Cargo.Condicion == Condicion.Suplente)
+            {
+                <div class="col-md-5">
+                    <label class="form-label">Reemplaza a</label>
+                    <InputSelect TValue="int?" class="form-select form-select-sm"
+                                 @bind-Value="Cargo.ReemplazaACargoId"
+                                 disabled="@(Cargo.UdbId == 0)">
+                        <option value="">-- No reemplaza a nadie --</option>
+                        @foreach (var opcion in opcionesReemplazo)
+                        {
+                            <option value="@opcion.Id">@opcion.Descripcion</option>
+                        }
+                    </InputSelect>
+                    @if (Cargo.UdbId == 0)
+                    {
+                        <small class="text-muted">Elegí primero la UDB del cargo.</small>
+                    }
+                </div>
+            }
+            <div class="col">
+                <label class="form-label">Observaciones del cargo</label>
+                <InputText class="form-control form-control-sm" @bind-Value="Cargo.Observaciones"
+                           placeholder="@(Cargo.EnLicencia ? "Motivo de la licencia (ej. Licencia por Secretaría Dpto)" : "")" />
+            </div>
+        </div>
+
+        @if (aviso != null)
+        {
+            <div class="alert alert-warning py-1 px-2 mt-2 mb-0 small">@aviso</div>
+        }
+
+        @if (expandido)
+        {
+            <div class="mt-3">
+                <ActividadesEditor Actividades="Cargo.Actividades"
+                                   Asignaturas="AsignaturasDeLaUdb"
+                                   Cursos="Cursos"
+                                   OnCambio="Notificar" />
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public UpsertCargoDesignacionDto Cargo { get; set; } = null!;
+    [Parameter] public int Numero { get; set; }
+    [Parameter] public IEnumerable<ListUdbDto> Udbs { get; set; } = Array.Empty<ListUdbDto>();
+    [Parameter] public IEnumerable<ListAsignaturaDto> Asignaturas { get; set; } = Array.Empty<ListAsignaturaDto>();
+    [Parameter] public IEnumerable<ListCursoDto> Cursos { get; set; } = Array.Empty<ListCursoDto>();
+    [Parameter] public IEnumerable<PuntosPorCargoDto> PuntosPorCargo { get; set; } = Array.Empty<PuntosPorCargoDto>();
+    // Edición: descripción del cargo que ya reemplaza (no aparece en las opciones porque ya tiene suplente: este cargo)
+    [Parameter] public string? DescripcionReemplazoActual { get; set; }
+    [Parameter] public EventCallback OnQuitar { get; set; }
+    [Parameter] public EventCallback OnCambio { get; set; } // para que el padre recalcule el total
+
+    private bool expandido = true;
+    private string? aviso;
+    private string? descripcionReemplazoActual; // copia local del parámetro (se limpia si cambia la UDB)
+
+    protected override void OnInitialized()
+    {
+        descripcionReemplazoActual = DescripcionReemplazoActual;
+    }
+    private List<CargoEnLicenciaDto> opcionesReemplazo = new();
+    private int? udbOpcionesCargadas; // UDB para la que se cargaron las opciones de "Reemplaza a"
+
+    private readonly List<(CargoDocente Value, string Display)> cargos = EnumHelper.GetOptions<CargoDocente>();
+    private readonly List<(Condicion Value, string Display)> condiciones = EnumHelper.GetOptions<Condicion>();
+    private readonly List<(TipoDedicacion Value, string Display)> dedicaciones = EnumHelper.GetOptions<TipoDedicacion>();
+
+    private IEnumerable<ListAsignaturaDto> AsignaturasDeLaUdb => Asignaturas.Where(a => a.UdbId == Cargo.UdbId);
+
+    private string TextoPuntos
+    {
+        get
+        {
+            var puntos = PuntosPreviewHelper.Calcular(Cargo, PuntosPorCargo);
+            return puntos.HasValue ? puntos.Value.ToString("0.##") : "— (cargo sin puntos en el catálogo)";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // En la edición, si el cargo ya es suplente se cargan las opciones de su UDB
+        await CargarOpcionesReemplazoAsync();
+    }
+
+    private async Task Notificar() => await OnCambio.InvokeAsync();
+
+    private async Task OnCargoCambiado()
+    {
+        aviso = null;
+        if (!CalculadoraPuntos.EsDedicacionValida(Cargo.Cargo, Cargo.TipoDedicacion))
+        {
+            Cargo.TipoDedicacion = TipoDedicacion.Simple;
+            aviso = "El Ayudante de 2° solo puede tener dedicación Simple: se cambió la dedicación a Simple.";
+        }
+        await Notificar();
+    }
+
+    private async Task OnCondicionCambiada()
+    {
+        // Solo un Suplente puede reemplazar a otro cargo
+        if (Cargo.Condicion != Condicion.Suplente)
+            Cargo.ReemplazaACargoId = null;
+        await CargarOpcionesReemplazoAsync();
+        await Notificar();
+    }
+
+    private async Task OnUdbCambiada()
+    {
+        aviso = null;
+
+        // Las asignaturas de las actividades deben ser de la UDB del cargo
+        var quitadas = 0;
+        foreach (var actividad in Cargo.Actividades)
+        {
+            if (actividad.AsignaturaId.HasValue && !AsignaturasDeLaUdb.Any(a => a.Id == actividad.AsignaturaId))
+            {
+                actividad.AsignaturaId = null;
+                quitadas++;
+            }
+        }
+        if (quitadas > 0)
+            aviso = $"Se quitaron {quitadas} asignatura(s) que no pertenecen a la UDB elegida.";
+
+        // El cargo reemplazado tiene que ser de la misma UDB
+        Cargo.ReemplazaACargoId = null;
+        descripcionReemplazoActual = null;
+        await CargarOpcionesReemplazoAsync();
+        await Notificar();
+    }
+
+    private async Task CargarOpcionesReemplazoAsync()
+    {
+        if (Cargo.Condicion != Condicion.Suplente || Cargo.UdbId == 0)
+        {
+            opcionesReemplazo = new();
+            udbOpcionesCargadas = null;
+            return;
+        }
+
+        if (udbOpcionesCargadas == Cargo.UdbId)
+            return;
+
+        try
+        {
+            opcionesReemplazo = (await Client.CargosEnLicenciaAsync(Cargo.UdbId)).ToList();
+            udbOpcionesCargadas = Cargo.UdbId;
+        }
+        catch (ApiException ex)
+        {
+            opcionesReemplazo = new();
+            aviso = ApiErrorHelper.GetMessage(ex, "No se pudieron cargar los cargos en licencia de la UDB.");
+        }
+
+        // Edición: el cargo que ya reemplaza no viene en las opciones (ya tiene suplente: este cargo)
+        if (Cargo.ReemplazaACargoId is int actual && !opcionesReemplazo.Any(o => o.Id == actual))
+            opcionesReemplazo.Insert(0, new CargoEnLicenciaDto
+            {
+                Id = actual,
+                UdbId = Cargo.UdbId,
+                Descripcion = descripcionReemplazoActual ?? $"Cargo {actual}"
+            });
+    }
+}

@@ -1,4 +1,5 @@
 @page "/puntosporcargo/nuevo"
+@page "/puntosporcargo/{Id:int}/editar"
 @using DocentesApp.Shared.DTOs.PuntosPorCargo
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
@@ -8,11 +9,15 @@
 @inject IClient Client
 @inject NavigationManager Navigation
 
-<PageTitle>Nuevos puntos por cargo</PageTitle>
+@* [Diana desde v4.0 OBSOLETO] el form ahora sirve para alta y edición
+<PageTitle>Nuevos puntos por cargo</PageTitle> *@
+<PageTitle>@(esEdicion ? "Editar puntos por cargo" : "Nuevos puntos por cargo")</PageTitle>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Nuevos puntos por cargo</h2>
+        @* [Diana desde v4.0 OBSOLETO]
+        <h2>Nuevos puntos por cargo</h2> *@
+        <h2>@(esEdicion ? "Editar puntos por cargo" : "Nuevos puntos por cargo")</h2>
         <button class="btn btn-outline-secondary"
                 @onclick='() => Navigation.NavigateTo("puntosporcargo")'>
             Volver
@@ -29,11 +34,18 @@
         <div class="alert alert-success">@successMessage</div>
     }
 
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
     <EditForm Model="puntosPorCargoDto" OnSubmit="HandleSubmit">
         <div class="card mb-4">
             <div class="card-header">Datos de puntos por cargo</div>
             <div class="card-body">
                 <div class="row">
+                    @* [Diana desde v4.0 OBSOLETO] Denominación + Tipo reemplazados por Cargo (CargoDocente)
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Denominación <span class="text-danger">*</span></label>
                         <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.Denominacion">
@@ -54,11 +66,34 @@
                             }
                         </InputSelect>
                     </div>
+                    *@
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                        @if (esEdicion)
+                        {
+                            @* El cargo es la clave de la fila: en la edición solo cambian los puntos *@
+                            <input class="form-control" value="@descripcionCargo" disabled />
+                        }
+                        else
+                        {
+                            <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.Cargo">
+                                <option value="">-- Seleccionar --</option>
+                                @foreach (var (value, display) in cargosDisponibles)
+                                {
+                                    <option value="@value">@display</option>
+                                }
+                            </InputSelect>
+                        }
+                    </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Puntos base <span class="text-danger">*</span></label>
+                        <label class="form-label">Puntos base (por 1 dedicación simple) <span class="text-danger">*</span></label>
                         <InputNumber class="form-control" @bind-Value="puntosPorCargoDto.PuntosBase" />
                     </div>
                 </div>
+                @if (esEdicion)
+                {
+                    <small class="text-muted">Cambiar los puntos base no modifica los puntos ya guardados en designaciones existentes.</small>
+                }
             </div>
         </div>
 
@@ -73,52 +108,138 @@
             </button>
         </div>
     </EditForm>
+    }
 </div>
 
 @code {
+    [Parameter] public int? Id { get; set; } // null = alta, con valor = edición (solo PuntosBase)
+    private bool esEdicion => Id.HasValue;
+
     private CreatePuntosPorCargoDto puntosPorCargoDto = new();
+    private bool isLoading = true;
     private bool isSaving;
     private string? errorMessage;
     private string? successMessage;
+    private string descripcionCargo = string.Empty; // edición: el cargo se muestra pero no se cambia
 
-    private readonly List<(DenominacionCargo Value, string Display)> denominaciones =
-        EnumHelper.GetOptions<DenominacionCargo>();
-    private readonly List<(TipoCargo Value, string Display)> tipos =
-        EnumHelper.GetOptions<TipoCargo>();
+    // [Diana desde v4.0 OBSOLETO] Denominación + Tipo reemplazados por Cargo (CargoDocente)
+    //private readonly List<(DenominacionCargo Value, string Display)> denominaciones =
+    //    EnumHelper.GetOptions<DenominacionCargo>();
+    //private readonly List<(TipoCargo Value, string Display)> tipos =
+    //    EnumHelper.GetOptions<TipoCargo>();
+
+    // Alta: solo los cargos que todavía no tienen fila (una fila por cargo)
+    private List<(CargoDocente Value, string Display)> cargosDisponibles = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        errorMessage = null;
+        try
+        {
+            isLoading = true;
+            if (esEdicion)
+            {
+                var punto = await Client.PuntosPorCargoGETAsync(Id!.Value);
+                descripcionCargo = punto.Descripcion;
+                puntosPorCargoDto = new CreatePuntosPorCargoDto { Cargo = punto.Cargo, PuntosBase = punto.PuntosBase };
+            }
+            else
+            {
+                var existentes = await Client.PuntosPorCargoAllAsync();
+                var cargosConFila = existentes.Select(p => p.Cargo).ToHashSet();
+                cargosDisponibles = EnumHelper.GetOptions<CargoDocente>()
+                    .Where(c => !cargosConFila.Contains(c.Value))
+                    .ToList();
+                puntosPorCargoDto = new CreatePuntosPorCargoDto();
+            }
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 404
+                ? "Los puntos por cargo no existen."
+                : "Error al cargar los datos. Intentá de nuevo.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 
     private async Task HandleSubmit()
     {
         errorMessage = null;
         successMessage = null;
 
-        // Validación client-side
-        var validator = new CreatePuntosPorCargoDtoValidator();
-        var result = await validator.ValidateAsync(puntosPorCargoDto);
-        if (!result.IsValid)
-        {
-            errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
-            return;
-        }
+        // [Diana desde v4.0 OBSOLETO] validación y alta movidas a GuardarAltaAsync / GuardarEdicionAsync
+        //// Validación client-side
+        //var validator = new CreatePuntosPorCargoDtoValidator();
+        //var result = await validator.ValidateAsync(puntosPorCargoDto);
+        //if (!result.IsValid)
+        //{
+        //    errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+        //    return;
+        //}
 
         try
         {
             isSaving = true;
-            await Client.PuntosPorCargoPOSTAsync(puntosPorCargoDto);
-            Navigation.NavigateTo("puntosporcargo", new NavigationOptions { ReplaceHistoryEntry = true });
+            // [Diana desde v4.0 OBSOLETO]
+            //await Client.PuntosPorCargoPOSTAsync(puntosPorCargoDto);
+            var guardado = esEdicion ? await GuardarEdicionAsync() : await GuardarAltaAsync();
+            if (guardado)
+                Navigation.NavigateTo("puntosporcargo", new NavigationOptions { ReplaceHistoryEntry = true });
         }
         catch (ApiException ex)
         {
+            // [Diana desde v4.0 OBSOLETO] el 409 (cargo ya cargado) y los 400 traen el mensaje del backend
+            //errorMessage = ex.StatusCode switch
+            //{
+            //    400 => "Ya existen puntos por cargo con esa combinación.",
+            //    401 => "No tiene permisos para realizar esta acción.",
+            //    403 => "No tiene permisos para realizar esta acción.",
+            //    _ => "Error al guardar. Intentá de nuevo."
+            //};
             errorMessage = ex.StatusCode switch
             {
-                400 => "Ya existen puntos por cargo con esa combinación.",
                 401 => "No tiene permisos para realizar esta acción.",
                 403 => "No tiene permisos para realizar esta acción.",
-                _ => "Error al guardar. Intentá de nuevo."
+                _ => ApiErrorHelper.GetMessage(ex) // 400, 404, 409 (ya hay puntos para ese cargo)
             };
         }
         finally
         {
             isSaving = false;
         }
+    }
+
+    // Validación client-side + POST. false si no pasó la validación.
+    private async Task<bool> GuardarAltaAsync()
+    {
+        var validator = new CreatePuntosPorCargoDtoValidator();
+        var result = await validator.ValidateAsync(puntosPorCargoDto);
+        if (!result.IsValid)
+        {
+            errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+            return false;
+        }
+
+        await Client.PuntosPorCargoPOSTAsync(puntosPorCargoDto);
+        return true;
+    }
+
+    // Validación client-side + PUT (solo PuntosBase). false si no pasó la validación.
+    private async Task<bool> GuardarEdicionAsync()
+    {
+        var updateDto = new UpdatePuntosPorCargoDto { PuntosBase = puntosPorCargoDto.PuntosBase };
+        var validator = new UpdatePuntosPorCargoDtoValidator();
+        var result = await validator.ValidateAsync(updateDto);
+        if (!result.IsValid)
+        {
+            errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
+            return false;
+        }
+
+        await Client.PuntosPorCargoPUTAsync(Id!.Value, updateDto);
+        return true;
     }
 }

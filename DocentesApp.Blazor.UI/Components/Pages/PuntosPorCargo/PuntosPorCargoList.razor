@@ -44,7 +44,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var punto in puntosPorCargo)
+                @* [Diana desde v4.0 OBSOLETO] ordenado por cargo (Profesores primero, después Auxiliares)
+                @foreach (var punto in puntosPorCargo) *@
+                @foreach (var punto in puntosPorCargo.OrderBy(p => p.Cargo))
                 {
                     <tr>
                         <td>@punto.Descripcion</td>
@@ -52,6 +54,10 @@
                         <td>
                             <AuthorizeView Roles="Admin">
                                 <Authorized>
+                                    <button class="btn btn-sm btn-outline-primary me-1"
+                                            @onclick='() => Navigation.NavigateTo($"puntosporcargo/{punto.Id}/editar")'>
+                                        Editar
+                                    </button>
                                     <button class="btn btn-sm btn-outline-danger"
                                             @onclick="() => ConfirmarEliminar(punto)">
                                         Eliminar
@@ -162,9 +168,16 @@
         }
         catch (ApiException ex)
         {
+            // [Diana desde v4.0 OBSOLETO] el 409 trae el mensaje del backend (qué cargo y por qué)
+            //deleteErrorMessage = ex.StatusCode switch
+            //{
+            //    409 => "No se pueden eliminar los puntos por cargo porque tienen designaciones asociadas.",
+            //    404 => "Los puntos por cargo no existen.",
+            //    _ => "Error al eliminar los puntos por cargo."
+            //};
             deleteErrorMessage = ex.StatusCode switch
             {
-                409 => "No se pueden eliminar los puntos por cargo porque tienen designaciones asociadas.",
+                409 => ApiErrorHelper.GetMessage(ex, "No se pueden eliminar los puntos por cargo porque hay designaciones con ese cargo."),
                 404 => "Los puntos por cargo no existen.",
                 _ => "Error al eliminar los puntos por cargo."
             };
