@@ -14,8 +14,15 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private DbConnection? _connection;
 
+    // Clave JWT propia del host de tests (no es secreta: solo firma tokens dentro de los tests).
+    // Así los tests no dependen de los user-secrets de cada máquina ni de appsettings.json.
+    public const string TestJwtKey = "dGVzdC1rZXktc29sby1wYXJhLWxvcy10ZXN0cy1kZS1pbnRlZ3JhY2lvbi1kb2NlbnRlc2FwcC0yMDI2";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // UseSetting se aplica antes de que Program.cs lea Jwt:Key y tiene prioridad sobre los user-secrets
+        builder.UseSetting("Jwt:Key", TestJwtKey);
+
         builder.ConfigureServices(services =>
         {
             // Remover la configuración original del DbContext

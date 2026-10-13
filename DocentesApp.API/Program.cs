@@ -56,8 +56,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // Jwt Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = jwtSettings["Key"]
-    ?? throw new InvalidOperationException("JWT Key no configurada.");
+// [Diana desde v4.0 OBSOLETO] solo fallaba si faltaba la clave, sin decir como configurarla
+//var key = jwtSettings["Key"]
+//    ?? throw new InvalidOperationException("JWT Key no configurada.");
+// La clave JWT no se versiona (no esta en appsettings.json). En desarrollo se configura con
+// dotnet user-secrets; en otros entornos con la variable de entorno Jwt__Key (ver README).
+const int JwtKeyMinBytes = 32; // HMAC-SHA256 necesita una clave de al menos 256 bits
+var key = jwtSettings["Key"];
+if (string.IsNullOrWhiteSpace(key))
+    throw new InvalidOperationException(
+        "Falta la clave JWT (Jwt:Key); no se guarda en appsettings.json. " +
+        "En desarrollo configurala con: dotnet user-secrets set \"Jwt:Key\" \"<clave>\" --project DocentesApp.API " +
+        "(ver README). En otros entornos usa la variable de entorno Jwt__Key.");
+if (Encoding.UTF8.GetByteCount(key) < JwtKeyMinBytes)
+    throw new InvalidOperationException(
+        $"La clave JWT (Jwt:Key) es demasiado corta: debe tener al menos {JwtKeyMinBytes} bytes (ver README).");
 
 builder.Services.AddAuthentication(options =>
 {
