@@ -19,7 +19,38 @@ namespace DocentesApp.Tests.Helpers
             _client = factory.CreateClient();
         }
 
-        public async Task<AuthResponseDto> RegisterUserAsync(
+        // [Diana desde v4.0 OBSOLETO] el registro era público y devolvía el token del usuario nuevo;
+        // ahora lo hace el Admin y devuelve los datos del usuario creado (RegisteredUserDto)
+        //public async Task<AuthResponseDto> RegisterUserAsync(
+        //    string? email = null,
+        //    string? userName = null,
+        //    string password = "Admin123")
+        //{
+        //    var unique = Guid.NewGuid().ToString("N")[..8];
+        //
+        //    var dto = new RegisterDto
+        //    {
+        //        Email = email ?? $"user-{unique}@test.com",
+        //        UserName = userName ?? $"user{unique}",
+        //        Password = password,
+        //        Nombre = "Test",
+        //        Apellido = "User"
+        //    };
+        //
+        //    var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+        //    var body = await response.Content.ReadAsStringAsync();
+        //
+        //    response.StatusCode.Should().Be(HttpStatusCode.OK, body);
+        //
+        //    var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        //    authResponse.Should().NotBeNull();
+        //    authResponse!.Token.Should().NotBeNullOrWhiteSpace();
+        //
+        //    return authResponse;
+        //}
+
+        // Registra un usuario nuevo (rol User) con el cliente admin
+        public async Task<RegisteredUserDto> RegisterUserAsync(
             string? email = null,
             string? userName = null,
             string password = "Admin123")
@@ -35,16 +66,16 @@ namespace DocentesApp.Tests.Helpers
                 Apellido = "User"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
+            var admin = await CreateAdminClientAsync();
+            var response = await admin.PostAsJsonAsync("/api/auth/register", dto);
             var body = await response.Content.ReadAsStringAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK, body);
 
-            var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
-            authResponse.Should().NotBeNull();
-            authResponse!.Token.Should().NotBeNullOrWhiteSpace();
+            var registered = await response.Content.ReadFromJsonAsync<RegisteredUserDto>();
+            registered.Should().NotBeNull();
 
-            return authResponse;
+            return registered!;
         }
 
         public async Task<AuthResponseDto> LoginAsync(string emailOrUserName, string password)
@@ -67,10 +98,16 @@ namespace DocentesApp.Tests.Helpers
             return authResponse;
         }
 
+        // [Diana desde v4.0 OBSOLETO] el registro ya no devuelve token: se loguea el usuario User del seed de Identity
+        //public async Task<string> GetUserTokenAsync()
+        //{
+        //    var registerResponse = await RegisterUserAsync();
+        //    return registerResponse.Token;
+        //}
         public async Task<string> GetUserTokenAsync()
         {
-            var registerResponse = await RegisterUserAsync();
-            return registerResponse.Token;
+            var loginResponse = await LoginAsync("user@docentesapp.com", "User123!");
+            return loginResponse.Token;
         }
 
         public async Task<string> GetAdminTokenAsync()

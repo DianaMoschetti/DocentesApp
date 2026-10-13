@@ -15,6 +15,7 @@ using FluentValidation.AspNetCore;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -55,8 +56,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // Jwt Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = jwtSettings["Key"]
-    ?? throw new InvalidOperationException("JWT Key no configurada.");
+// [Diana desde v4.0 OBSOLETO] solo fallaba si faltaba la clave, sin decir como configurarla
+//var key = jwtSettings["Key"]
+//    ?? throw new InvalidOperationException("JWT Key no configurada.");
+// La clave JWT no se versiona (no esta en appsettings.json). En desarrollo se configura con
+// dotnet user-secrets; en otros entornos con la variable de entorno Jwt__Key (ver README).
+const int JwtKeyMinBytes = 32; // HMAC-SHA256 necesita una clave de al menos 256 bits
+var key = jwtSettings["Key"];
+if (string.IsNullOrWhiteSpace(key))
+    throw new InvalidOperationException(
+        "Falta la clave JWT (Jwt:Key); no se guarda en appsettings.json. " +
+        "En desarrollo configurala con: dotnet user-secrets set \"Jwt:Key\" \"<clave>\" --project DocentesApp.API " +
+        "(ver README). En otros entornos usa la variable de entorno Jwt__Key.");
+if (Encoding.UTF8.GetByteCount(key) < JwtKeyMinBytes)
+    throw new InvalidOperationException(
+        $"La clave JWT (Jwt:Key) es demasiado corta: debe tener al menos {JwtKeyMinBytes} bytes (ver README).");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -80,7 +94,22 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// [Diana desde v4.0 OBSOLETO] sin politica por defecto: todo lo que no tenia [Authorize] era publico
+//builder.Services.AddAuthorization();
+// Por defecto todos los endpoints requieren un usuario autenticado con rol Admin o User:
+//   - FallbackPolicy: endpoints sin [Authorize] ni [AllowAnonymous] (las lecturas)
+//   - DefaultPolicy: endpoints con [Authorize] sin roles (reportes, cargos-en-licencia)
+// Las escrituras siguen con [Authorize(Roles = "Admin")]; solo el login es [AllowAnonymous].
+// Swagger se sirve por middleware (UseSwagger, solo Development), no por endpoint: no le aplica.
+var politicaAdminOUser = new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .RequireRole("Admin", "User")
+    .Build();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = politicaAdminOUser;
+    options.DefaultPolicy = politicaAdminOUser;
+});
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 // DI Interfaces
