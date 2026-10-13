@@ -30,7 +30,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // Act
         // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
         //var response = await _client.GetAsync("/api/docentes");
-        var response = await Client.GetAsync("/api/docentes");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        var user = await Auth.CreateUserClientAsync();
+        //var response = await Client.GetAsync("/api/docentes");
+        var response = await user.GetAsync("/api/docentes");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -47,7 +50,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // Act
         // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
         //var response = await _client.GetAsync("/api/docentes/1");
-        var response = await Client.GetAsync("/api/docentes/1");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        var user = await Auth.CreateUserClientAsync();
+        //var response = await Client.GetAsync("/api/docentes/1");
+        var response = await user.GetAsync("/api/docentes/1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -64,7 +70,10 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // Act
         // [Diana desde v4.0 OBSOLETO] _client/_factory propios nunca se asignaban (null): se usan Client/Factory de IntegrationTestBase y un cliente admin para los endpoints [Authorize(Roles = "Admin")]
         //var response = await _client.GetAsync("/api/docentes/999");
-        var response = await Client.GetAsync("/api/docentes/999");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        var user = await Auth.CreateUserClientAsync();
+        //var response = await Client.GetAsync("/api/docentes/999");
+        var response = await user.GetAsync("/api/docentes/999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -232,7 +241,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         // Assert
         putResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, putBody);
 
-        var getResponse = await Client.GetAsync("/api/docentes/1");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        //var getResponse = await Client.GetAsync("/api/docentes/1");
+        var getResponse = await admin.GetAsync("/api/docentes/1");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updated = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
@@ -357,7 +368,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         //var getResponse = await _client.GetAsync($"/api/docentes/{docente.Id}");
-        var getResponse = await Client.GetAsync($"/api/docentes/{docente.Id}");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        //var getResponse = await Client.GetAsync($"/api/docentes/{docente.Id}");
+        var getResponse = await admin.GetAsync($"/api/docentes/{docente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -458,7 +471,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         patchResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, patchBody);
 
         //var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
-        var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        //var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        var getResponse = await admin.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();
@@ -563,7 +578,9 @@ public class DocentesControllerIntegrationTests : IntegrationTestBase
         patchResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, patchBody);
 
         //var getResponse = await _client.GetAsync($"/api/docentes/{createdDocente.Id}");
-        var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        // [Diana desde v4.0 OBSOLETO] las lecturas ahora requieren un usuario autenticado (Admin o User)
+        //var getResponse = await Client.GetAsync($"/api/docentes/{createdDocente.Id}");
+        var getResponse = await admin.GetAsync($"/api/docentes/{createdDocente.Id}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updatedDocente = await getResponse.Content.ReadFromJsonAsync<DocenteDto>();

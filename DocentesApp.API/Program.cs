@@ -15,6 +15,7 @@ using FluentValidation.AspNetCore;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -80,7 +81,22 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// [Diana desde v4.0 OBSOLETO] sin politica por defecto: todo lo que no tenia [Authorize] era publico
+//builder.Services.AddAuthorization();
+// Por defecto todos los endpoints requieren un usuario autenticado con rol Admin o User:
+//   - FallbackPolicy: endpoints sin [Authorize] ni [AllowAnonymous] (las lecturas)
+//   - DefaultPolicy: endpoints con [Authorize] sin roles (reportes, cargos-en-licencia)
+// Las escrituras siguen con [Authorize(Roles = "Admin")]; solo el login es [AllowAnonymous].
+// Swagger se sirve por middleware (UseSwagger, solo Development), no por endpoint: no le aplica.
+var politicaAdminOUser = new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .RequireRole("Admin", "User")
+    .Build();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = politicaAdminOUser;
+    options.DefaultPolicy = politicaAdminOUser;
+});
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 // DI Interfaces

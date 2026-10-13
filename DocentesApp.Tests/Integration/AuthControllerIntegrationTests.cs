@@ -21,10 +21,14 @@ namespace DocentesApp.Tests.Integration
             var result = await Auth.RegisterUserAsync();
 
             // Assert
+            // [Diana desde v4.0 OBSOLETO] el registro (solo Admin) devuelve los datos del usuario creado, sin token
+            //result.Email.Should().NotBeNullOrWhiteSpace();
+            //result.UserName.Should().NotBeNullOrWhiteSpace();
+            //result.Token.Should().NotBeNullOrWhiteSpace();
+            //result.Roles.Should().Contain("User");
+            result.Id.Should().NotBeNullOrWhiteSpace();
             result.Email.Should().NotBeNullOrWhiteSpace();
-            result.UserName.Should().NotBeNullOrWhiteSpace();
-            result.Token.Should().NotBeNullOrWhiteSpace();
-            result.Roles.Should().Contain("User");
+            result.Role.Should().Be("User");
         }
 
         [Fact]

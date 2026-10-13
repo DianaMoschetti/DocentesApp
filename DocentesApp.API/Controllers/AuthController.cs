@@ -29,9 +29,19 @@ namespace DocentesApp.API.Controllers
             _roleManager = roleManager;
         }
 
+        // [Diana desde v4.0 OBSOLETO] el registro era público y devolvía el token del usuario nuevo:
+        // cualquiera podía crearse una cuenta User y leer todos los datos. Ahora solo el Admin crea usuarios.
+        //[HttpPost("register")]
+        //[AllowAnonymous]
+        //public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
+        //{
         [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(RegisteredUserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<RegisteredUserDto>> Register(RegisterDto dto)
         {
             var existingEmail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingEmail != null)
@@ -56,9 +66,16 @@ namespace DocentesApp.API.Controllers
 
             await _userManager.AddToRoleAsync(user, "User");
 
-            var authResponse = await _tokenService.CreateTokenAsync(user);
-
-            return Ok(authResponse);
+            // [Diana desde v4.0 OBSOLETO] ya no se devuelve el token del usuario nuevo
+            //var authResponse = await _tokenService.CreateTokenAsync(user);
+            //
+            //return Ok(authResponse);
+            return Ok(new RegisteredUserDto
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                Role = "User"
+            });
         }
 
         [HttpPost("login")]
