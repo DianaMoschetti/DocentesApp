@@ -1,6 +1,7 @@
 ﻿using DocentesApp.Shared.DTOs.Auth;
 using DocentesApp.Shared.DTOs.Udbs;
-using FluentAssertions;
+// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
+using AwesomeAssertions;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;

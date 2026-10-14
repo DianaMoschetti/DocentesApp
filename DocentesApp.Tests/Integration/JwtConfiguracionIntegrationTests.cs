@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
