@@ -3,7 +3,8 @@ using DocentesApp.Tests.Integration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using FluentAssertions;
+// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
+using AwesomeAssertions;
 using DocentesApp.Shared.DTOs.Auth;
 
 namespace DocentesApp.Tests.Helpers

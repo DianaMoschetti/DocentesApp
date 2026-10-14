@@ -7,7 +7,8 @@ using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
 using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Tests.Helpers;
-using FluentAssertions;
+// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 public class DocenteServiceIntegrationTests

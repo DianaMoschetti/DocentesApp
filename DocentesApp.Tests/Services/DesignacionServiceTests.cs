@@ -7,7 +7,8 @@ using DocentesApp.Domain.Enums;
 using DocentesApp.Shared.DTOs.Designaciones;
 using DocentesApp.Shared.DTOs.PuntosPorCargo;
 using DocentesApp.Tests.Helpers;
-using FluentAssertions;
+// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocentesApp.Tests.Services
