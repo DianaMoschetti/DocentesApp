@@ -1,0 +1,100 @@
+@* Modal "Finalizar designación" (usa el endpoint PATCH api/designaciones/{id}/cerrar).
+   Lo usan DesignacionesList y DesignacionesForm (edición). Se muestra mientras DesignacionId tenga valor. *@
+@inject IClient Client
+
+@if (DesignacionId.HasValue)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar finalización de designación</h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás segura que querés finalizar la designación de <strong>@NombreDocente</strong>?</p>
+                    <p class="text-muted">Esta acción establecerá la fecha de fin como hoy. No se puede deshacer.</p>
+                    @if (AdvertirCambiosSinGuardar)
+                    {
+                        <p class="text-danger">Los cambios no guardados en el formulario se van a perder.</p>
+                    }
+                    @if (cerrarErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@cerrarErrorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <button class="btn btn-secondary"
+                                    @onclick="CancelarCerrar"
+                                    disabled="@isCerrando">
+                                Cancelar
+                            </button>
+                            <button class="btn btn-warning"
+                                    @onclick="EjecutarCerrar"
+                                    disabled="@isCerrando">
+                                @(isCerrando ? "Finalizando..." : "Finalizar designación")
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int? DesignacionId { get; set; } // null = modal oculto
+    [Parameter] public string? NombreDocente { get; set; }
+    [Parameter] public bool AdvertirCambiosSinGuardar { get; set; } // true desde la edición: al finalizar se navega sin guardar
+    [Parameter] public EventCallback OnCerrada { get; set; }  // el padre decide qué hacer (recargar, navegar...)
+    [Parameter] public EventCallback OnCancelar { get; set; } // el padre oculta el modal (DesignacionId = null)
+
+    private bool isCerrando;
+    private string? cerrarErrorMessage;
+    private int? idAnterior;
+
+    protected override void OnParametersSet()
+    {
+        // cada vez que se abre para otra designación, arranca sin el error anterior
+        if (DesignacionId != idAnterior)
+        {
+            cerrarErrorMessage = null;
+            idAnterior = DesignacionId;
+        }
+    }
+
+    private async Task CancelarCerrar()
+    {
+        cerrarErrorMessage = null;
+        await OnCancelar.InvokeAsync();
+    }
+
+    private async Task EjecutarCerrar()
+    {
+        if (DesignacionId == null) return;
+
+        try
+        {
+            isCerrando = true;
+            cerrarErrorMessage = null;
+            await Client.CerrarAsync(DesignacionId.Value);
+        }
+        catch (ApiException ex)
+        {
+            cerrarErrorMessage = ex.StatusCode switch
+            {
+                400 => "La designación ya está finalizada.",
+                404 => "La designación no existe.",
+                _ => "Error al finalizar la designación."
+            };
+            return;
+        }
+        finally
+        {
+            isCerrando = false;
+        }
+
+        await OnCerrada.InvokeAsync();
+    }
+}
