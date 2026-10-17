@@ -132,10 +132,26 @@ namespace DocentesApp.Tests.Helpers
             return CreateAuthenticatedClient(token);
         }
 
-        public async Task<HttpClient> CreateUserClientAsync()
+        // [Diana desde v4.0 OBSOLETO] el rol User pasa a llamarse Consultante: CreateUserClientAsync queda como alias
+        //public async Task<HttpClient> CreateUserClientAsync()
+        //{
+        //    var token = await GetUserTokenAsync();
+        //    return CreateAuthenticatedClient(token);
+        //}
+        public Task<HttpClient> CreateUserClientAsync() => CreateConsultanteClientAsync();
+
+        // Usuarios del seed de Identity (Development/Testing), uno por rol
+        public Task<HttpClient> CreateConsultanteClientAsync() =>
+            CreateClientForAsync("user@docentesapp.com", "User123!");
+
+        public Task<HttpClient> CreateEditorClientAsync() =>
+            CreateClientForAsync("editor@docentesapp.com", "Editor123!");
+
+        // Cliente con el token de cualquier usuario (por ejemplo, uno creado en el test)
+        public async Task<HttpClient> CreateClientForAsync(string emailOrUserName, string password)
         {
-            var token = await GetUserTokenAsync();
-            return CreateAuthenticatedClient(token);
+            var login = await LoginAsync(emailOrUserName, password);
+            return CreateAuthenticatedClient(login.Token);
         }
     }
 }

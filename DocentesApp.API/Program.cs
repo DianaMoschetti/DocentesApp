@@ -9,6 +9,7 @@ using DocentesApp.Data.Context;
 using DocentesApp.Data.Identity;
 using DocentesApp.Data.Repositories;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Shared.Auth;
 using DocentesApp.Shared.Validators.Docentes;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -101,14 +102,25 @@ builder.Services.AddAuthentication(options =>
 //   - DefaultPolicy: endpoints con [Authorize] sin roles (reportes, cargos-en-licencia)
 // Las escrituras siguen con [Authorize(Roles = "Admin")]; solo el login es [AllowAnonymous].
 // Swagger se sirve por middleware (UseSwagger, solo Development), no por endpoint: no le aplica.
-var politicaAdminOUser = new AuthorizationPolicyBuilder()
-    .RequireAuthenticatedUser()
-    .RequireRole("Admin", "User")
-    .Build();
+// [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por Administrador/Editor/Consultante y políticas con nombre
+//var politicaAdminOUser = new AuthorizationPolicyBuilder()
+//    .RequireAuthenticatedUser()
+//    .RequireRole("Admin", "User")
+//    .Build();
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = politicaAdminOUser;
+//    options.DefaultPolicy = politicaAdminOUser;
+//});
+// Políticas compartidas con Blazor (DocentesApp.Shared/Auth/Politicas.cs):
+//   - PuedeConsultar: cualquier rol. Es la Fallback (lecturas sin atributo) y la Default ([Authorize] a secas: reportes)
+//   - PuedeEditar: Administrador o Editor (todas las escrituras, incluidos los catálogos)
+//   - EsAdministrador: gestión de usuarios
 builder.Services.AddAuthorization(options =>
 {
-    options.FallbackPolicy = politicaAdminOUser;
-    options.DefaultPolicy = politicaAdminOUser;
+    Politicas.Configurar(options);
+    options.FallbackPolicy = options.GetPolicy(Politicas.PuedeConsultar);
+    options.DefaultPolicy = options.GetPolicy(Politicas.PuedeConsultar)!;
 });
 builder.Services.AddScoped<ITokenService, TokenService>();
 

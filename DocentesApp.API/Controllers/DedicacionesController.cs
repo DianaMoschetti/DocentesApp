@@ -2,6 +2,7 @@
 using DocentesApp.Shared.DTOs.Dedicaciones;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DocentesApp.Shared.Auth;
 
 namespace DocentesApp.API.Controllers
 {
@@ -42,7 +43,9 @@ namespace DocentesApp.API.Controllers
         #region Create
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(typeof(DedicacionDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -58,7 +61,9 @@ namespace DocentesApp.API.Controllers
         #region Delete
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

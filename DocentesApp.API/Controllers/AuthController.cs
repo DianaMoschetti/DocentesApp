@@ -1,5 +1,6 @@
 ﻿using DocentesApp.API.Services;
 using DocentesApp.Data.Identity;
+using DocentesApp.Shared.Auth;
 using DocentesApp.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -36,7 +37,9 @@ namespace DocentesApp.API.Controllers
         //public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
         //{
         [HttpPost("register")]
-        [Authorize(Roles = "Admin")]
+        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Policy = Politicas.EsAdministrador)]
         [ProducesResponseType(typeof(RegisteredUserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -64,7 +67,9 @@ namespace DocentesApp.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _userManager.AddToRoleAsync(user, "User");
+            // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
+            //await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, Roles.Consultante);
 
             // [Diana desde v4.0 OBSOLETO] ya no se devuelve el token del usuario nuevo
             //var authResponse = await _tokenService.CreateTokenAsync(user);
@@ -74,7 +79,9 @@ namespace DocentesApp.API.Controllers
             {
                 Id = user.Id,
                 Email = user.Email!,
-                Role = "User"
+                // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
+                //Role = "User"
+                Role = Roles.Consultante
             });
         }
 
@@ -99,7 +106,9 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPost("assign-role")]
-        [Authorize(Roles = "Admin")]
+        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Policy = Politicas.EsAdministrador)]
         public async Task<IActionResult> AssignRole(string userName, string roleName)
         {
             var user = await _userManager.FindByNameAsync(userName);

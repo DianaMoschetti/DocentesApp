@@ -71,7 +71,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         });
     }
 
-    private static void SeedData(DocentesDbContext db)
+    // [Diana desde v4.0 OBSOLETO] virtual para que un factory derivado agregue datos previos al arranque (p. ej. roles viejos)
+    //private static void SeedData(DocentesDbContext db)
+    protected virtual void SeedData(DocentesDbContext db)
     {
         if (db.Docentes.Any())
             return;

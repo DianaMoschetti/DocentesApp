@@ -2,6 +2,7 @@ using DocentesApp.Data.Context;
 using DocentesApp.Data.Identity;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
+using DocentesApp.Shared.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +16,70 @@ namespace DocentesApp.API.Extensions
 
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var environment = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
 
-            var roles = new[] { "Admin", "User" };
+            // [Diana desde v4.0 OBSOLETO] roles Admin/User, contraseñas fijas en el código y usuarios de prueba en todos los entornos
+            //var roles = new[] { "Admin", "User" };
+            //
+            //foreach (var role in roles)
+            //{
+            //    if (!await roleManager.RoleExistsAsync(role))
+            //    {
+            //        await roleManager.CreateAsync(new IdentityRole(role));
+            //    }
+            //}
+            //
+            //var adminEmail = "admin@docentesapp.com";
+            //var adminUserName = "admin";
+            //
+            //var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            //
+            //if (adminUser == null)
+            //{
+            //    adminUser = new ApplicationUser
+            //    {
+            //        UserName = adminUserName,
+            //        Email = adminEmail,
+            //        Nombre = "Administrador",
+            //        Apellido = "Sistema",
+            //        EmailConfirmed = true
+            //    };
+            //
+            //    var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            //
+            //    if (result.Succeeded)
+            //    {
+            //        await userManager.AddToRoleAsync(adminUser, "Admin");
+            //    }
+            //}
+            //
+            //var userEmail = "user@docentesapp.com";
+            //var userUserName = "user";
+            //var commonUser = await userManager.FindByEmailAsync(userEmail);
+            //if (commonUser == null)
+            //{
+            //    commonUser = new ApplicationUser
+            //    {
+            //        UserName = userUserName,
+            //        Email = userEmail,
+            //        Nombre = "Usuario",
+            //        Apellido = "Consulta",
+            //        EmailConfirmed = true
+            //    };
+            //    var result = await userManager.CreateAsync(commonUser, "User123!");
+            //    if (result.Succeeded)
+            //    {
+            //        await userManager.AddToRoleAsync(commonUser, "User");
+            //    }
+            //}
 
-            foreach (var role in roles)
+            // 1) Roles. Los roles viejos se renombran (no se migran usuarios): AspNetUserRoles apunta al Id del rol,
+            //    así que los usuarios que tenían Admin/User quedan con Administrador/Consultante. Es idempotente.
+            await RenombrarRolAsync(roleManager, "Admin", Roles.Administrador);
+            await RenombrarRolAsync(roleManager, "User", Roles.Consultante);
+
+            foreach (var role in Roles.Todos)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
@@ -26,49 +87,73 @@ namespace DocentesApp.API.Extensions
                 }
             }
 
-            var adminEmail = "admin@docentesapp.com";
-            var adminUserName = "admin";
+            // Development y Testing: usuarios de prueba y contraseña del admin por defecto (ver README)
+            var esEntornoDePrueba = environment.IsDevelopment() || environment.IsEnvironment("Testing");
 
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-            if (adminUser == null)
+            // 2) Administrador inicial, en todos los entornos. La contraseña solo se usa si el usuario todavía no existe.
+            const string adminEmail = "admin@docentesapp.com";
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                adminUser = new ApplicationUser
+                var adminPassword = configuration["Seed:AdminPassword"];
+                if (string.IsNullOrWhiteSpace(adminPassword))
                 {
-                    UserName = adminUserName,
-                    Email = adminEmail,
-                    Nombre = "Administrador",
-                    Apellido = "Sistema",
-                    EmailConfirmed = true
-                };
+                    if (!esEntornoDePrueba)
+                        throw new InvalidOperationException(
+                            "Falta la contraseña del administrador inicial (Seed:AdminPassword); no se guarda en appsettings.json. " +
+                            "Configurala con la variable de entorno Seed__AdminPassword (ver README). " +
+                            "Solo se usa la primera vez, cuando el usuario admin todavía no existe.");
 
-                var result = await userManager.CreateAsync(adminUser, "Admin123!");
-
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    adminPassword = "Admin123!"; // solo Development/Testing
                 }
+
+                await CrearUsuarioAsync(userManager, adminEmail, "admin", "Administrador", "Sistema", adminPassword, Roles.Administrador);
             }
 
-            var userEmail = "user@docentesapp.com";
-            var userUserName = "user";
-            var commonUser = await userManager.FindByEmailAsync(userEmail);
-            if (commonUser == null)
+            // 3) Usuarios de prueba: solo en Development y Testing
+            if (esEntornoDePrueba)
             {
-                commonUser = new ApplicationUser
-                {
-                    UserName = userUserName,
-                    Email = userEmail,
-                    Nombre = "Usuario",
-                    Apellido = "Consulta",
-                    EmailConfirmed = true
-                };
-                var result = await userManager.CreateAsync(commonUser, "User123!");
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(commonUser, "User");
-                }
+                if (await userManager.FindByEmailAsync("editor@docentesapp.com") == null)
+                    await CrearUsuarioAsync(userManager, "editor@docentesapp.com", "editor", "Usuario", "Editor", "Editor123!", Roles.Editor);
+
+                if (await userManager.FindByEmailAsync("user@docentesapp.com") == null)
+                    await CrearUsuarioAsync(userManager, "user@docentesapp.com", "user", "Usuario", "Consulta", "User123!", Roles.Consultante);
             }
+        }
+
+        // Renombra un rol conservando su Id (y por lo tanto sus usuarios). No hace nada si el viejo no existe o el nuevo ya existe.
+        private static async Task RenombrarRolAsync(RoleManager<IdentityRole> roleManager, string nombreViejo, string nombreNuevo)
+        {
+            var rolViejo = await roleManager.FindByNameAsync(nombreViejo);
+            if (rolViejo == null || await roleManager.RoleExistsAsync(nombreNuevo))
+                return;
+
+            await roleManager.SetRoleNameAsync(rolViejo, nombreNuevo);
+            var result = await roleManager.UpdateAsync(rolViejo); // UpdateAsync también actualiza NormalizedName
+            if (!result.Succeeded)
+                throw new InvalidOperationException(
+                    $"No se pudo renombrar el rol '{nombreViejo}' a '{nombreNuevo}': {string.Join(" | ", result.Errors.Select(e => e.Description))}");
+        }
+
+        // Antes un error al crear el usuario se ignoraba en silencio (y quedaba sin admin); ahora corta el arranque con el motivo
+        private static async Task CrearUsuarioAsync(UserManager<ApplicationUser> userManager,
+            string email, string userName, string nombre, string apellido, string password, string rol)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = userName,
+                Email = email,
+                Nombre = nombre,
+                Apellido = apellido,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+                result = await userManager.AddToRoleAsync(user, rol);
+
+            if (!result.Succeeded)
+                throw new InvalidOperationException(
+                    $"No se pudo crear el usuario inicial '{email}': {string.Join(" | ", result.Errors.Select(e => e.Description))}");
         }
 
         public static async Task SeedDocentesAsync(this IApplicationBuilder app)

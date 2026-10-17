@@ -1,4 +1,5 @@
-﻿using DocentesApp.Shared.DTOs.Auth;
+﻿using DocentesApp.Shared.Auth;
+using DocentesApp.Shared.DTOs.Auth;
 using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Domain.Enums;
 // [Diana desde v4.0 OBSOLETO] using FluentAssertions;
@@ -29,7 +30,9 @@ namespace DocentesApp.Tests.Integration
             //result.Roles.Should().Contain("User");
             result.Id.Should().NotBeNullOrWhiteSpace();
             result.Email.Should().NotBeNullOrWhiteSpace();
-            result.Role.Should().Be("User");
+            // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
+            //result.Role.Should().Be("User");
+            result.Role.Should().Be(Roles.Consultante);
         }
 
         [Fact]
