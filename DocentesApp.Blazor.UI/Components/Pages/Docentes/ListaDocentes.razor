@@ -4,6 +4,7 @@
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
+@implements IDisposable
 
 <PageTitle>Docentes</PageTitle>
 
@@ -38,6 +39,25 @@
     }
     else
     {
+        @* Búsqueda en el cliente (la lista viene completa, sin paginado): apellido, nombre, legajo o DNI,
+           sin distinguir mayúsculas ni acentos, con debounce de 300 ms *@
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="search" class="form-control"
+                       placeholder="Buscar por apellido, nombre, legajo o DNI..."
+                       @bind="_busqueda" @bind:event="oninput" @bind:after="OnBusquedaCambiada" />
+            </div>
+            <div class="col-md-6 text-end text-muted align-self-center">
+                Mostrando @_docentesFiltrados.Count de @_docentes.Count
+            </div>
+        </div>
+
+        @if (!_docentesFiltrados.Any())
+        {
+            <div class="alert alert-info">Ningún docente coincide con la búsqueda.</div>
+        }
+        else
+        {
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
@@ -49,7 +69,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var docente in _docentes)
+                @* [Diana desde v4.0 OBSOLETO] se recorre la lista filtrada por la búsqueda
+                @foreach (var docente in _docentes) *@
+                @foreach (var docente in _docentesFiltrados)
                 {
                     <tr>
                         @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): "-" si no tiene
@@ -80,6 +102,7 @@
                 }
             </tbody>
         </table>
+        }
     }
 
     @if (_mostrarConfirmacion)
@@ -120,6 +143,11 @@
     private int _idAEliminar;
     private string? _nombreAEliminar;
 
+    // Búsqueda: _busqueda es lo que se tipea; el filtro se aplica 300 ms después de la última tecla
+    private string _busqueda = string.Empty;
+    private List<ListDocenteDto> _docentesFiltrados = new();
+    private CancellationTokenSource? _debounceCts;
+
     protected override async Task OnInitializedAsync()
     {
         await CargarDocentes();
@@ -131,7 +159,9 @@
         {
             _isLoading = true;
             _errorMessage = null;
+            // la API ya los devuelve ordenados por Apellido y Nombre (DocenteRepository.GetAllAsync)
             _docentes = await Client.DocentesAllAsync();
+            AplicarFiltro();
         }
         catch (ApiException ex)
         {
@@ -143,6 +173,68 @@
         {
             _isLoading = false;
         }
+    }
+
+    private async Task OnBusquedaCambiada()
+    {
+        // debounce: cada tecla cancela la espera anterior
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        try
+        {
+            await Task.Delay(300, token);
+        }
+        catch (TaskCanceledException)
+        {
+            return; // llegó otra tecla antes de los 300 ms
+        }
+
+        AplicarFiltro();
+    }
+
+    // Cada palabra tipeada tiene que aparecer en apellido, nombre, legajo o DNI ("martinez ana" encuentra "Martínez, Ana")
+    private void AplicarFiltro()
+    {
+        var terminos = Normalizar(_busqueda)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (terminos.Length == 0)
+        {
+            _docentesFiltrados = _docentes.ToList();
+            return;
+        }
+
+        _docentesFiltrados = _docentes
+            .Where(d =>
+            {
+                var texto = Normalizar($"{d.Apellido} {d.Nombre} {d.Legajo} {d.Dni}");
+                return terminos.All(t => texto.Contains(t));
+            })
+            .ToList();
+    }
+
+    // Minúsculas y sin acentos: "Martínez" -> "martinez"
+    private static string Normalizar(string? texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return string.Empty;
+
+        var descompuesto = texto.Trim().ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(descompuesto.Length);
+        foreach (var c in descompuesto)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+        return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
+
+    public void Dispose()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
     }
 
     private void ConfirmarEliminar(int id, string? nombre)

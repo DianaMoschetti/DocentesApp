@@ -82,8 +82,12 @@
 
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Fecha de nacimiento</label>
+                                @* [Diana desde v4.0 OBSOLETO] texto libre: ahora selector de fecha (sigue siendo string "yyyy-MM-dd")
                                 <InputText class="form-control" @bind-Value="docenteDto.FechaNacimiento"
-                                       placeholder="yyyy-MM-dd" />
+                                       placeholder="yyyy-MM-dd" /> *@
+                                @* type="date" lee y escribe "yyyy-MM-dd", el mismo formato que espera el DTO (string) *@
+                                <InputText type="date" class="form-control" @bind-Value="docenteDto.FechaNacimiento" />
+                                <ValidationMessage For="@(() => docenteDto.FechaNacimiento)" />
                         </div>
                     </div>
 
@@ -193,6 +197,8 @@
                 Apellido = docente.Apellido ?? "",
                 Dni = docente.Dni ?? "",
                 Legajo = docente.Legajo,
+                // faltaba: por eso el form de edición mostraba la fecha vacía (DocenteDto la trae como DateOnly?)
+                FechaNacimiento = docente.FechaNacimiento?.ToString("yyyy-MM-dd"),
                 Email = docente.Email,
                 EmailAlternativo = docente.EmailAlternativo,
                 Celular = docente.Celular,
@@ -229,6 +235,8 @@
                     Apellido = docenteDto.Apellido,
                     Dni = docenteDto.Dni,
                     Legajo = docenteDto.Legajo,
+                    // faltaba: el PUT viajaba con FechaNacimiento = null y el mapeo la pisaba con null
+                    FechaNacimiento = docenteDto.FechaNacimiento,
                     Email = docenteDto.Email,
                     EmailAlternativo = docenteDto.EmailAlternativo,
                     Celular = docenteDto.Celular,
