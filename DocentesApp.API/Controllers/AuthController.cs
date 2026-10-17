@@ -1,4 +1,5 @@
 ﻿using DocentesApp.API.Services;
+using DocentesApp.Application.Common.Exceptions;
 using DocentesApp.Data.Identity;
 using DocentesApp.Shared.Auth;
 using DocentesApp.Shared.DTOs.Auth;
@@ -85,21 +86,37 @@ namespace DocentesApp.API.Controllers
             });
         }
 
+        public const string MensajeCredencialesInvalidas = "Credenciales inválidas.";
+        public const string MensajeUsuarioInactivo = "Usuario inactivo. Contactá al administrador.";
+
         [HttpPost("login")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)] // credenciales inválidas
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]    // usuario inactivo
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
         {
             ApplicationUser? user = dto.EmailOrUserName.Contains("@")
                 ? await _userManager.FindByEmailAsync(dto.EmailOrUserName)
                 : await _userManager.FindByNameAsync(dto.EmailOrUserName);
 
+            // [Diana desde v4.0 OBSOLETO] devolvía un string plano, no ProblemDetails como el resto de la API
+            //if (user == null)
+            //    return Unauthorized("Credenciales inválidas.");
             if (user == null)
-                return Unauthorized("Credenciales inválidas.");
+                throw new UnauthorizedAppException(MensajeCredencialesInvalidas);
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
 
+            // [Diana desde v4.0 OBSOLETO] devolvía un string plano, no ProblemDetails como el resto de la API
+            //if (!result.Succeeded)
+            //    return Unauthorized("Credenciales inválidas.");
             if (!result.Succeeded)
-                return Unauthorized("Credenciales inválidas.");
+                throw new UnauthorizedAppException(MensajeCredencialesInvalidas);
+
+            // Recién con la contraseña correcta se informa que está inactivo (no revela qué usuarios existen)
+            if (!user.Activo)
+                throw new ForbiddenException(MensajeUsuarioInactivo);
 
             var authResponse = await _tokenService.CreateTokenAsync(user);
             return Ok(authResponse);

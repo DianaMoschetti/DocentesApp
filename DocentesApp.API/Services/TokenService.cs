@@ -46,7 +46,10 @@ namespace DocentesApp.API.Services
                 new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
                 new("userId", user.Id),
-                new("userName", user.UserName ?? string.Empty)
+                new("userName", user.UserName ?? string.Empty),
+                // Security stamp de Identity: cambia al desactivar, cambiar el rol o la contraseña.
+                // La API lo compara en cada request (ValidacionTokenUsuario) para cortar los tokens viejos.
+                new(ValidacionTokenUsuario.ClaimSecurityStamp, user.SecurityStamp ?? string.Empty)
             };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

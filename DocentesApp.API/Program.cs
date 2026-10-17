@@ -93,6 +93,11 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
         ClockSkew = TimeSpan.Zero
     };
+    // Usuario inactivo o con security stamp distinto (desactivado, cambio de rol o contraseña): 401 aunque el token no venció
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = ValidacionTokenUsuario.ValidarAsync
+    };
 });
 
 // [Diana desde v4.0 OBSOLETO] sin politica por defecto: todo lo que no tenia [Authorize] era publico
