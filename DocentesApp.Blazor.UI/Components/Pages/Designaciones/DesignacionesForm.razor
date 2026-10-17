@@ -395,10 +395,38 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>@(esEdicion ? "Editar Designación" : "Nueva Designación")</h2>
+        @* [Diana desde v4.0 OBSOLETO] se agrega "Finalizar" (mismo modal que la lista) junto a "Volver"
         <button class="btn btn-outline-secondary" @onclick="Volver">
             Volver
-        </button>
+        </button> *@
+        <div>
+            @* Solo en la edición de una designación vigente (según cómo se cargó, no lo que se está editando) *@
+            @if (esEdicion && !isLoading && designacionVigente)
+            {
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <button class="btn btn-outline-warning me-2"
+                                @onclick="() => mostrarCerrar = true"
+                                disabled="@isSaving">
+                            Finalizar
+                        </button>
+                    </Authorized>
+                </AuthorizeView>
+            }
+            <button class="btn btn-outline-secondary" @onclick="Volver">
+                Volver
+            </button>
+        </div>
     </div>
+
+    @if (esEdicion)
+    {
+        <CerrarDesignacionModal DesignacionId="@(mostrarCerrar ? Id : null)"
+                                NombreDocente="@docenteNombre"
+                                AdvertirCambiosSinGuardar="true"
+                                OnCerrada="DesignacionCerrada"
+                                OnCancelar="() => mostrarCerrar = false" />
+    }
 
     @if (isLoading)
     {
@@ -523,6 +551,10 @@
     private bool isSaving;
     private string? errorMessage;
 
+    // Cierre (edición): vigente según la designación cargada; mostrarCerrar abre CerrarDesignacionModal
+    private bool designacionVigente;
+    private bool mostrarCerrar;
+
     // Catálogos para los dropdowns
     private ICollection<ListDocenteDto> docentes = new List<ListDocenteDto>();
     private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
@@ -577,9 +609,12 @@
     // Edición: DesignacionDto -> CreateDesignacionDto, conservando los Id de cargos y actividades
     private async Task CargarDesignacionAsync(int id)
     {
+        designacionVigente = false; // si falla la carga, no se ofrece "Finalizar"
         var designacion = await Client.DesignacionesGETAsync(id);
 
         docenteNombre = designacion.NombreCompletoDocente;
+        designacionVigente = designacion.EsVigente; // misma regla que la lista (Activa y sin FechaFin o con FechaFin futura)
+        mostrarCerrar = false;
         descripcionesReemplazo = new();
         dto = new CreateDesignacionDto
         {
@@ -662,6 +697,13 @@
 
     private void Volver() =>
         Navigation.NavigateTo(esEdicion ? $"designaciones/{Id}" : "designaciones");
+
+    // CerrarDesignacionModal ya llamó a la API: se va al detalle (los cambios sin guardar del formulario se descartan)
+    private void DesignacionCerrada()
+    {
+        mostrarCerrar = false;
+        Navigation.NavigateTo($"designaciones/{Id}", new NavigationOptions { ReplaceHistoryEntry = true });
+    }
 
     private async Task HandleSubmit()
     {

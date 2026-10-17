@@ -111,9 +111,14 @@
                             {
                                 <AuthorizeView Roles="Admin">
                                     <Authorized>
+                                        @* [Diana desde v4.0 OBSOLETO] la acción se llama "Finalizar" (el endpoint sigue siendo /cerrar)
                                         <button class="btn btn-sm btn-outline-warning"
                                                 @onclick="() => ConfirmarCerrar(d)">
                                             Cerrar
+                                        </button> *@
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                @onclick="() => ConfirmarCerrar(d)">
+                                            Finalizar
                                         </button>
                                     </Authorized>
                                 </AuthorizeView>
@@ -128,6 +133,7 @@
 </div>
 
 @* Modal de confirmación de cierre *@
+@* [Diana desde v4.0 OBSOLETO] el modal pasa a CerrarDesignacionModal (se reusa en la edición de la designación)
 @if (designacionACerrar != null)
 {
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
@@ -164,6 +170,11 @@
         </div>
     </div>
 }
+*@
+<CerrarDesignacionModal DesignacionId="designacionACerrar?.Id"
+                        NombreDocente="@designacionACerrar?.NombreCompletoDocente"
+                        OnCerrada="DesignacionCerrada"
+                        OnCancelar="CancelarCerrar" />
 
 @code {
     private List<ListDesignacionDto> todasLasDesignaciones = new();
@@ -176,8 +187,9 @@
 
     // Estado del modal de cierre
     private ListDesignacionDto? designacionACerrar;
-    private bool isCerrando;
-    private string? cerrarErrorMessage;
+    // [Diana desde v4.0 OBSOLETO] el estado del cierre lo maneja CerrarDesignacionModal
+    //private bool isCerrando;
+    //private string? cerrarErrorMessage;
 
     // Propiedad calculada que aplica los filtros en memoria
     private IEnumerable<ListDesignacionDto> DesignacionesFiltradas =>
@@ -220,42 +232,54 @@
         filtroEstado = "todas";
     }
 
-    private void ConfirmarCerrar(ListDesignacionDto designacion)
-    {
-        designacionACerrar = designacion;
-        cerrarErrorMessage = null;
-    }
+    // [Diana desde v4.0 OBSOLETO] el estado del cierre (error, "Cerrando...") y la llamada a la API pasan a CerrarDesignacionModal
+    //private void ConfirmarCerrar(ListDesignacionDto designacion)
+    //{
+    //    designacionACerrar = designacion;
+    //    cerrarErrorMessage = null;
+    //}
+    //
+    //private void CancelarCerrar()
+    //{
+    //    designacionACerrar = null;
+    //    cerrarErrorMessage = null;
+    //}
+    //
+    //private async Task EjecutarCerrar()
+    //{
+    //    if (designacionACerrar == null) return;
+    //
+    //    try
+    //    {
+    //        isCerrando = true;
+    //        cerrarErrorMessage = null;
+    //        await Client.CerrarAsync(designacionACerrar.Id);
+    //        designacionACerrar = null;
+    //        await CargarDesignaciones();
+    //    }
+    //    catch (ApiException ex)
+    //    {
+    //        cerrarErrorMessage = ex.StatusCode switch
+    //        {
+    //            400 => "La designación ya está cerrada.",
+    //            404 => "La designación no existe.",
+    //            _ => "Error al cerrar la designación."
+    //        };
+    //    }
+    //    finally
+    //    {
+    //        isCerrando = false;
+    //    }
+    //}
 
-    private void CancelarCerrar()
+    private void ConfirmarCerrar(ListDesignacionDto designacion) => designacionACerrar = designacion;
+
+    private void CancelarCerrar() => designacionACerrar = null;
+
+    // CerrarDesignacionModal ya llamó a la API: se oculta el modal y se recarga la lista
+    private async Task DesignacionCerrada()
     {
         designacionACerrar = null;
-        cerrarErrorMessage = null;
-    }
-
-    private async Task EjecutarCerrar()
-    {
-        if (designacionACerrar == null) return;
-
-        try
-        {
-            isCerrando = true;
-            cerrarErrorMessage = null;
-            await Client.CerrarAsync(designacionACerrar.Id);
-            designacionACerrar = null;
-            await CargarDesignaciones();
-        }
-        catch (ApiException ex)
-        {
-            cerrarErrorMessage = ex.StatusCode switch
-            {
-                400 => "La designación ya está cerrada.",
-                404 => "La designación no existe.",
-                _ => "Error al cerrar la designación."
-            };
-        }
-        finally
-        {
-            isCerrando = false;
-        }
+        await CargarDesignaciones();
     }
 }
