@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($s=\"C:\\\\Users\\\\diana\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--repos-DocentesApp\\\\53bf19f3-34b4-4f02-89b2-affbcb6ece5f\\\\scratchpad\"; python -I \"$s\\\\embed_swagger.py\" C:\\\\repos\\\\DocentesApp\\\\DocentesApp.Blazor.UI\\\\nswagconfig.nswag \"$s\\\\swagger.json\")",
+      "PowerShell($s=\"C:\\\\Users\\\\diana\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--repos-DocentesApp\\\\53bf19f3-34b4-4f02-89b2-affbcb6ece5f\\\\scratchpad\"; python -I \"$s\\\\embed_swagger.py\" C:\\\\repos\\\\DocentesApp\\\\DocentesApp.Blazor.UI\\\\nswagconfig.nswag \"$s\\\\swagger.json\" --write | Select-Object -Last 1; git -C C:\\\\repos\\\\DocentesApp diff --stat -- DocentesApp.Blazor.UI/nswagconfig.nswag)",
+      "PowerShell(Remove-Item C:\\\\repos\\\\DocentesApp\\\\DocentesApp.Blazor.UI\\\\Services\\\\Base\\\\ServiceClient.cs -Confirm:$false; Set-Location C:\\\\repos\\\\DocentesApp\\\\DocentesApp.Blazor.UI; dotnet \"$env:USERPROFILE\\\\.nuget\\\\packages\\\\nswag.msbuild\\\\14.7.1\\\\tools\\\\Net90\\\\dotnet-nswag.dll\" run nswagconfig.nswag 2>&1 | Select-Object -Last 8)"
+    ]
+  }
+}

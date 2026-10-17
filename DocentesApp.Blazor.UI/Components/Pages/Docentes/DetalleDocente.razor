@@ -1,5 +1,6 @@
 ﻿@page "/docentes/{Id:int}"
 @using DocentesApp.Shared.DTOs.Docentes
+@using DocentesApp.Shared.DTOs.Designaciones
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
 @attribute [Authorize]
@@ -116,12 +117,95 @@
             </div>
         </div>
 
+        @* [Diana desde v4.0 OBSOLETO] placeholder: nunca se cargaban las designaciones del docente
         <div class="card mb-4">
             <div class="card-header">Designaciones</div>
             <div class="card-body">
                 <p class="text-muted">Próximamente disponible.</p>
             </div>
         </div>
+        *@
+
+        @* v5: una card por designación (cabecera) con la tabla de sus cargos, como DetalleDesignacion *@
+        <h4 class="mb-3">Designaciones</h4>
+        @if (designacionesError != null)
+        {
+            <div class="alert alert-warning">@designacionesError</div>
+        }
+        else if (!designaciones.Any())
+        {
+            <p class="text-muted">El docente no tiene designaciones.</p>
+        }
+        @foreach (var des in designaciones)
+        {
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        @if (des.EsVigente)
+                        {
+                            <span class="badge bg-success me-2">Vigente</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary me-2">Finalizada</span>
+                        }
+                        @des.FechaInicio.ToString("dd/MM/yyyy") — @(des.FechaFin?.ToString("dd/MM/yyyy") ?? "sin fecha de baja")
+                        — @EnumHelper.GetDisplay(des.EstadoDesignacion)
+                        — Res. @(des.NroResolucion ?? "-")
+                    </span>
+                    <span>
+                        <strong>@des.TotalPuntos.ToString("0.##")</strong> puntos
+                        <button class="btn btn-sm btn-outline-primary ms-2"
+                                @onclick='() => Navigation.NavigateTo($"designaciones/{des.Id}")'>
+                            Ver
+                        </button>
+                    </span>
+                </div>
+                <div class="card-body">
+                    @if (!des.Cargos.Any())
+                    {
+                        <p class="text-muted mb-0">Sin cargos cargados.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Cargo</th>
+                                    <th>Condición</th>
+                                    <th>Dedicación</th>
+                                    <th>UDB</th>
+                                    <th>Puntos</th>
+                                    <th>En licencia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cargo in des.Cargos)
+                                {
+                                    <tr>
+                                        <td>@cargo.CargoTexto</td>
+                                        <td>@EnumHelper.GetDisplay(cargo.Condicion)</td>
+                                        <td>@cargo.DedicacionTexto</td>
+                                        <td>@(cargo.NombreUdb ?? "-")</td>
+                                        <td>@cargo.Puntos.ToString("0.##")</td>
+                                        <td>
+                                            @if (cargo.EnLicencia)
+                                            {
+                                                <span class="badge bg-warning text-dark">En licencia</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        }
         }
 </div>
 
@@ -129,6 +213,8 @@
     [Parameter] public int Id { get; set; }
 
     private DocenteDto? docente;
+    private ICollection<DesignacionDto> designaciones = new List<DesignacionDto>(); // cabecera + cargos
+    private string? designacionesError;
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -144,6 +230,7 @@
             isLoading = true;
             errorMessage = null;
             docente = await Client.DocentesGETAsync(Id);
+            await CargarDesignaciones();
         }
         catch (ApiException ex)
         {
@@ -154,6 +241,21 @@
         finally
         {
             isLoading = false;
+        }
+    }
+
+    // Aparte del docente: si fallan las designaciones, los datos del docente se siguen mostrando
+    private async Task CargarDesignaciones()
+    {
+        try
+        {
+            designacionesError = null;
+            designaciones = await Client.DocenteAsync(Id);
+        }
+        catch (ApiException)
+        {
+            designaciones = new List<DesignacionDto>();
+            designacionesError = "No se pudieron cargar las designaciones del docente.";
         }
     }
 }

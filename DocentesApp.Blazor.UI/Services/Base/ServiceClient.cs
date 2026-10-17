@@ -275,12 +275,12 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ListDesignacionDto>> DocenteAsync(int docenteId);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DocenteAsync(int docenteId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ListDesignacionDto>> DocenteAsync(int docenteId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DocenteAsync(int docenteId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -2972,7 +2972,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
 
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ListDesignacionDto>> DocenteAsync(int docenteId)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DocenteAsync(int docenteId)
         {
             return DocenteAsync(docenteId, System.Threading.CancellationToken.None);
         }
@@ -2980,7 +2980,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ListDesignacionDto>> DocenteAsync(int docenteId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DesignacionDto>> DocenteAsync(int docenteId, System.Threading.CancellationToken cancellationToken)
         {
             if (docenteId == null)
                 throw new System.ArgumentNullException("docenteId");
@@ -3025,7 +3025,7 @@ namespace DocentesApp.Blazor.UI.Services.Base
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ListDesignacionDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<DesignacionDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);

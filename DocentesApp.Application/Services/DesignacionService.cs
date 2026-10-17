@@ -58,14 +58,18 @@ namespace DocentesApp.Application.Services
             return _mapper.Map<IEnumerable<ListDesignacionDto>>(designaciones);
         }
 
-        public async Task<IEnumerable<ListDesignacionDto>> GetByDocenteAsync(int docenteId)
+        // [Diana desde v4.0 OBSOLETO] devuelve cabecera + cargos (DetalleDocente)
+        //public async Task<IEnumerable<ListDesignacionDto>> GetByDocenteAsync(int docenteId)
+        public async Task<IEnumerable<DesignacionDto>> GetByDocenteAsync(int docenteId)
         {
             var docente = await _docenteRepository.GetByIdAsync(docenteId);
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {docenteId}.");
 
             var designaciones = await _designacionRepository.GetByDocenteAsync(docenteId);
-            return _mapper.Map<IEnumerable<ListDesignacionDto>>(designaciones);
+            // [Diana desde v4.0 OBSOLETO] devuelve cabecera + cargos (DetalleDocente)
+            //return _mapper.Map<IEnumerable<ListDesignacionDto>>(designaciones);
+            return _mapper.Map<IEnumerable<DesignacionDto>>(designaciones);
         }
 
         public async Task<DesignacionDto> GetByIdAsync(int id)

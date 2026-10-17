@@ -35,10 +35,15 @@ namespace DocentesApp.API.Controllers
             return Ok(result);
         }
 
+        // [Diana desde v4.0 OBSOLETO] ListDesignacionDto no trae los cargos; DetalleDocente necesita cabecera + cargos
+        //[HttpGet("docente/{docenteId}")]
+        //[ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetByDocente(int docenteId)
         [HttpGet("docente/{docenteId}")]
-        [ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<DesignacionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetByDocente(int docenteId)
+        public async Task<ActionResult<IEnumerable<DesignacionDto>>> GetByDocente(int docenteId)
         {
             var result = await _designacionService.GetByDocenteAsync(docenteId);
             return Ok(result);

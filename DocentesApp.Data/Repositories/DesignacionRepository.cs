@@ -29,7 +29,11 @@ namespace DocentesApp.Data.Repositories
                 .AsNoTracking()
                 // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
                 //.Include(d => d.Detalles)
+                // [Diana desde v4.0 OBSOLETO] DetalleDocente muestra el docente y la UDB de cada cargo
+                //.Include(d => d.Cargos)
+                .Include(d => d.Docente)
                 .Include(d => d.Cargos)
+                    .ThenInclude(c => c.Udb)
                 .Where(d => d.DocenteId == docenteId)
                 .OrderByDescending(d => d.FechaInicio)
                 .ToListAsync();

@@ -18,6 +18,10 @@ namespace DocentesApp.Data.Repositories
         {
             return await _context.Docentes
                 .AsNoTracking()
+                // siempre alfabético: Apellido y después Nombre (Id para que el orden sea estable con homónimos)
+                .OrderBy(d => d.Apellido)
+                    .ThenBy(d => d.Nombre)
+                    .ThenBy(d => d.Id)
                 .ToListAsync();
         }
 
