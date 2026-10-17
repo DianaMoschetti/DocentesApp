@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><title>Gestión de Planta Docente</title><defs><mask id="pd-light-s" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120">
+  <rect width="120" height="120" fill="#fff"/><circle cx="84" cy="82" r="24" fill="#000"/></mask></defs>
+<g mask="url(#pd-light-s)"><path d="M40.90 107.29 A51 51 0 0 1 40.90 12.71" fill="none" stroke="#001B53" stroke-width="10" stroke-linecap="round"/><path d="M85.50 15.83 A51 51 0 0 1 99.07 92.78" fill="none" stroke="#00829F" stroke-width="8" stroke-linecap="round"/>
+  <rect x="26" y="30" width="60" height="54" rx="7" fill="none" stroke="#001B53" stroke-width="4.5"/>
+  <rect x="34" y="38" width="19" height="15" rx="1.8" fill="#001B53" stroke="#001B53" stroke-width="1.6"/><rect x="59" y="38" width="19" height="15" rx="1.8" fill="#00829F" stroke="#00829F" stroke-width="1.6"/><rect x="34" y="59" width="19" height="15" rx="1.8" fill="#CDE8EE" stroke="#00829F" stroke-width="1.6"/><rect x="59" y="59" width="19" height="15" rx="1.8" fill="#001B53" stroke="#001B53" stroke-width="1.6"/></g>
+<circle cx="84" cy="82" r="19" fill="#001B53"/>
+<circle cx="84" cy="77.54" r="4.68" fill="#FFFFFF"/><path d="M75.42 92.10 Q75.42 83.78 84 83.78 Q92.58 83.78 92.58 92.10 Z" fill="#FFFFFF"/></svg>

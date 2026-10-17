@@ -1,0 +1,68 @@
+/* =========================================================
+   Gestión de Planta Docente — Paleta
+   Departamento de Materias Básicas · UTN FRRO
+   Colores tomados de las piezas institucionales de las UDB.
+   ========================================================= */
+
+:root {
+  /* --- Marca (valores fijos) --- */
+  --pd-navy-900: #001B53;  /* azul marino institucional */
+  --pd-navy-800: #0A2766;
+  --pd-navy-700: #1E3A78;
+  --pd-teal-600: #00829F;  /* teal institucional */
+  --pd-teal-400: #2BB3CC;  /* teal para usar sobre fondos oscuros */
+  --pd-teal-100: #CDE8EE;  /* tinte suave: celdas, chips, hover */
+  --pd-gray-50:  #F4F6F8;  /* fondo claro de los banners */
+  --pd-gray-300: #B8C6DD;
+  --pd-gray-500: #3A4A6B;  /* texto secundario */
+  --pd-white:    #FFFFFF;
+
+  /* --- Tokens semánticos (tema claro) --- */
+  --pd-bg:           var(--pd-gray-50);
+  --pd-surface:      var(--pd-white);
+  --pd-text:         var(--pd-navy-900);
+  --pd-text-muted:   var(--pd-gray-500);
+  --pd-primary:      var(--pd-navy-900);
+  --pd-primary-text: var(--pd-white);
+  --pd-accent:       var(--pd-teal-600);
+  --pd-accent-soft:  var(--pd-teal-100);
+  --pd-border:       #D5DDE8;
+
+  /* --- Tipografía de la marca --- */
+  --pd-font: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Tema oscuro: automático por preferencia del sistema,
+   o forzado con <html data-theme="dark"> */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --pd-bg:           var(--pd-navy-900);
+    --pd-surface:      var(--pd-navy-800);
+    --pd-text:         var(--pd-white);
+    --pd-text-muted:   var(--pd-gray-300);
+    --pd-primary:      var(--pd-teal-400);
+    --pd-primary-text: var(--pd-navy-900);
+    --pd-accent:       var(--pd-teal-400);
+    --pd-accent-soft:  #1E4F86;
+    --pd-border:       var(--pd-navy-700);
+  }
+}
+:root[data-theme="dark"] {
+  --pd-bg:           var(--pd-navy-900);
+  --pd-surface:      var(--pd-navy-800);
+  --pd-text:         var(--pd-white);
+  --pd-text-muted:   var(--pd-gray-300);
+  --pd-primary:      var(--pd-teal-400);
+  --pd-primary-text: var(--pd-navy-900);
+  --pd-accent:       var(--pd-teal-400);
+  --pd-accent-soft:  #1E4F86;
+  --pd-border:       var(--pd-navy-700);
+}
+
+/* Contraste (WCAG):
+   navy-900 sobre gray-50 ........ 15.1:1  AAA
+   teal-600 sobre blanco .......... 4.5:1  AA (justo; mejor para títulos, íconos y bordes)
+   teal-400 sobre navy-900 ........ 6.6:1  AA
+   gray-500 sobre gray-50 ......... 8.2:1  AAA
+   Para texto chico sobre claro, preferir navy o gray-500; el teal queda para
+   acentos, títulos grandes y bordes. */
