@@ -3,7 +3,8 @@
 @using DocentesApp.Shared.DTOs.Udbs
 @using DocentesApp.Shared.DTOs.Docentes
 @using DocentesApp.Shared.Validators.Udbs
-@attribute [Authorize]
+@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
+@attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation

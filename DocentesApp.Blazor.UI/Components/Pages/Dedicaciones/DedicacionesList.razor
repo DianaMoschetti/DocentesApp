@@ -11,7 +11,8 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Dedicaciones</h2>
-        <AuthorizeView Roles="Admin">
+        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+        <AuthorizeView Policy="@Politicas.PuedeEditar">
             <Authorized>
                 <button class="btn btn-primary"
                         @onclick='() => Navigation.NavigateTo("dedicaciones/nuevo")'>
@@ -52,7 +53,8 @@
                         <td>@dedicacion.CantidadHoras</td>
                         <td>@dedicacion.CantidadDedicacion</td>
                         <td>
-                            <AuthorizeView Roles="Admin">
+                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                            <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-danger"
                                             @onclick="() => ConfirmarEliminar(dedicacion)">
@@ -84,7 +86,8 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <AuthorizeView Roles="Admin">
+                    @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                    <AuthorizeView Policy="@Politicas.PuedeEditar">
                         <Authorized>
                             <button class="btn btn-secondary"
                                     @onclick="CancelarEliminar"

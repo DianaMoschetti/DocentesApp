@@ -45,6 +45,9 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Apellido")
                         .HasColumnType("nvarchar(max)");
 

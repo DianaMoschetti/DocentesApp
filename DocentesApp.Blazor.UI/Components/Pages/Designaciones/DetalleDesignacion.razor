@@ -34,7 +34,8 @@
                 }
             </h2>
             <div>
-                <AuthorizeView Roles="Admin">
+                @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                <AuthorizeView Policy="@Politicas.PuedeEditar">
                     <Authorized>
                         <button class="btn btn-outline-secondary me-2"
                                 @onclick='() => Navigation.NavigateTo($"designaciones/{Id}/editar")'>

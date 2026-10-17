@@ -1,6 +1,7 @@
 using DocentesApp.Blazor.UI.Components;
 using DocentesApp.Blazor.UI.Services.Auth;
 using DocentesApp.Blazor.UI.Services.Base;
+using DocentesApp.Shared.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -78,7 +79,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
-builder.Services.AddAuthorizationCore();
+// [Diana desde v4.0 OBSOLETO] sin políticas: las páginas chequeaban Roles="Admin"
+//builder.Services.AddAuthorizationCore();
+// Mismas políticas que la API (DocentesApp.Shared/Auth/Politicas.cs). Sin FallbackPolicy:
+// bloquearía /login y /auth/signin, que tienen que ser anónimos.
+builder.Services.AddAuthorizationCore(Politicas.Configurar);
 
 // Necesario para que el Task<AuthenticationState> cascada llegue a los componentes
 // renderizados con @rendermode InteractiveServer (el <CascadingAuthenticationState />

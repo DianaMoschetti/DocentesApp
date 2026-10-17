@@ -9,6 +9,7 @@ using DocentesApp.Data.Context;
 using DocentesApp.Data.Identity;
 using DocentesApp.Data.Repositories;
 using DocentesApp.Domain.Entities;
+using DocentesApp.Shared.Auth;
 using DocentesApp.Shared.Validators.Docentes;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -92,6 +93,11 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
         ClockSkew = TimeSpan.Zero
     };
+    // Usuario inactivo o con security stamp distinto (desactivado, cambio de rol o contraseña): 401 aunque el token no venció
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = ValidacionTokenUsuario.ValidarAsync
+    };
 });
 
 // [Diana desde v4.0 OBSOLETO] sin politica por defecto: todo lo que no tenia [Authorize] era publico
@@ -101,16 +107,28 @@ builder.Services.AddAuthentication(options =>
 //   - DefaultPolicy: endpoints con [Authorize] sin roles (reportes, cargos-en-licencia)
 // Las escrituras siguen con [Authorize(Roles = "Admin")]; solo el login es [AllowAnonymous].
 // Swagger se sirve por middleware (UseSwagger, solo Development), no por endpoint: no le aplica.
-var politicaAdminOUser = new AuthorizationPolicyBuilder()
-    .RequireAuthenticatedUser()
-    .RequireRole("Admin", "User")
-    .Build();
+// [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por Administrador/Editor/Consultante y políticas con nombre
+//var politicaAdminOUser = new AuthorizationPolicyBuilder()
+//    .RequireAuthenticatedUser()
+//    .RequireRole("Admin", "User")
+//    .Build();
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = politicaAdminOUser;
+//    options.DefaultPolicy = politicaAdminOUser;
+//});
+// Políticas compartidas con Blazor (DocentesApp.Shared/Auth/Politicas.cs):
+//   - PuedeConsultar: cualquier rol. Es la Fallback (lecturas sin atributo) y la Default ([Authorize] a secas: reportes)
+//   - PuedeEditar: Administrador o Editor (todas las escrituras, incluidos los catálogos)
+//   - EsAdministrador: gestión de usuarios
 builder.Services.AddAuthorization(options =>
 {
-    options.FallbackPolicy = politicaAdminOUser;
-    options.DefaultPolicy = politicaAdminOUser;
+    Politicas.Configurar(options);
+    options.FallbackPolicy = options.GetPolicy(Politicas.PuedeConsultar);
+    options.DefaultPolicy = options.GetPolicy(Politicas.PuedeConsultar)!;
 });
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // gestión de usuarios (api/usuarios)
 
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();

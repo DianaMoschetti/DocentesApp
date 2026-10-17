@@ -14,7 +14,8 @@
             <h2> Docentes</h2>
         </div>
         <div class="col text-end">
-            <AuthorizeView Roles="Admin">
+            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+            <AuthorizeView Policy="@Politicas.PuedeEditar">
                 <Authorized>
                     <button class="btn btn-primary"
                             @onclick='() => Navigation.NavigateTo("docentes/nuevo")'>
@@ -85,7 +86,8 @@
                                     @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}"))">
                                 Ver
                             </button>
-                            <AuthorizeView Roles="Admin">
+                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                            <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-secondary me-1"
                                             @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}/editar"))">
@@ -117,7 +119,8 @@
                         ¿Estás segura que querés eliminar a <strong>@_nombreAEliminar</strong>?
                     </div>
                     <div class="modal-footer">
-                        <AuthorizeView Roles="Admin">
+                        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                        <AuthorizeView Policy="@Politicas.PuedeEditar">
                             <Authorized>
                                 <button class="btn btn-secondary"
                                         @onclick="() => _mostrarConfirmacion = false">

@@ -11,7 +11,8 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Puntos por cargo</h2>
-        <AuthorizeView Roles="Admin">
+        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+        <AuthorizeView Policy="@Politicas.PuedeEditar">
             <Authorized>
                 <button class="btn btn-primary"
                         @onclick='() => Navigation.NavigateTo("puntosporcargo/nuevo")'>
@@ -52,7 +53,8 @@
                         <td>@punto.Descripcion</td>
                         <td>@punto.PuntosBase</td>
                         <td>
-                            <AuthorizeView Roles="Admin">
+                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                            <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-primary me-1"
                                             @onclick='() => Navigation.NavigateTo($"puntosporcargo/{punto.Id}/editar")'>
@@ -89,7 +91,8 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <AuthorizeView Roles="Admin">
+                    @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                    <AuthorizeView Policy="@Politicas.PuedeEditar">
                         <Authorized>
                             <button class="btn btn-secondary"
                                     @onclick="CancelarEliminar"

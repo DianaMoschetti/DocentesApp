@@ -1,0 +1,391 @@
+﻿@page "/usuarios"
+@using DocentesApp.Shared.DTOs.Usuarios
+@using DocentesApp.Shared.Validators.Usuarios
+@attribute [Authorize(Policy = Politicas.EsAdministrador)]
+@rendermode InteractiveServer
+@inject IClient Client
+
+@* Gestión de usuarios (solo Administrador). Los usuarios no se borran: se desactivan.
+   En la fila propia solo se puede editar el nombre: rol, contraseña y desactivar no se ofrecen
+   (la API igual lo rechaza; la contraseña propia se cambia desde "Cambiar mi contraseña"). *@
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Usuarios</h2>
+        <button class="btn btn-primary" @onclick="AbrirCrear">+ Nuevo usuario</button>
+    </div>
+
+    @if (successMessage != null)
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Cargando...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in usuarios)
+                {
+                    var esYo = u.Id == miUserId;
+                    <tr class="@(u.Activo ? "" : "text-muted")">
+                        <td>
+                            @u.UserName
+                            @if (esYo)
+                            {
+                                <span class="badge bg-info text-dark ms-1">vos</span>
+                            }
+                        </td>
+                        <td>@u.Email</td>
+                        <td>@NombreCompleto(u)</td>
+                        <td>@u.Rol</td>
+                        <td>
+                            @if (u.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => AbrirEditar(u)">Editar</button>
+                            @if (!esYo)
+                            {
+                                <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => AbrirRol(u)">Cambiar rol</button>
+                                <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => AbrirPassword(u)">Contraseña</button>
+                                @if (u.Activo)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => Abrir(Accion.Desactivar, u)">Desactivar</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-success" @onclick="() => Abrir(Accion.Reactivar, u)">Reactivar</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="text-muted">@usuarios.Count usuarios (@usuarios.Count(u => u.Activo) activos).</p>
+    }
+</div>
+
+@if (accion != Accion.Ninguna)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@TituloModal</h5>
+                </div>
+                <div class="modal-body">
+                    @switch (accion)
+                    {
+                        case Accion.Crear:
+                            <div class="mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input class="form-control" @bind="crearDto.Email" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de usuario <span class="text-danger">*</span></label>
+                                <input class="form-control" @bind="crearDto.UserName" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input class="form-control" @bind="crearDto.Nombre" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Apellido</label>
+                                    <input class="form-control" @bind="crearDto.Apellido" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Rol <span class="text-danger">*</span></label>
+                                <select class="form-select" @bind="crearDto.Rol">
+                                    @foreach (var rol in Roles.Todos)
+                                    {
+                                        <option value="@rol">@rol</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña inicial <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" @bind="crearDto.Password" autocomplete="new-password" />
+                                <div class="form-text">Al menos 6 caracteres, con un número y una minúscula.</div>
+                            </div>
+                            break;
+
+                        case Accion.Editar:
+                            <p class="text-muted">@usuarioSeleccionado!.Email (el email no se puede cambiar)</p>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input class="form-control" @bind="editarDto.Nombre" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Apellido</label>
+                                <input class="form-control" @bind="editarDto.Apellido" />
+                            </div>
+                            break;
+
+                        case Accion.Rol:
+                            <p>Rol de <strong>@usuarioSeleccionado!.UserName</strong>:</p>
+                            <select class="form-select mb-3" @bind="rolDto.Rol">
+                                @foreach (var rol in Roles.Todos)
+                                {
+                                    <option value="@rol">@rol</option>
+                                }
+                            </select>
+                            <p class="text-muted mb-0">Si el usuario tiene la sesión abierta, se le cierra y tiene que volver a ingresar.</p>
+                            break;
+
+                        case Accion.Password:
+                            <p>Contraseña nueva para <strong>@usuarioSeleccionado!.UserName</strong>:</p>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" @bind="resetDto.PasswordNueva" autocomplete="new-password" placeholder="Contraseña nueva" />
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" @bind="confirmacionPassword" autocomplete="new-password" placeholder="Repetir contraseña" />
+                                <div class="form-text">Al menos 6 caracteres, con un número y una minúscula.</div>
+                            </div>
+                            <p class="text-muted mb-0">Si el usuario tiene la sesión abierta, se le cierra.</p>
+                            break;
+
+                        case Accion.Desactivar:
+                            <p>¿Desactivar a <strong>@usuarioSeleccionado!.UserName</strong>?</p>
+                            <p class="text-muted mb-0">No va a poder ingresar y, si tiene la sesión abierta, se le cierra. No se borra: se puede reactivar.</p>
+                            break;
+
+                        case Accion.Reactivar:
+                            <p>¿Reactivar a <strong>@usuarioSeleccionado!.UserName</strong>? Va a poder ingresar de nuevo con su contraseña.</p>
+                            break;
+                    }
+
+                    @if (modalError != null)
+                    {
+                        <div class="alert alert-danger mt-3 mb-0">@modalError</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="Cerrar" disabled="@isSaving">Cancelar</button>
+                    <button class="btn @(accion == Accion.Desactivar ? "btn-danger" : "btn-primary")" @onclick="Confirmar" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : TextoBotonConfirmar)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private enum Accion { Ninguna, Crear, Editar, Rol, Password, Desactivar, Reactivar }
+
+    private List<UsuarioDto> usuarios = new();
+    private string? miUserId; // claim "userId" del token (cookie)
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? successMessage;
+
+    // Estado del modal
+    private Accion accion = Accion.Ninguna;
+    private UsuarioDto? usuarioSeleccionado;
+    private bool isSaving;
+    private string? modalError;
+    private CreateUsuarioDto crearDto = new();
+    private UpdateUsuarioDto editarDto = new();
+    private CambiarRolDto rolDto = new();
+    private ResetPasswordDto resetDto = new();
+    private string confirmacionPassword = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState != null)
+            miUserId = (await AuthState).User.FindFirst("userId")?.Value;
+
+        await CargarUsuarios();
+    }
+
+    private async Task CargarUsuarios()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            usuarios = (await Client.UsuariosAllAsync()).ToList();
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode == 403
+                ? "No tiene permisos para realizar esta acción."
+                : "Error al cargar los usuarios.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string NombreCompleto(UsuarioDto u) =>
+        string.IsNullOrWhiteSpace(u.Apellido) && string.IsNullOrWhiteSpace(u.Nombre)
+            ? "-"
+            : $"{u.Apellido}, {u.Nombre}".Trim(' ', ',');
+
+    #region Abrir / cerrar modal
+
+    private void Abrir(Accion nueva, UsuarioDto? usuario)
+    {
+        accion = nueva;
+        usuarioSeleccionado = usuario;
+        modalError = null;
+        successMessage = null;
+    }
+
+    private void AbrirCrear()
+    {
+        crearDto = new CreateUsuarioDto { Rol = Roles.Consultante };
+        Abrir(Accion.Crear, null);
+    }
+
+    private void AbrirEditar(UsuarioDto u)
+    {
+        editarDto = new UpdateUsuarioDto { Nombre = u.Nombre, Apellido = u.Apellido };
+        Abrir(Accion.Editar, u);
+    }
+
+    private void AbrirRol(UsuarioDto u)
+    {
+        rolDto = new CambiarRolDto { Rol = u.Rol };
+        Abrir(Accion.Rol, u);
+    }
+
+    private void AbrirPassword(UsuarioDto u)
+    {
+        resetDto = new ResetPasswordDto();
+        confirmacionPassword = string.Empty;
+        Abrir(Accion.Password, u);
+    }
+
+    private void Cerrar() => accion = Accion.Ninguna;
+
+    private string TituloModal => accion switch
+    {
+        Accion.Crear => "Nuevo usuario",
+        Accion.Editar => "Editar usuario",
+        Accion.Rol => "Cambiar rol",
+        Accion.Password => "Resetear contraseña",
+        Accion.Desactivar => "Desactivar usuario",
+        Accion.Reactivar => "Reactivar usuario",
+        _ => string.Empty
+    };
+
+    private string TextoBotonConfirmar => accion switch
+    {
+        Accion.Crear => "Crear usuario",
+        Accion.Desactivar => "Desactivar",
+        Accion.Reactivar => "Reactivar",
+        _ => "Guardar"
+    };
+
+    #endregion
+
+    private async Task Confirmar()
+    {
+        modalError = null;
+
+        // Validación del lado del cliente con los mismos validators que usa la API
+        var errores = accion switch
+        {
+            Accion.Crear => (await new CreateUsuarioDtoValidator().ValidateAsync(crearDto)).Errors,
+            Accion.Editar => (await new UpdateUsuarioDtoValidator().ValidateAsync(editarDto)).Errors,
+            Accion.Rol => (await new CambiarRolDtoValidator().ValidateAsync(rolDto)).Errors,
+            Accion.Password => (await new ResetPasswordDtoValidator().ValidateAsync(resetDto)).Errors,
+            _ => new List<FluentValidation.Results.ValidationFailure>()
+        };
+        if (errores.Any())
+        {
+            modalError = string.Join(" | ", errores.Select(e => e.ErrorMessage));
+            return;
+        }
+        if (accion == Accion.Password && resetDto.PasswordNueva != confirmacionPassword)
+        {
+            modalError = "Las contraseñas no coinciden.";
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            var id = usuarioSeleccionado?.Id ?? string.Empty;
+
+            switch (accion)
+            {
+                case Accion.Crear:
+                    var creado = await Client.UsuariosPOSTAsync(crearDto);
+                    successMessage = $"Usuario {creado.UserName} creado con rol {creado.Rol}.";
+                    break;
+                case Accion.Editar:
+                    await Client.UsuariosPUTAsync(id, editarDto);
+                    successMessage = $"Datos de {usuarioSeleccionado!.UserName} actualizados.";
+                    break;
+                case Accion.Rol:
+                    await Client.RolAsync(id, rolDto);
+                    successMessage = $"{usuarioSeleccionado!.UserName} ahora tiene el rol {rolDto.Rol}.";
+                    break;
+                case Accion.Password:
+                    await Client.ResetPasswordAsync(id, resetDto);
+                    successMessage = $"Contraseña de {usuarioSeleccionado!.UserName} cambiada.";
+                    break;
+                case Accion.Desactivar:
+                    await Client.DesactivarAsync(id);
+                    successMessage = $"{usuarioSeleccionado!.UserName} desactivado.";
+                    break;
+                case Accion.Reactivar:
+                    await Client.ReactivarAsync(id);
+                    successMessage = $"{usuarioSeleccionado!.UserName} reactivado.";
+                    break;
+            }
+
+            accion = Accion.Ninguna;
+            await CargarUsuarios();
+        }
+        catch (ApiException ex)
+        {
+            // 400 (datos inválidos), 404, 409 (email/usuario repetido, a uno mismo, último administrador)
+            modalError = ex.StatusCode == 403
+                ? "No tiene permisos para realizar esta acción."
+                : ApiErrorHelper.GetMessage(ex);
+        }
+        catch (Exception)
+        {
+            modalError = "Error al guardar. Intentá de nuevo.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}
