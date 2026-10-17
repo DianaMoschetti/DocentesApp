@@ -9,6 +9,8 @@
 		<!-- [Diana desde v4.0 OBSOLETO] misma versión de FluentValidation en toda la solución -->
 		<!--<PackageReference Include="FluentValidation" Version="11.*" />-->
 		<PackageReference Include="FluentValidation" Version="12.2.0" />
+		<!-- políticas de autorización compartidas por la API y Blazor (Auth/Politicas.cs) -->
+		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.15" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="DTOs\CasosDeUso\" />
