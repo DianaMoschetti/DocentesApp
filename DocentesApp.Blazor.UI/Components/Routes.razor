@@ -2,8 +2,23 @@
     <Router AppAssembly="typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                @* [Diana desde v4.0 OBSOLETO] con políticas por página, un usuario logueado sin permiso
+                   (p. ej. Consultante en /docentes/nuevo) terminaba en /login estando logueado
                 <NotAuthorized>
                     <RedirectToLogin />
+                </NotAuthorized> *@
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="container mt-4">
+                            <div class="alert alert-warning">No tenés permisos para acceder a esta página.</div>
+                            <a href="" class="btn btn-outline-secondary">Ir al inicio</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <RedirectToLogin />
+                    }
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="routeData" Selector="h1" />

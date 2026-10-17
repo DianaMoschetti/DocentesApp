@@ -56,7 +56,9 @@
         _isLoading = true;
         _errorMessage = null;
 
-        var (success, token) = await AuthService.LoginAsync(_loginDto);
+        // [Diana desde v4.0 OBSOLETO] LoginAsync devuelve también el mensaje de la API (usuario inactivo)
+        //var (success, token) = await AuthService.LoginAsync(_loginDto);
+        var (success, token, apiErrorMessage) = await AuthService.LoginAsync(_loginDto);
 
         if (success && token != null)
         {
@@ -67,7 +69,9 @@
         }
         else
         {
-            _errorMessage = "Usuario o contraseña incorrectos.";
+            // [Diana desde v4.0 OBSOLETO] un solo mensaje para cualquier error
+            //_errorMessage = "Usuario o contraseña incorrectos.";
+            _errorMessage = apiErrorMessage ?? "Usuario o contraseña incorrectos.";
             _isLoading = false;
         }
     }

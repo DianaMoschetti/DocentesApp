@@ -8,7 +8,8 @@
 @using DocentesApp.Shared.DTOs.Udbs
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
-@attribute [Authorize]
+@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
+@attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
@@ -403,7 +404,8 @@
             @* Solo en la edición de una designación vigente (según cómo se cargó, no lo que se está editando) *@
             @if (esEdicion && !isLoading && designacionVigente)
             {
-                <AuthorizeView Roles="Admin">
+                @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
+                <AuthorizeView Policy="@Politicas.PuedeEditar">
                     <Authorized>
                         <button class="btn btn-outline-warning me-2"
                                 @onclick="() => mostrarCerrar = true"
