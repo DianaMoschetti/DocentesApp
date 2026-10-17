@@ -16,23 +16,37 @@ namespace DocentesApp.Tests.Integration
         {
         }
 
-        [Fact]
-        public async Task Register_WhenValid_ReturnsOkAndToken()
-        {
+        // [Diana desde v4.0 OBSOLETO] auth/register reemplazado por POST api/usuarios (ver CrearUsuario_WhenValid_ReturnsCreatedConElRol)
+        //[Fact]
+        //public async Task Register_WhenValid_ReturnsOkAndToken()
+        //{
             // Act
-            var result = await Auth.RegisterUserAsync();
-
+        //    var result = await Auth.RegisterUserAsync();
+        //
             // Assert
             // [Diana desde v4.0 OBSOLETO] el registro (solo Admin) devuelve los datos del usuario creado, sin token
             //result.Email.Should().NotBeNullOrWhiteSpace();
             //result.UserName.Should().NotBeNullOrWhiteSpace();
             //result.Token.Should().NotBeNullOrWhiteSpace();
             //result.Roles.Should().Contain("User");
-            result.Id.Should().NotBeNullOrWhiteSpace();
-            result.Email.Should().NotBeNullOrWhiteSpace();
+        //    result.Id.Should().NotBeNullOrWhiteSpace();
+        //    result.Email.Should().NotBeNullOrWhiteSpace();
             // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
             //result.Role.Should().Be("User");
-            result.Role.Should().Be(Roles.Consultante);
+        //    result.Role.Should().Be(Roles.Consultante);
+        //}
+
+        [Fact]
+        public async Task CrearUsuario_WhenValid_ReturnsCreatedConElRol()
+        {
+            // Act
+            var result = await Auth.RegisterUserAsync();
+
+            // Assert
+            result.Id.Should().NotBeNullOrWhiteSpace();
+            result.Email.Should().NotBeNullOrWhiteSpace();
+            result.Rol.Should().Be(Roles.Consultante);
+            result.Activo.Should().BeTrue();
         }
 
         [Fact]

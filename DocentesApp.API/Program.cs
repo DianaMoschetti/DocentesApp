@@ -128,6 +128,7 @@ builder.Services.AddAuthorization(options =>
     options.DefaultPolicy = options.GetPolicy(Politicas.PuedeConsultar)!;
 });
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // gestión de usuarios (api/usuarios)
 
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();

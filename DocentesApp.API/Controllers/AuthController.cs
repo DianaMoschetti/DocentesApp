@@ -18,17 +18,32 @@ namespace DocentesApp.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUsuarioService _usuarioService;
 
+        // [Diana desde v4.0 OBSOLETO] se agrega IUsuarioService para "Cambiar mi contraseña"
+        //public AuthController(
+        //    UserManager<ApplicationUser> userManager,
+        //    SignInManager<ApplicationUser> signInManager,
+        //    ITokenService tokenService,
+        //    RoleManager<IdentityRole> roleManager)
+        //{
+        //    _userManager = userManager;
+        //    _signInManager = signInManager;
+        //    _tokenService = tokenService;
+        //    _roleManager = roleManager;
+        //}
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ITokenService tokenService,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IUsuarioService usuarioService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _roleManager = roleManager;
+            _usuarioService = usuarioService;
         }
 
         // [Diana desde v4.0 OBSOLETO] el registro era público y devolvía el token del usuario nuevo:
@@ -37,54 +52,55 @@ namespace DocentesApp.API.Controllers
         //[AllowAnonymous]
         //public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
         //{
-        [HttpPost("register")]
+        // [Diana desde v4.0 OBSOLETO] reemplazado por POST api/usuarios (UsuariosController: alta con rol y errores como ProblemDetails)
+        //[HttpPost("register")]
         // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas
         //[Authorize(Roles = "Admin")]
-        [Authorize(Policy = Politicas.EsAdministrador)]
-        [ProducesResponseType(typeof(RegisteredUserDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<RegisteredUserDto>> Register(RegisterDto dto)
-        {
-            var existingEmail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (existingEmail != null)
-                return BadRequest("Ya existe un usuario con ese email.");
-
-            var existingUserName = await _userManager.FindByNameAsync(dto.UserName);
-            if (existingUserName != null)
-                return BadRequest("Ya existe un usuario con ese nombre de usuario.");
-
-            var user = new ApplicationUser
-            {
-                Email = dto.Email,
-                UserName = dto.UserName,
-                Nombre = dto.Nombre,
-                Apellido = dto.Apellido
-            };
-
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
+        //[Authorize(Policy = Politicas.EsAdministrador)]
+        //[ProducesResponseType(typeof(RegisteredUserDto), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
+        //public async Task<ActionResult<RegisteredUserDto>> Register(RegisterDto dto)
+        //{
+        //    var existingEmail = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+        //    if (existingEmail != null)
+        //        return BadRequest("Ya existe un usuario con ese email.");
+        //
+        //    var existingUserName = await _userManager.FindByNameAsync(dto.UserName);
+        //    if (existingUserName != null)
+        //        return BadRequest("Ya existe un usuario con ese nombre de usuario.");
+        //
+        //    var user = new ApplicationUser
+        //    {
+        //        Email = dto.Email,
+        //        UserName = dto.UserName,
+        //        Nombre = dto.Nombre,
+        //        Apellido = dto.Apellido
+        //    };
+        //
+        //    var result = await _userManager.CreateAsync(user, dto.Password);
+        //
+        //    if (!result.Succeeded)
+        //        return BadRequest(result.Errors);
+        //
             // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
             //await _userManager.AddToRoleAsync(user, "User");
-            await _userManager.AddToRoleAsync(user, Roles.Consultante);
-
+        //    await _userManager.AddToRoleAsync(user, Roles.Consultante);
+        //
             // [Diana desde v4.0 OBSOLETO] ya no se devuelve el token del usuario nuevo
             //var authResponse = await _tokenService.CreateTokenAsync(user);
             //
             //return Ok(authResponse);
-            return Ok(new RegisteredUserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
+        //    return Ok(new RegisteredUserDto
+        //    {
+        //        Id = user.Id,
+        //        Email = user.Email!,
                 // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
                 //Role = "User"
-                Role = Roles.Consultante
-            });
-        }
+        //        Role = Roles.Consultante
+        //    });
+        //}
 
         public const string MensajeCredencialesInvalidas = "Credenciales inválidas.";
         public const string MensajeUsuarioInactivo = "Usuario inactivo. Contactá al administrador.";
@@ -122,27 +138,44 @@ namespace DocentesApp.API.Controllers
             return Ok(authResponse);
         }
 
-        [HttpPost("assign-role")]
+        // "Cambiar mi contraseña": cualquier usuario logueado (política por defecto, PuedeConsultar).
+        // Cambiar la contraseña cambia el security stamp y el token actual deja de valer:
+        // se devuelve un token nuevo para que Blazor renueve la sesión.
+        [HttpPost("cambiar-password")]
+        [Authorize]
+        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)] // contraseña actual incorrecta o nueva inválida
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<AuthResponseDto>> CambiarMiPassword([FromBody] DocentesApp.Shared.DTOs.Usuarios.CambiarMiPasswordDto dto)
+        {
+            var userId = User.FindFirst(ValidacionTokenUsuario.ClaimUserId)?.Value
+                ?? throw new UnauthorizedAppException(MensajeCredencialesInvalidas);
+
+            return Ok(await _usuarioService.CambiarMiPasswordAsync(userId, dto));
+        }
+
+        // [Diana desde v4.0 OBSOLETO] reemplazado por PUT api/usuarios/{id}/rol (un solo rol por usuario; este permitía sumar varios)
+        //[HttpPost("assign-role")]
         // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas
         //[Authorize(Roles = "Admin")]
-        [Authorize(Policy = Politicas.EsAdministrador)]
-        public async Task<IActionResult> AssignRole(string userName, string roleName)
-        {
-            var user = await _userManager.FindByNameAsync(userName);
-
-            if (user == null)
-                return NotFound("Usuario no encontrado.");
-
-            var roleExists = await _roleManager.RoleExistsAsync(roleName);
-            if (!roleExists)
-                return BadRequest("El rol no existe.");
-
-            var result = await _userManager.AddToRoleAsync(user, roleName);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            return Ok($"Rol '{roleName}' asignado a '{userName}'.");
-        }
+        //[Authorize(Policy = Politicas.EsAdministrador)]
+        //public async Task<IActionResult> AssignRole(string userName, string roleName)
+        //{
+        //    var user = await _userManager.FindByNameAsync(userName);
+        //
+        //    if (user == null)
+        //        return NotFound("Usuario no encontrado.");
+        //
+        //    var roleExists = await _roleManager.RoleExistsAsync(roleName);
+        //    if (!roleExists)
+        //        return BadRequest("El rol no existe.");
+        //
+        //    var result = await _userManager.AddToRoleAsync(user, roleName);
+        //
+        //    if (!result.Succeeded)
+        //        return BadRequest(result.Errors);
+        //
+        //    return Ok($"Rol '{roleName}' asignado a '{userName}'.");
+        //}
     }
 }
