@@ -1,10 +1,12 @@
 using DocentesApp.API.Extensions;
 using DocentesApp.API.Middleware;
 using DocentesApp.API.Services;
+using DocentesApp.Application.Interfaces.Auth;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Interfaces.Services;
 using DocentesApp.Application.Mappings;
 using DocentesApp.Application.Services;
+using DocentesApp.Data.Auditoria;
 using DocentesApp.Data.Context;
 using DocentesApp.Data.Identity;
 using DocentesApp.Data.Repositories;
@@ -32,9 +34,19 @@ var connString = builder.Configuration.GetConnectionString("DocentesAppDbConnect
 var config = TypeAdapterConfig.GlobalSettings;
 MapsterConfig.Register(config);
 
+// Auditoría: usuario actual (claims del token) e interceptor del historial de cambios
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<ContextoOperacionAuditoria>();
+builder.Services.AddScoped<AuditoriaInterceptor>();
+builder.Services.AddScoped<IAuditoriaEventos, AuditoriaEventos>();
+
 //Context
-builder.Services.AddDbContext<DocentesDbContext>(options =>
-    options.UseSqlServer(connString));
+// [Diana desde v4.0 OBSOLETO] sin interceptor de auditoría
+//builder.Services.AddDbContext<DocentesDbContext>(options =>
+//    options.UseSqlServer(connString));
+builder.Services.AddDbContext<DocentesDbContext>((sp, options) =>
+    DocentesDbContextConfiguracion.ConfigurarSqlServer(options, connString, sp.GetRequiredService<AuditoriaInterceptor>()));
 
 // Identity
 

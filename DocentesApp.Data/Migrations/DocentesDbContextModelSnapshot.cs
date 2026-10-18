@@ -55,6 +55,12 @@ namespace DocentesApp.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -66,6 +72,12 @@ namespace DocentesApp.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Nombre")
@@ -125,6 +137,12 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("CargoDesignacionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int?>("CursoId")
                         .HasColumnType("int");
 
@@ -134,6 +152,12 @@ namespace DocentesApp.Data.Migrations
                     b.Property<string>("Horario")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Observaciones")
                         .HasMaxLength(500)
@@ -158,6 +182,12 @@ namespace DocentesApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<bool>("EsVigente")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -165,6 +195,12 @@ namespace DocentesApp.Data.Migrations
 
                     b.Property<int>("Frecuencia")
                         .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Nivel")
                         .HasColumnType("int");
@@ -263,6 +299,12 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("Condicion")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("DesignacionId")
                         .HasColumnType("int");
 
@@ -270,6 +312,12 @@ namespace DocentesApp.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Observaciones")
                         .HasMaxLength(500)
@@ -313,6 +361,18 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("Carrera")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("NroComision")
                         .HasColumnType("int");
 
@@ -341,8 +401,20 @@ namespace DocentesApp.Data.Migrations
                     b.Property<float>("CantidadHoras")
                         .HasColumnType("real");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("DescTipo")
                         .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -493,6 +565,18 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("UdbId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("Rol")
                         .HasColumnType("int");
 
@@ -501,6 +585,100 @@ namespace DocentesApp.Data.Migrations
                     b.HasIndex("UdbId");
 
                     b.ToTable("DocentesUdb", (string)null);
+                });
+
+            modelBuilder.Entity("DocentesApp.Domain.Entities.HistorialCambio", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Accion")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DesignacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DocenteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Entidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntidadDescripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("EntidadId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OperacionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UsuarioEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UsuarioId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UsuarioNombre")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechaUtc")
+                        .IsDescending();
+
+                    b.HasIndex("DesignacionId", "FechaUtc");
+
+                    b.HasIndex("DocenteId", "FechaUtc");
+
+                    b.HasIndex("Entidad", "EntidadId");
+
+                    b.HasIndex("UsuarioId", "FechaUtc");
+
+                    b.ToTable("HistorialCambios", (string)null);
+                });
+
+            modelBuilder.Entity("DocentesApp.Domain.Entities.HistorialCambioDetalle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("HistorialCambioId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Propiedad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ValorAnterior")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ValorNuevo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HistorialCambioId");
+
+                    b.ToTable("HistorialCambioDetalles", (string)null);
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Laboratorio", b =>
@@ -664,6 +842,18 @@ namespace DocentesApp.Data.Migrations
                     b.Property<int>("Cargo")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ModifiedDate")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<decimal>("PuntosBase")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -680,36 +870,48 @@ namespace DocentesApp.Data.Migrations
                         {
                             Id = 1,
                             Cargo = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 138m
                         },
                         new
                         {
                             Id = 2,
                             Cargo = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 157m
                         },
                         new
                         {
                             Id = 3,
                             Cargo = 3,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 176m
                         },
                         new
                         {
                             Id = 4,
                             Cargo = 4,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 119m
                         },
                         new
                         {
                             Id = 5,
                             Cargo = 5,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 100m
                         },
                         new
                         {
                             Id = 6,
                             Cargo = 6,
+                            CreatedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ModifiedDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             PuntosBase = 80m
                         });
                 });
@@ -1016,6 +1218,17 @@ namespace DocentesApp.Data.Migrations
                     b.Navigation("Udb");
                 });
 
+            modelBuilder.Entity("DocentesApp.Domain.Entities.HistorialCambioDetalle", b =>
+                {
+                    b.HasOne("DocentesApp.Domain.Entities.HistorialCambio", "HistorialCambio")
+                        .WithMany("Detalles")
+                        .HasForeignKey("HistorialCambioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HistorialCambio");
+                });
+
             modelBuilder.Entity("DocentesApp.Domain.Entities.Laboratorio", b =>
                 {
                     b.HasOne("DocentesApp.Domain.Entities.Docente", "Director")
@@ -1148,6 +1361,11 @@ namespace DocentesApp.Data.Migrations
                     b.Navigation("Designaciones");
 
                     b.Navigation("DocenteUdbs");
+                });
+
+            modelBuilder.Entity("DocentesApp.Domain.Entities.HistorialCambio", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.PlantaSnapshot", b =>

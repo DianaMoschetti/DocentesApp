@@ -89,6 +89,11 @@ namespace DocentesApp.Data.Repositories
             _context.Docentes.Remove(docente);
         }
 
+        public async Task CargarMembresiasAsync(Docente docente)
+        {
+            await _context.Entry(docente).Collection(d => d.DocenteUdbs).LoadAsync();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

@@ -16,6 +16,8 @@ namespace DocentesApp.Application.Interfaces.Repositories
         Task AddAsync(Docente docente);
         void Update(Docente docente);
         void Delete(Docente docente);
+        // Carga las membresías (DocenteUdbs) del docente trackeado, antes de borrarlo
+        Task CargarMembresiasAsync(Docente docente);
         Task SaveChangesAsync();
         Task<bool> HasDesignacionesAsync(int docenteId);      
 

@@ -1,5 +1,7 @@
 ﻿using DocentesApp.Application.Common.Exceptions;
+using DocentesApp.Data.Auditoria;
 using DocentesApp.Data.Context;
+using DocentesApp.Domain.Enums;
 using DocentesApp.Data.Identity;
 using DocentesApp.Shared.Auth;
 using DocentesApp.Shared.DTOs.Auth;
@@ -21,12 +23,28 @@ namespace DocentesApp.API.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly DocentesDbContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IAuditoriaEventos _auditoria;
 
-        public UsuarioService(UserManager<ApplicationUser> userManager, DocentesDbContext context, ITokenService tokenService)
+        // Auditoría: los cambios de columnas (alta, Nombre, Apellido, Activo) los registra el interceptor;
+        // el rol y la contraseña no son columnas de AspNetUsers (o se ignoran): se registran como eventos explícitos,
+        // dentro de la misma transacción que el cambio (mismo OperacionId).
+        private const string EntidadUsuario = "Usuario";
+        private const string PropiedadRol = "Rol";
+        private const string PropiedadContrasenia = "Contraseña"; // sin valores: nunca se guarda la contraseña ni el hash
+
+        // [Diana desde v4.0 OBSOLETO] sin eventos de auditoría
+        //public UsuarioService(UserManager<ApplicationUser> userManager, DocentesDbContext context, ITokenService tokenService)
+        //{
+        //    _userManager = userManager;
+        //    _context = context;
+        //    _tokenService = tokenService;
+        //}
+        public UsuarioService(UserManager<ApplicationUser> userManager, DocentesDbContext context, ITokenService tokenService, IAuditoriaEventos auditoria)
         {
             _userManager = userManager;
             _context = context;
             _tokenService = tokenService;
+            _auditoria = auditoria;
         }
 
         public async Task<IEnumerable<UsuarioDto>> GetAllAsync()
@@ -80,6 +98,7 @@ namespace DocentesApp.API.Services
 
             Verificar(await _userManager.CreateAsync(user, dto.Password));
             Verificar(await _userManager.AddToRoleAsync(user, dto.Rol));
+            await RegistrarEventoAsync(user, PropiedadRol, null, dto.Rol); // el alta del usuario la registra el interceptor
 
             await transaction.CommitAsync();
 
@@ -119,6 +138,7 @@ namespace DocentesApp.API.Services
             Verificar(await _userManager.AddToRoleAsync(user, rol));
             // El token actual tiene el rol viejo: se corta y tiene que volver a loguearse
             Verificar(await _userManager.UpdateSecurityStampAsync(user));
+            await RegistrarEventoAsync(user, PropiedadRol, string.Join(", ", rolesActuales), rol);
 
             await transaction.CommitAsync();
         }
@@ -154,19 +174,31 @@ namespace DocentesApp.API.Services
         {
             var user = await BuscarAsync(id);
 
+            // Contraseña y evento de auditoría juntos
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             // ResetPasswordAsync valida las reglas de contraseña y cambia el security stamp
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             Verificar(await _userManager.ResetPasswordAsync(user, token, passwordNueva));
+            await RegistrarEventoAsync(user, PropiedadContrasenia, null, null);
+
+            await transaction.CommitAsync();
         }
 
         public async Task<AuthResponseDto> CambiarMiPasswordAsync(string actorId, CambiarMiPasswordDto dto)
         {
             var user = await BuscarAsync(actorId);
 
+            // Contraseña y evento de auditoría juntos (el autor del evento es el propio usuario, por su token)
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var result = await _userManager.ChangePasswordAsync(user, dto.PasswordActual, dto.PasswordNueva);
             if (!result.Succeeded && result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
                 throw new BadRequestException("La contraseña actual no es correcta.");
             Verificar(result);
+            await RegistrarEventoAsync(user, PropiedadContrasenia, null, null);
+
+            await transaction.CommitAsync();
 
             // ChangePasswordAsync cambió el stamp: se devuelve un token nuevo para seguir con la sesión
             return await _tokenService.CreateTokenAsync(user);
@@ -180,6 +212,15 @@ namespace DocentesApp.API.Services
             if (!administradores.Any(a => a.Activo && a.Id != user.Id))
                 throw new ConflictException("Tiene que quedar al menos un Administrador activo.");
         }
+
+        // Evento explícito sobre el usuario (Modificación de una "propiedad" que no es una columna auditada)
+        private Task RegistrarEventoAsync(ApplicationUser user, string propiedad, string? anterior, string? nuevo) =>
+            _auditoria.RegistrarAsync(
+                EntidadUsuario,
+                user.Id,
+                ReglasAuditoria.Obtener(typeof(ApplicationUser))?.Descripcion(user),
+                AccionAuditoria.Modificacion,
+                new[] { new DetalleEventoAuditoria(propiedad, anterior, nuevo) });
 
         private async Task<ApplicationUser> BuscarAsync(string id) =>
             await _userManager.FindByIdAsync(id)

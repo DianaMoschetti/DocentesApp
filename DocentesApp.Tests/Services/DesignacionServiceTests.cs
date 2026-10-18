@@ -17,7 +17,10 @@ namespace DocentesApp.Tests.Services
     // Cada operación usa un contexto nuevo, como un request de la API.
     public class DesignacionServiceTests : IDisposable
     {
-        private readonly SqliteTestDatabase _db = new();
+        // [Diana desde v4.0 OBSOLETO] sin auditoría
+        //private readonly SqliteTestDatabase _db = new();
+        // Todos los tests corren con el interceptor de auditoría (como la API)
+        private readonly SqliteTestDatabase _db = new(UsuarioActualFalso.Editor());
         private readonly MapsterMapper.IMapper _mapper = MapperFactory.Create();
 
         private readonly int _udbFisica;
@@ -338,7 +341,181 @@ namespace DocentesApp.Tests.Services
 
         #endregion
 
+        #region Actividades: sincronización por Id
+
+        // Designación con un cargo y dos actividades (gestión + docencia); devuelve lo guardado
+        private async Task<DesignacionDto> CrearConDosActividadesAsync(int docenteId)
+        {
+            var cargo = Cargo(_udbFisica);
+            cargo.Actividades.Add(Docencia());
+            return await CrearAsync(Designacion(docenteId, cargo));
+        }
+
+        [Fact]
+        public async Task UpdateAsync_EditarUnaActividad_ConservaSuId_YRegistraUnaSolaModificacion()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var idsAntes = creada.Cargos[0].Actividades.Select(a => a.Id).ToList();
+            var desde = UltimoIdHistorial();
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades[0].Horario = "LU 8 a 10";
+            await ActualizarAsync(creada.Id, dto);
+
+            var guardada = await ObtenerAsync(creada.Id);
+            guardada.Cargos[0].Actividades.Select(a => a.Id).Should().BeEquivalentTo(idsAntes);
+            guardada.Cargos[0].Actividades.Single(a => a.Id == idsAntes[0]).Horario.Should().Be("LU 8 a 10");
+
+            var fila = HistorialDesde(desde).Should().ContainSingle().Subject; // no Baja + Alta
+            fila.Entidad.Should().Be("Actividad");
+            fila.Accion.Should().Be(AccionAuditoria.Modificacion);
+            fila.EntidadId.Should().Be(idsAntes[0].ToString());
+            fila.DocenteId.Should().Be(_docenteA);
+            fila.DesignacionId.Should().Be(creada.Id);
+            fila.Detalles.Should().ContainSingle(d => d.Propiedad == "Horario" && d.ValorAnterior == null && d.ValorNuevo == "LU 8 a 10");
+        }
+
+        [Fact]
+        public async Task UpdateAsync_GuardarSinCambios_NoRegistraFilas()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var desde = UltimoIdHistorial();
+
+            await ActualizarAsync(creada.Id, ParaEditar(creada));
+
+            HistorialDesde(desde).Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task UpdateAsync_AgregarYQuitarActividades_RegistraAltaYBaja_YLaOtraQuedaIgual()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var gestion = creada.Cargos[0].Actividades.Single(a => a.Especificacion == EspecificacionCargo.Gestion);
+            var docencia = creada.Cargos[0].Actividades.Single(a => a.Especificacion == EspecificacionCargo.Docencia);
+            var desde = UltimoIdHistorial();
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades.RemoveAll(a => a.Id == docencia.Id);
+            dto.Cargos[0].Actividades.Add(new UpsertActividadDto { Especificacion = EspecificacionCargo.Investigacion });
+            await ActualizarAsync(creada.Id, dto);
+
+            var guardada = await ObtenerAsync(creada.Id);
+            guardada.Cargos[0].Actividades.Should().HaveCount(2);
+            guardada.Cargos[0].Actividades.Should().Contain(a => a.Id == gestion.Id);
+            guardada.Cargos[0].Actividades.Should().NotContain(a => a.Id == docencia.Id);
+
+            var filas = HistorialDesde(desde);
+            filas.Select(f => (f.Entidad, f.Accion)).Should().BeEquivalentTo(new[]
+            {
+                ("Actividad", AccionAuditoria.Baja),
+                ("Actividad", AccionAuditoria.Alta)
+            });
+            filas.Single(f => f.Accion == AccionAuditoria.Baja).EntidadId.Should().Be(docencia.Id.ToString());
+            filas.Should().OnlyContain(f => f.DocenteId == _docenteA && f.DesignacionId == creada.Id);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ActividadDeOtroCargo_Lanza400_YNoLaMueve()
+        {
+            var otra = await CrearConDosActividadesAsync(_docenteB);
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var ajena = otra.Cargos[0].Actividades[0].Id;
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades[0].Id = ajena;
+            var act = () => ActualizarAsync(creada.Id, dto);
+
+            (await act.Should().ThrowAsync<BadRequestException>()).WithMessage($"*{ajena}*");
+            (await ObtenerAsync(otra.Id)).Cargos[0].Actividades.Should().Contain(a => a.Id == ajena);
+            (await ObtenerAsync(creada.Id)).Cargos[0].Actividades.Select(a => a.Id)
+                .Should().BeEquivalentTo(creada.Cargos[0].Actividades.Select(a => a.Id));
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ActividadInexistente_Lanza400()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades[0].Id = 99999;
+            var act = () => ActualizarAsync(creada.Id, dto);
+
+            (await act.Should().ThrowAsync<BadRequestException>()).WithMessage("*99999*");
+        }
+
+        [Fact]
+        public async Task UpdateAsync_IdDeActividadEnUnCargoNuevo_Lanza400_YNoLaMueve()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var existente = creada.Cargos[0].Actividades[0].Id;
+
+            var dto = ParaEditar(creada);
+            var nuevo = Cargo(_udbFisica, cargo: CargoDocente.AyudantePrimera);
+            nuevo.Actividades[0].Id = existente;
+            dto.Cargos.Add(nuevo);
+            var act = () => ActualizarAsync(creada.Id, dto);
+
+            (await act.Should().ThrowAsync<BadRequestException>()).WithMessage($"*{existente}*");
+            var guardada = await ObtenerAsync(creada.Id);
+            guardada.Cargos.Should().ContainSingle();
+            guardada.Cargos[0].Actividades.Should().Contain(a => a.Id == existente);
+        }
+
+        // Blazor manda Id null para lo nuevo; Swagger u otro cliente puede mandar 0: se trata igual
+        [Fact]
+        public async Task UpdateAsync_IdCeroEnActividadYEnCargo_SeTrataComoNuevo()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+            var desde = UltimoIdHistorial();
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades.Add(new UpsertActividadDto { Id = 0, Especificacion = EspecificacionCargo.Investigacion });
+            var nuevo = Cargo(_udbFisica, cargo: CargoDocente.AyudantePrimera);
+            nuevo.Id = 0;
+            nuevo.Actividades[0].Id = 0;
+            dto.Cargos.Add(nuevo);
+            await ActualizarAsync(creada.Id, dto);
+
+            var guardada = await ObtenerAsync(creada.Id);
+            guardada.Cargos.Should().HaveCount(2);
+            guardada.Cargos.Single(c => c.Id == creada.Cargos[0].Id).Actividades.Should().HaveCount(3);
+            guardada.Cargos.Single(c => c.Id != creada.Cargos[0].Id).Actividades.Should().ContainSingle();
+            HistorialDesde(desde).Select(f => (f.Entidad, f.Accion)).Should().BeEquivalentTo(new[]
+            {
+                ("Actividad", AccionAuditoria.Alta),
+                ("CargoDesignacion", AccionAuditoria.Alta),
+                ("Actividad", AccionAuditoria.Alta)
+            });
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ActividadRepetidaEnElMismoCargo_Lanza400()
+        {
+            var creada = await CrearConDosActividadesAsync(_docenteA);
+
+            var dto = ParaEditar(creada);
+            dto.Cargos[0].Actividades[1].Id = dto.Cargos[0].Actividades[0].Id;
+            var act = () => ActualizarAsync(creada.Id, dto);
+
+            (await act.Should().ThrowAsync<BadRequestException>()).WithMessage("*repetida*");
+        }
+
+        #endregion
+
         #region Helpers
+
+        private long UltimoIdHistorial()
+        {
+            using var context = new DocentesDbContext(_db.Options);
+            return context.HistorialCambios.Select(h => (long?)h.Id).Max() ?? 0;
+        }
+
+        private List<HistorialCambio> HistorialDesde(long idExcluido)
+        {
+            using var context = new DocentesDbContext(_db.Options);
+            return context.HistorialCambios.Include(h => h.Detalles).AsNoTracking()
+                .Where(h => h.Id > idExcluido).OrderBy(h => h.Id).ToList();
+        }
 
         private DesignacionService CrearServicio(DocentesDbContext context) => new(
             new DesignacionRepository(context),

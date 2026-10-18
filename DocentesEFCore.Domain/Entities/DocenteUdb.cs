@@ -1,8 +1,11 @@
-﻿using DocentesApp.Domain.Enums;
+﻿using DocentesApp.Domain.Base;
+using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
-    public class DocenteUdb
+    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría)
+    //public class DocenteUdb
+    public class DocenteUdb : BaseDomainModel
     {
         // Tabla intermedia para Docente <-> UDB (un docente puede pertenecer a varias UDB)
         public int DocenteId { get; set; }

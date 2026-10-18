@@ -209,7 +209,10 @@ namespace DocentesApp.Application.Services
         //   - cargo con Id: se actualiza; los puntos se recalculan SOLO si cambió Cargo, dedicación, cantidad o EnLicencia
         //     (un cambio posterior en PuntosPorCargo no altera designaciones existentes)
         //   - cargo que no viene: se quita (409 si otro cargo lo reemplaza)
+        // [Diana desde v4.0 OBSOLETO]
         //   - las actividades de cada cargo se reemplazan por las que vienen
+        //   - las actividades de cada cargo se sincronizan por Id (sin Id: nueva; con Id: se edita en su lugar; la que no viene: se quita).
+        //     Un Id que no es de ese cargo (de otro cargo, inexistente o en un cargo nuevo) -> 400: una actividad nunca se mueve
         public async Task UpdateAsync(int id, UpdateDesignacionDto dto)
         {
             var designacion = await _designacionRepository.GetByIdAsync(id);
@@ -220,6 +223,8 @@ namespace DocentesApp.Application.Services
                 throw new BadRequestException(
                     "La designación debe tener al menos un cargo.");
 
+            NormalizarIdsNuevos(dto.Cargos);
+
             var existentes = designacion.Cargos.ToDictionary(c => c.Id);
 
             var idAjeno = dto.Cargos
@@ -228,6 +233,8 @@ namespace DocentesApp.Application.Services
                 .FirstOrDefault();
             if (idAjeno != null)
                 throw new BadRequestException($"El cargo con ID {idAjeno} no pertenece a esta designación.");
+
+            ValidarIdsDeActividades(dto.Cargos, existentes);
 
             // ReemplazaACargoId actual de cada cargo: si no cambia, no se revalida la suplencia
             var reemplazosActuales = existentes.ToDictionary(kv => kv.Key, kv => kv.Value.ReemplazaACargoId);
@@ -275,9 +282,11 @@ namespace DocentesApp.Application.Services
                     cargo.Puntos = CalculadoraPuntos.Calcular(
                         puntosBase[cargoDto.Cargo], cargoDto.TipoDedicacion, cargoDto.CantidadDedicacion, cargoDto.EnLicencia);
 
-                cargo.Actividades.Clear(); // EF borra las actividades huérfanas
-                foreach (var actividadDto in cargoDto.Actividades)
-                    cargo.Actividades.Add(CrearActividad(actividadDto));
+                // [Diana desde v4.0 OBSOLETO] reemplazar todas las actividades daba Baja + Alta de cada una en cada guardado
+                //cargo.Actividades.Clear(); // EF borra las actividades huérfanas
+                //foreach (var actividadDto in cargoDto.Actividades)
+                //    cargo.Actividades.Add(CrearActividad(actividadDto));
+                SincronizarActividades(cargo, cargoDto.Actividades);
             }
 
             await AgregarMembresiasAsync(designacion.DocenteId, dto.Cargos.Select(c => c.UdbId));
@@ -433,6 +442,67 @@ namespace DocentesApp.Application.Services
                 Puntos = CalculadoraPuntos.Calcular(puntosBase, dto.TipoDedicacion, dto.CantidadDedicacion, dto.EnLicencia),
                 Actividades = dto.Actividades.Select(CrearActividad).ToList()
             };
+        }
+
+        // Id 0 = nuevo, igual que null. Blazor manda null (UpsertActividadDto/UpsertCargoDesignacionDto.Id son int?),
+        // pero Swagger y otros clientes pueden mandar 0 (el valor por defecto de un int).
+        private static void NormalizarIdsNuevos(IEnumerable<UpsertCargoDesignacionDto> cargos)
+        {
+            foreach (var cargo in cargos)
+            {
+                if (cargo.Id == 0)
+                    cargo.Id = null;
+                foreach (var actividad in cargo.Actividades.Where(a => a.Id == 0))
+                    actividad.Id = null;
+            }
+        }
+
+        // Antes de tocar nada: cada Id de actividad tiene que ser de ese mismo cargo y no repetirse.
+        // Un cargo nuevo (sin Id) solo puede traer actividades nuevas (sin Id).
+        private static void ValidarIdsDeActividades(IEnumerable<UpsertCargoDesignacionDto> cargos, Dictionary<int, CargoDesignacion> existentes)
+        {
+            foreach (var cargoDto in cargos)
+            {
+                var idsDelCargo = cargoDto.Id.HasValue
+                    ? existentes[cargoDto.Id.Value].Actividades.Select(a => a.Id).ToHashSet()
+                    : new HashSet<int>();
+
+                var vistos = new HashSet<int>();
+                foreach (var actividadId in cargoDto.Actividades.Where(a => a.Id.HasValue).Select(a => a.Id!.Value))
+                {
+                    if (!idsDelCargo.Contains(actividadId))
+                        throw new BadRequestException($"La actividad con ID {actividadId} no pertenece a ese cargo.");
+                    if (!vistos.Add(actividadId))
+                        throw new BadRequestException($"La actividad con ID {actividadId} está repetida.");
+                }
+            }
+        }
+
+        // Edita en su lugar las actividades que vienen con Id, agrega las nuevas y quita las que no vienen
+        // (EF borra las huérfanas). Los Ids ya se validaron en ValidarIdsDeActividades.
+        private static void SincronizarActividades(CargoDesignacion cargo, IEnumerable<UpsertActividadDto> actividadesDto)
+        {
+            var actuales = cargo.Actividades.ToDictionary(a => a.Id);
+            var idsEnviados = actividadesDto.Where(a => a.Id.HasValue).Select(a => a.Id!.Value).ToHashSet();
+
+            foreach (var quitada in actuales.Values.Where(a => !idsEnviados.Contains(a.Id)).ToList())
+                cargo.Actividades.Remove(quitada);
+
+            foreach (var actividadDto in actividadesDto)
+            {
+                if (!actividadDto.Id.HasValue)
+                {
+                    cargo.Actividades.Add(CrearActividad(actividadDto));
+                    continue;
+                }
+
+                var actividad = actuales[actividadDto.Id.Value];
+                actividad.Especificacion = actividadDto.Especificacion;
+                actividad.AsignaturaId = actividadDto.AsignaturaId;
+                actividad.CursoId = actividadDto.CursoId;
+                actividad.Horario = Normalizar(actividadDto.Horario);
+                actividad.Observaciones = Normalizar(actividadDto.Observaciones);
+            }
         }
 
         private static Actividad CrearActividad(UpsertActividadDto dto)

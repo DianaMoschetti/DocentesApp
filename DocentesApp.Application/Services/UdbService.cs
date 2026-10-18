@@ -52,7 +52,9 @@ namespace DocentesApp.Application.Services
 
         public async Task UpdateAsync(int id, UpdateUdbDto dto)
         {
-            var udb = await _udbRepository.GetByIdAsync(id);
+            // [Diana desde v4.0 OBSOLETO] cargaba Director y Secretario, que no hacen falta para editar
+            //var udb = await _udbRepository.GetByIdAsync(id);
+            var udb = await _udbRepository.GetByIdParaEditarAsync(id);
 
             if (udb == null)
                 throw new NotFoundException($"No se encontró la UDB con ID {id}.");
@@ -62,15 +64,29 @@ namespace DocentesApp.Application.Services
             if (existe)
                 throw new BadRequestException("Ya existe una UDB con ese nombre.");
 
+            // Un id de docente inexistente era una violación de FK en SaveChanges (500): ahora es un 400
+            await ValidarDocenteAsync(dto.DirectorDocenteId, "director");
+            await ValidarDocenteAsync(dto.SecretarioDocenteId, "secretario");
+
             _mapper.Map(dto, udb);
 
-            _udbRepository.Update(udb);
+            // [Diana desde v4.0 OBSOLETO] la UDB ya está trackeada: Update() marcaba todas sus columnas como modificadas
+            // (también CreatedDate/CreatedBy) y escribía la fila aunque no cambiara nada
+            //_udbRepository.Update(udb);
             await _udbRepository.SaveChangesAsync();
+        }
+
+        private async Task ValidarDocenteAsync(int? docenteId, string rol)
+        {
+            if (docenteId.HasValue && !await _udbRepository.ExisteDocenteAsync(docenteId.Value))
+                throw new BadRequestException($"No existe el docente con ID {docenteId} elegido como {rol}.");
         }
 
         public async Task DeleteAsync(int id)
         {
-            var udb = await _udbRepository.GetByIdAsync(id);
+            // [Diana desde v4.0 OBSOLETO] sin las membresías, la cascada a DocentesUdb la hacía solo la base (sin historial)
+            //var udb = await _udbRepository.GetByIdAsync(id);
+            var udb = await _udbRepository.GetByIdConMembresiasAsync(id);
 
             if (udb == null)
                 throw new NotFoundException($"No se encontró la UDB con ID {id}.");
