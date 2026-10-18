@@ -36,11 +36,7 @@ namespace DocentesApp.API.Controllers
             return Ok(result);
         }
 
-        // [Diana desde v4.0 OBSOLETO] ListDesignacionDto no trae los cargos; DetalleDocente necesita cabecera + cargos
-        //[HttpGet("docente/{docenteId}")]
-        //[ProducesResponseType(typeof(IEnumerable<ListDesignacionDto>), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public async Task<ActionResult<IEnumerable<ListDesignacionDto>>> GetByDocente(int docenteId)
+        // ListDesignacionDto no trae los cargos; DetalleDocente necesita cabecera + cargos
         [HttpGet("docente/{docenteId}")]
         [ProducesResponseType(typeof(IEnumerable<DesignacionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -76,8 +72,6 @@ namespace DocentesApp.API.Controllers
         #region Create
 
         [HttpPost]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(typeof(DesignacionDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -96,8 +90,6 @@ namespace DocentesApp.API.Controllers
         #region Update
 
         [HttpPut("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -112,8 +104,6 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/cerrar")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

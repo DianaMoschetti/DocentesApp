@@ -19,61 +19,6 @@ namespace DocentesApp.API.Extensions
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
             var environment = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
 
-            // [Diana desde v4.0 OBSOLETO] roles Admin/User, contraseñas fijas en el código y usuarios de prueba en todos los entornos
-            //var roles = new[] { "Admin", "User" };
-            //
-            //foreach (var role in roles)
-            //{
-            //    if (!await roleManager.RoleExistsAsync(role))
-            //    {
-            //        await roleManager.CreateAsync(new IdentityRole(role));
-            //    }
-            //}
-            //
-            //var adminEmail = "admin@docentesapp.com";
-            //var adminUserName = "admin";
-            //
-            //var adminUser = await userManager.FindByEmailAsync(adminEmail);
-            //
-            //if (adminUser == null)
-            //{
-            //    adminUser = new ApplicationUser
-            //    {
-            //        UserName = adminUserName,
-            //        Email = adminEmail,
-            //        Nombre = "Administrador",
-            //        Apellido = "Sistema",
-            //        EmailConfirmed = true
-            //    };
-            //
-            //    var result = await userManager.CreateAsync(adminUser, "Admin123!");
-            //
-            //    if (result.Succeeded)
-            //    {
-            //        await userManager.AddToRoleAsync(adminUser, "Admin");
-            //    }
-            //}
-            //
-            //var userEmail = "user@docentesapp.com";
-            //var userUserName = "user";
-            //var commonUser = await userManager.FindByEmailAsync(userEmail);
-            //if (commonUser == null)
-            //{
-            //    commonUser = new ApplicationUser
-            //    {
-            //        UserName = userUserName,
-            //        Email = userEmail,
-            //        Nombre = "Usuario",
-            //        Apellido = "Consulta",
-            //        EmailConfirmed = true
-            //    };
-            //    var result = await userManager.CreateAsync(commonUser, "User123!");
-            //    if (result.Succeeded)
-            //    {
-            //        await userManager.AddToRoleAsync(commonUser, "User");
-            //    }
-            //}
-
             // 1) Roles. Los roles viejos se renombran (no se migran usuarios): AspNetUserRoles apunta al Id del rol,
             //    así que los usuarios que tenían Admin/User quedan con Administrador/Consultante. Es idempotente.
             await RenombrarRolAsync(roleManager, "Admin", Roles.Administrador);
@@ -252,8 +197,6 @@ namespace DocentesApp.API.Extensions
                     (96743, "PERALTA", "LETICIA", "26739666"),
                     (26756, "PEREZ SOTTILE", "RICARDO", "16985592"),
                     (66213, "PEREZ", "MARIANA DEL VALLE", "22828780"),
-                    // [Diana desde v4.0 OBSOLETO] docente duplicado: el legajo correcto es 95028
-                    //(47538, "PIETROBON", "ORNELLA", null),
                     (95028, "PIETROBON", "ORNELLA", "42609063"),
                     (33128, "POMATA", "DANIELA NOEMI", "18113040"),
                     (86615, "PROPERZI", "MARIA FLORENCIA", "34168691"),
@@ -357,9 +300,6 @@ namespace DocentesApp.API.Extensions
 
                 var docentesPorLegajo = await context.Docentes
                     .AsNoTracking()
-                    // [Diana desde v4.0 OBSOLETO] Legajo ahora es int? (opcional)
-                    //.Where(d => legajos.Contains(d.Legajo))
-                    //.ToDictionaryAsync(d => d.Legajo, d => d.Id);
                     .Where(d => d.Legajo.HasValue && legajos.Contains(d.Legajo.Value))
                     .ToDictionaryAsync(d => d.Legajo!.Value, d => d.Id);
 
@@ -417,8 +357,6 @@ namespace DocentesApp.API.Extensions
                     ["UDB Química"] = new[] { 73637 },
                     ["UDB Sistemas de Representación"] = new[] { 26796, 36007, 47016 },
                     ["UDB Legislación y Economía"] = new[] { 27824, 19980, 89685, 86247, 80228, 93509, 50784, 58475, 92990 },
-                    // [Diana desde v4.0 OBSOLETO] PIETROBON 47538 era un duplicado: su membresía pasa a 95028
-                    //["UDB Cultura e Idiomas"] = new[] { 19576, 63411, 47538, 90541, 89816, 90540, 91330, 91679, 89817 },
                     ["UDB Cultura e Idiomas"] = new[] { 19576, 63411, 95028, 90541, 89816, 90540, 91330, 91679, 89817 },
                     ["Laboratorio de Informática"] = new[]
                     {
@@ -429,8 +367,6 @@ namespace DocentesApp.API.Extensions
 
                 var docentesPorLegajo = await context.Docentes
                     .AsNoTracking()
-                    // [Diana desde v4.0 OBSOLETO] Legajo ahora es int? (opcional): se excluyen los docentes sin legajo
-                    //.ToDictionaryAsync(d => d.Legajo, d => d.Id);
                     .Where(d => d.Legajo.HasValue)
                     .ToDictionaryAsync(d => d.Legajo!.Value, d => d.Id);
 
@@ -467,38 +403,6 @@ namespace DocentesApp.API.Extensions
                 logger.LogError(ex, "Error al seedear DocenteUdb");
             }
         }
-
-        // [Diana desde v4.0 OBSOLETO] UdbIds hardcodeados de una BD anterior (en la BD v5 apuntan a otras UDB o no existen)
-        // y no era método de extensión (no se podía llamar). Reemplazado por el SeedAsignaturasAsync de abajo.
-        // SEED ASIGNATURAS — descomentar si se necesita resetear la BD
-         //private static async Task SeedAsignaturasAsync(IApplicationBuilder app)
-        //{
-            //using var scope = app.ApplicationServices.CreateScope();
-            //var context = scope.ServiceProvider.GetRequiredService<DocentesDbContext>();
-
-            //if (await context.Asignaturas.AnyAsync()) return;
-
-            //var asignaturas = new List<Asignatura>
-             //{
-                 //// UDB Matemática (UdbId = 5)
-                 //new Asignatura { Nombre = "Algebra y Geometría Analítica", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-                 //new Asignatura { Nombre = "Análisis Matemático I",         Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero,   EsVigente = true, UdbId = 5 },
-                 //new Asignatura { Nombre = "Análisis Matemático II",        Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo,   EsVigente = true, UdbId = 5 },
-                 //new Asignatura { Nombre = "Probabilidad y Estadística",    Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero,   EsVigente = true, UdbId = 5 },
-        
-                 //// UDB Física (UdbId = 6)
-                 //new Asignatura { Nombre = "Física I",  Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 6 },
-                 //new Asignatura { Nombre = "Física II", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 6 },
-        
-                 //// UDB Cultura e Idiomas (UdbId = 10)
-                 //new Asignatura { Nombre = "Ingeniería y Sociedad", Frecuencia = Frecuencia.Anual, Nivel = Nivel.Primero, EsVigente = true, UdbId = 10 },
-                 //new Asignatura { Nombre = "Inglés I",              Frecuencia = Frecuencia.Anual, Nivel = Nivel.Segundo, EsVigente = true, UdbId = 10 },
-                 //new Asignatura { Nombre = "Inglés II",             Frecuencia = Frecuencia.Anual, Nivel = Nivel.Tercero, EsVigente = true, UdbId = 10 },
-             //};
-
-            //await context.Asignaturas.AddRangeAsync(asignaturas);
-            //await context.SaveChangesAsync();
-        //}
 
         // Inserta solo las asignaturas que faltan (por UDB + Nombre, sin distinguir mayúsculas; el Nivel no se compara).
         // Nunca actualiza ni borra las existentes: las cargadas a mano no se duplican.

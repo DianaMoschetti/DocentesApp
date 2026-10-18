@@ -41,8 +41,6 @@ namespace DocentesApp.API.Controllers
         #region Create
 
         [HttpPost]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(typeof(AsignaturaDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,8 +57,6 @@ namespace DocentesApp.API.Controllers
         #region Update
 
         [HttpPut("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,8 +74,6 @@ namespace DocentesApp.API.Controllers
         #region Delete
 
         [HttpDelete("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

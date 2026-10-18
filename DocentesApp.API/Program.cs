@@ -42,18 +42,10 @@ builder.Services.AddScoped<AuditoriaInterceptor>();
 builder.Services.AddScoped<IAuditoriaEventos, AuditoriaEventos>();
 
 //Context
-// [Diana desde v4.0 OBSOLETO] sin interceptor de auditoría
-//builder.Services.AddDbContext<DocentesDbContext>(options =>
-//    options.UseSqlServer(connString));
 builder.Services.AddDbContext<DocentesDbContext>((sp, options) =>
     DocentesDbContextConfiguracion.ConfigurarSqlServer(options, connString, sp.GetRequiredService<AuditoriaInterceptor>()));
 
 // Identity
-
-//builder.Services.AddIdentityCore<ApplicationUser>()
-//    .AddRoles<IdentityRole>()
-//    .AddEntityFrameworkStores<DocentesDbContext>();
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -69,9 +61,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // Jwt Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-// [Diana desde v4.0 OBSOLETO] solo fallaba si faltaba la clave, sin decir como configurarla
-//var key = jwtSettings["Key"]
-//    ?? throw new InvalidOperationException("JWT Key no configurada.");
 // La clave JWT no se versiona (no esta en appsettings.json). En desarrollo se configura con
 // dotnet user-secrets; en otros entornos con la variable de entorno Jwt__Key (ver README).
 const int JwtKeyMinBytes = 32; // HMAC-SHA256 necesita una clave de al menos 256 bits
@@ -112,23 +101,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// [Diana desde v4.0 OBSOLETO] sin politica por defecto: todo lo que no tenia [Authorize] era publico
-//builder.Services.AddAuthorization();
-// Por defecto todos los endpoints requieren un usuario autenticado con rol Admin o User:
-//   - FallbackPolicy: endpoints sin [Authorize] ni [AllowAnonymous] (las lecturas)
-//   - DefaultPolicy: endpoints con [Authorize] sin roles (reportes, cargos-en-licencia)
-// Las escrituras siguen con [Authorize(Roles = "Admin")]; solo el login es [AllowAnonymous].
 // Swagger se sirve por middleware (UseSwagger, solo Development), no por endpoint: no le aplica.
-// [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por Administrador/Editor/Consultante y políticas con nombre
-//var politicaAdminOUser = new AuthorizationPolicyBuilder()
-//    .RequireAuthenticatedUser()
-//    .RequireRole("Admin", "User")
-//    .Build();
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.FallbackPolicy = politicaAdminOUser;
-//    options.DefaultPolicy = politicaAdminOUser;
-//});
 // Políticas compartidas con Blazor (DocentesApp.Shared/Auth/Politicas.cs):
 //   - PuedeConsultar: cualquier rol. Es la Fallback (lecturas sin atributo) y la Default ([Authorize] a secas: reportes)
 //   - PuedeEditar: Administrador o Editor (todas las escrituras, incluidos los catálogos)
@@ -254,7 +227,6 @@ await app.SeedIdentityDataAsync();
 await app.SeedDocentesAsync();
 await app.SeedUdbsAsync();
 await app.SeedDocenteUdbAsync();
-//await app.SeedAsignaturasAsync();
 await app.SeedAsignaturasAsync();
 
 app.Run();
