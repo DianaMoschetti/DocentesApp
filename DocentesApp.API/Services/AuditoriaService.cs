@@ -30,7 +30,8 @@ namespace DocentesApp.API.Services
             _context = context;
         }
 
-        public Task<PaginaDto<HistorialCambioDto>> BuscarAsync(FiltroAuditoriaDto filtro)
+        // [Diana desde v4.0 OBSOLETO] public Task<PaginaDto<HistorialCambioDto>> BuscarAsync(FiltroAuditoriaDto filtro)
+        public Task<PaginaHistorialCambioDto> BuscarAsync(FiltroAuditoriaDto filtro)
         {
             var tamanio = ValidarPaginado(filtro.Pagina, filtro.TamanioPagina);
             if (filtro.Desde.HasValue && filtro.Hasta.HasValue && filtro.Desde > filtro.Hasta)
@@ -65,14 +66,16 @@ namespace DocentesApp.API.Services
         }
 
         // Historial de un docente: sus datos, sus membresías, sus designaciones y los cargos y actividades de ellas
-        public Task<PaginaDto<HistorialCambioDto>> PorDocenteAsync(int docenteId, int pagina, int tamanioPagina)
+        // [Diana desde v4.0 OBSOLETO] public Task<PaginaDto<HistorialCambioDto>> PorDocenteAsync(int docenteId, int pagina, int tamanioPagina)
+        public Task<PaginaHistorialCambioDto> PorDocenteAsync(int docenteId, int pagina, int tamanioPagina)
         {
             var tamanio = ValidarPaginado(pagina, tamanioPagina);
             return PaginarAsync(_context.HistorialCambios.AsNoTracking().Where(h => h.DocenteId == docenteId), pagina, tamanio);
         }
 
         // Historial de una designación: la cabecera, sus cargos y sus actividades
-        public Task<PaginaDto<HistorialCambioDto>> PorDesignacionAsync(int designacionId, int pagina, int tamanioPagina)
+        // [Diana desde v4.0 OBSOLETO] public Task<PaginaDto<HistorialCambioDto>> PorDesignacionAsync(int designacionId, int pagina, int tamanioPagina)
+        public Task<PaginaHistorialCambioDto> PorDesignacionAsync(int designacionId, int pagina, int tamanioPagina)
         {
             var tamanio = ValidarPaginado(pagina, tamanioPagina);
             return PaginarAsync(_context.HistorialCambios.AsNoTracking().Where(h => h.DesignacionId == designacionId), pagina, tamanio);
@@ -94,7 +97,8 @@ namespace DocentesApp.API.Services
             return Math.Min(tamanioPagina, FiltroAuditoriaDto.TamanioPaginaMaximo);
         }
 
-        private async Task<PaginaDto<HistorialCambioDto>> PaginarAsync(IQueryable<HistorialCambio> query, int pagina, int tamanio)
+        // [Diana desde v4.0 OBSOLETO] private async Task<PaginaDto<HistorialCambioDto>> PaginarAsync(IQueryable<HistorialCambio> query, int pagina, int tamanio)
+        private async Task<PaginaHistorialCambioDto> PaginarAsync(IQueryable<HistorialCambio> query, int pagina, int tamanio)
         {
             var total = await query.CountAsync();
 
@@ -107,7 +111,8 @@ namespace DocentesApp.API.Services
 
             var nombres = await ResolverForaneasAsync(filas);
 
-            return new PaginaDto<HistorialCambioDto>
+            // [Diana desde v4.0 OBSOLETO] return new PaginaDto<HistorialCambioDto>
+            return new PaginaHistorialCambioDto
             {
                 Items = filas.Select(f => ToDto(f, nombres)).ToList(),
                 Total = total,

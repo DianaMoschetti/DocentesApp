@@ -24,29 +24,56 @@ namespace DocentesApp.API.Controllers
 
         // Filtros: usuarioId (o "sistema" para las filas sin usuario), desde/hasta (días de Argentina, hasta inclusive),
         // entidad (clave de GET api/auditoria/entidades) y accion
+        // [Diana desde v4.0 OBSOLETO] devolvía el genérico PaginaDto<HistorialCambioDto> (NSwag no lo puede usar: ver PaginaHistorialCambioDto)
+        //[HttpGet]
+        //[ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        //public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorial([FromQuery] FiltroAuditoriaDto filtro)
+        //{
+        //    return Ok(await _auditoriaService.BuscarAsync(filtro));
+        //}
         [HttpGet]
-        [ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginaHistorialCambioDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorial([FromQuery] FiltroAuditoriaDto filtro)
+        public async Task<ActionResult<PaginaHistorialCambioDto>> GetHistorial([FromQuery] FiltroAuditoriaDto filtro)
         {
             return Ok(await _auditoriaService.BuscarAsync(filtro));
         }
 
+        // [Diana desde v4.0 OBSOLETO] ruta "docente/{docenteId}": NSwag nombra los métodos por el último segmento y
+        // "DocenteAsync" ya era el de api/designaciones/docente/{id} (lo renombraba). Ahora "historial-docente" -> HistorialDocenteAsync
+        //[HttpGet("docente/{docenteId:int}")]
+        //[ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        //public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorialDocente(
+        //    int docenteId, [FromQuery] int pagina = 1, [FromQuery] int tamanioPagina = FiltroAuditoriaDto.TamanioPaginaPorDefecto)
+        //{
+        //    return Ok(await _auditoriaService.PorDocenteAsync(docenteId, pagina, tamanioPagina));
+        //}
         // Datos del docente, sus membresías a UDB y sus designaciones con sus cargos y actividades
-        [HttpGet("docente/{docenteId:int}")]
-        [ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        [HttpGet("historial-docente/{docenteId:int}")]
+        [ProducesResponseType(typeof(PaginaHistorialCambioDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorialDocente(
+        public async Task<ActionResult<PaginaHistorialCambioDto>> GetHistorialDocente(
             int docenteId, [FromQuery] int pagina = 1, [FromQuery] int tamanioPagina = FiltroAuditoriaDto.TamanioPaginaPorDefecto)
         {
             return Ok(await _auditoriaService.PorDocenteAsync(docenteId, pagina, tamanioPagina));
         }
 
+        // [Diana desde v4.0 OBSOLETO] ruta "designacion/{designacionId}": mismo motivo que historial-docente
+        //[HttpGet("designacion/{designacionId:int}")]
+        //[ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        //public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorialDesignacion(
+        //    int designacionId, [FromQuery] int pagina = 1, [FromQuery] int tamanioPagina = FiltroAuditoriaDto.TamanioPaginaPorDefecto)
+        //{
+        //    return Ok(await _auditoriaService.PorDesignacionAsync(designacionId, pagina, tamanioPagina));
+        //}
         // La designación, sus cargos y sus actividades
-        [HttpGet("designacion/{designacionId:int}")]
-        [ProducesResponseType(typeof(PaginaDto<HistorialCambioDto>), StatusCodes.Status200OK)]
+        [HttpGet("historial-designacion/{designacionId:int}")]
+        [ProducesResponseType(typeof(PaginaHistorialCambioDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PaginaDto<HistorialCambioDto>>> GetHistorialDesignacion(
+        public async Task<ActionResult<PaginaHistorialCambioDto>> GetHistorialDesignacion(
             int designacionId, [FromQuery] int pagina = 1, [FromQuery] int tamanioPagina = FiltroAuditoriaDto.TamanioPaginaPorDefecto)
         {
             return Ok(await _auditoriaService.PorDesignacionAsync(designacionId, pagina, tamanioPagina));

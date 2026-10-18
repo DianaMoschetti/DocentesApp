@@ -21,9 +21,13 @@ namespace DocentesApp.Shared
             }
         }
 
-        // UTC -> hora de Argentina
+        // UTC -> hora de Argentina, con Kind Unspecified: viaja en el JSON sin offset ni "Z" ("2026-03-09T23:30:00"),
+        // así Newtonsoft en Blazor no la convierte a la hora local del servidor. Blazor la muestra tal cual.
+        // (Si el servidor estuviera en hora de Argentina, ConvertTimeFromUtc podría devolver Kind Local y se serializaría con "-03:00".)
         public static DateTime DesdeUtc(DateTime fechaUtc) =>
-            TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(fechaUtc, DateTimeKind.Utc), Zona);
+            DateTime.SpecifyKind(
+                TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(fechaUtc, DateTimeKind.Utc), Zona),
+                DateTimeKind.Unspecified);
 
         // 00:00 del día de Argentina, en UTC (ej. 2026-03-10 -> 2026-03-10 03:00 UTC)
         public static DateTime InicioDelDiaUtc(DateOnly dia) =>

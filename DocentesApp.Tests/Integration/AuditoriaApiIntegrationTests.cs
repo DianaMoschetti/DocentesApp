@@ -62,10 +62,21 @@ namespace DocentesApp.Tests.Integration
         public static TheoryData<string> Endpoints => new()
         {
             "/api/auditoria",
-            "/api/auditoria/docente/1",
-            "/api/auditoria/designacion/1",
+            "/api/auditoria/historial-docente/1",
+            "/api/auditoria/historial-designacion/1",
             "/api/auditoria/entidades"
         };
+
+        // Rutas renombradas en la etapa 6 (NSwag nombra los métodos por el último segmento: "docente" chocaba con api/designaciones/docente)
+        [Theory]
+        [InlineData("/api/auditoria/docente/1")]
+        [InlineData("/api/auditoria/designacion/1")]
+        public async Task RutasViejas_YaNoExisten(string url)
+        {
+            var admin = await Auth.CreateAdminClientAsync();
+
+            (await admin.GetAsync(url)).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
 
         [Theory]
         [MemberData(nameof(Endpoints))]
@@ -140,6 +151,26 @@ namespace DocentesApp.Tests.Integration
             soloHasta9.Items.Select(h => h.Id).Should().Equal(nocheDel9.Id);
         }
 
+        // FechaArgentina viaja sin offset ni "Z": Newtonsoft (cliente de Blazor) la lee tal cual, sin pasarla a la hora local
+        [Fact]
+        public async Task FechaArgentina_ViajaSinOffset_YNewtonsoftLaLeeSinConvertir()
+        {
+            var fila = Fila("PruebaJson", new DateTime(2026, 3, 10, 2, 30, 0));
+            AgregarFilas(fila);
+            var admin = await Auth.CreateAdminClientAsync();
+
+            var json = await admin.GetStringAsync("/api/auditoria?entidad=PruebaJson");
+
+            json.Should().Contain("\"fechaArgentina\":\"2026-03-09T23:30:00\"");
+            json.Should().Contain("\"fechaUtc\":\"2026-03-10T02:30:00Z\"");
+
+            // Mismos settings por defecto que el ServiceClient generado por NSwag (Newtonsoft)
+            var pagina = Newtonsoft.Json.JsonConvert.DeserializeObject<PaginaDto<HistorialCambioDto>>(json, new Newtonsoft.Json.JsonSerializerSettings())!;
+            var leida = pagina.Items.Single();
+            leida.FechaArgentina.Should().Be(new DateTime(2026, 3, 9, 23, 30, 0));
+            leida.FechaArgentina.Kind.Should().Be(DateTimeKind.Unspecified);
+        }
+
         [Fact]
         public async Task FiltroPorEntidadYAccion()
         {
@@ -207,7 +238,7 @@ namespace DocentesApp.Tests.Integration
             var admin = await Auth.CreateAdminClientAsync();
 
             var pagina = await GetAsync(admin, "/api/auditoria?tamanioPagina=500");
-            var docente = await GetAsync(admin, "/api/auditoria/docente/1?tamanioPagina=500");
+            var docente = await GetAsync(admin, "/api/auditoria/historial-docente/1?tamanioPagina=500");
 
             pagina.TamanioPagina.Should().Be(200);
             docente.TamanioPagina.Should().Be(200);
@@ -216,8 +247,8 @@ namespace DocentesApp.Tests.Integration
         [Theory]
         [InlineData("/api/auditoria?pagina=0")]
         [InlineData("/api/auditoria?tamanioPagina=0")]
-        [InlineData("/api/auditoria/docente/1?pagina=0")]
-        [InlineData("/api/auditoria/designacion/1?tamanioPagina=0")]
+        [InlineData("/api/auditoria/historial-docente/1?pagina=0")]
+        [InlineData("/api/auditoria/historial-designacion/1?tamanioPagina=0")]
         public async Task Paginado_PaginaOTamanioMenorA1_Devuelve400(string url)
         {
             var admin = await Auth.CreateAdminClientAsync();
@@ -285,7 +316,7 @@ namespace DocentesApp.Tests.Integration
             var (docenteId, designacionId, udbBorradaId) = CrearHistorialDeDocente(1);
             var admin = await Auth.CreateAdminClientAsync();
 
-            var pagina = await GetAsync(admin, $"/api/auditoria/docente/{docenteId}?tamanioPagina=200");
+            var pagina = await GetAsync(admin, $"/api/auditoria/historial-docente/{docenteId}?tamanioPagina=200");
             var items = pagina.Items;
 
             items.Select(h => h.Entidad).Distinct().Should().BeEquivalentTo(new[] { "Docente", "Designacion", "CargoDesignacion", "Actividad", "DocenteUdb" });
@@ -328,7 +359,7 @@ namespace DocentesApp.Tests.Integration
             var (_, designacionId, _) = CrearHistorialDeDocente(2);
             var admin = await Auth.CreateAdminClientAsync();
 
-            var pagina = await GetAsync(admin, $"/api/auditoria/designacion/{designacionId}");
+            var pagina = await GetAsync(admin, $"/api/auditoria/historial-designacion/{designacionId}");
 
             pagina.Items.Select(h => h.Entidad).Distinct().Should().BeEquivalentTo(new[] { "Designacion", "CargoDesignacion", "Actividad" });
             pagina.Items.Should().OnlyContain(h => h.DesignacionId == designacionId);
@@ -353,7 +384,7 @@ namespace DocentesApp.Tests.Integration
             AgregarFilas(fila);
             var admin = await Auth.CreateAdminClientAsync();
 
-            var detalles = (await GetAsync(admin, "/api/auditoria/docente/900001")).Items.Single().Detalles;
+            var detalles = (await GetAsync(admin, "/api/auditoria/historial-docente/900001")).Items.Single().Detalles;
 
             detalles.Should().ContainEquivalentOf(new HistorialCambioDetalleDto { Propiedad = "Fecha de alta", Anterior = null, Nuevo = "09/03/2026 23:30" });
             detalles.Should().ContainEquivalentOf(new HistorialCambioDetalleDto { Propiedad = "PropiedadRara", Anterior = "x", Nuevo = "y" });

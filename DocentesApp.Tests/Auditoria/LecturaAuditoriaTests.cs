@@ -24,6 +24,13 @@ namespace DocentesApp.Tests.Auditoria
             ZonaHorariaArgentina.DesdeUtc(new DateTime(2026, 3, 10, 2, 30, 0)).Should().Be(new DateTime(2026, 3, 9, 23, 30, 0));
         }
 
+        [Fact]
+        public void ZonaHoraria_DesdeUtc_DevuelveKindUnspecified_ParaQueViajeSinOffset()
+        {
+            ZonaHorariaArgentina.DesdeUtc(new DateTime(2026, 3, 10, 2, 30, 0, DateTimeKind.Utc)).Kind.Should().Be(DateTimeKind.Unspecified);
+            ZonaHorariaArgentina.DesdeUtc(new DateTime(2026, 3, 10, 2, 30, 0, DateTimeKind.Unspecified)).Kind.Should().Be(DateTimeKind.Unspecified);
+        }
+
         [Theory]
         [InlineData(typeof(EspecificacionCargo), "5", "Jefe de Cátedra")]   // [Description]
         [InlineData(typeof(RolUdb), "1", "Director")]                       // sin [Description]: el nombre
