@@ -8,13 +8,25 @@ namespace DocentesApp.Tests.Auditoria
     // Piezas sin base de datos de la lectura del historial: zona horaria y formato de valores
     public class LecturaAuditoriaTests
     {
-        [Fact]
-        public void ZonaHoraria_SinElIdIana_UsaUtcMenos3Fijo()
-        {
-            var zona = ZonaHorariaArgentina.Crear("No/Existe");
+        // [Diana desde v4.0 OBSOLETO] probaba el fallback cuando el sistema no tenía el id IANA (ya no se busca la zona)
+        //[Fact]
+        //public void ZonaHoraria_SinElIdIana_UsaUtcMenos3Fijo()
+        //{
+        //    var zona = ZonaHorariaArgentina.Crear("No/Existe");
+        //
+        //    zona.BaseUtcOffset.Should().Be(TimeSpan.FromHours(-3));
+        //    zona.SupportsDaylightSavingTime.Should().BeFalse();
+        //}
 
-            zona.BaseUtcOffset.Should().Be(TimeSpan.FromHours(-3));
-            zona.SupportsDaylightSavingTime.Should().BeFalse();
+        // Offset fijo UTC-3 (Argentina no tiene horario de verano desde 2009): igual en enero que en julio
+        [Theory]
+        [InlineData(1)]
+        [InlineData(7)]
+        public void ZonaHoraria_OffsetFijoUtcMenos3_TodoElAnio(int mes)
+        {
+            ZonaHorariaArgentina.Offset.Should().Be(TimeSpan.FromHours(-3));
+            ZonaHorariaArgentina.DesdeUtc(new DateTime(2026, mes, 15, 3, 0, 0, DateTimeKind.Utc)).Should().Be(new DateTime(2026, mes, 15, 0, 0, 0));
+            ZonaHorariaArgentina.InicioDelDiaUtc(new DateOnly(2026, mes, 15)).Should().Be(new DateTime(2026, mes, 15, 3, 0, 0));
         }
 
         [Fact]

@@ -3,6 +3,8 @@
 @using DocentesApp.Shared.DTOs.Designaciones
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
+@using DocentesApp.Blazor.UI.Components.Auditoria
+@using DocentesApp.Shared.DTOs.Auditoria
 @attribute [Authorize]
 @rendermode InteractiveServer
 @inject IClient Client
@@ -41,6 +43,33 @@
             </div>
         </div>
 
+        @* Pestaña "Historial" (auditoría): solo Administrador; se carga recién al abrirla y queda cargada al volver a "Datos" *@
+        <AuthorizeView Policy="@Politicas.EsAdministrador">
+            <Authorized>
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <button class="nav-link @(tabActiva == TabDatos ? "active" : "")" @onclick="() => tabActiva = TabDatos">
+                            Datos
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(tabActiva == TabHistorial ? "active" : "")" @onclick="AbrirHistorial">
+                            Historial
+                        </button>
+                    </li>
+                </ul>
+                @if (historialAbierto)
+                {
+                    <div class="@(tabActiva == TabHistorial ? "" : "d-none")">
+                        <HistorialTabla CargarPagina="CargarHistorial"
+                                        MensajeVacio="No hay cambios registrados para este docente." />
+                    </div>
+                }
+            </Authorized>
+        </AuthorizeView>
+
+        @if (tabActiva == TabDatos)
+        {
         <div class="card mb-4">
             <div class="card-header">Datos personales</div>
             <div class="card-body">
@@ -207,6 +236,7 @@
                 </div>
             </div>
         }
+        } @* fin pestaña Datos *@
         }
 </div>
 
@@ -219,6 +249,12 @@
     private bool isLoading = true;
     private string? errorMessage;
 
+    // Pestañas: "Datos" para todos; "Historial" solo la ve el Administrador
+    private const string TabDatos = "datos";
+    private const string TabHistorial = "historial";
+    private string tabActiva = TabDatos;
+    private bool historialAbierto;
+
     protected override async Task OnParametersSetAsync()
     {
         await CargarDocente();
@@ -230,6 +266,9 @@
         {
             isLoading = true;
             errorMessage = null;
+            // Otro docente: vuelve a "Datos" y el historial se carga de nuevo al abrirlo
+            tabActiva = TabDatos;
+            historialAbierto = false;
             docente = await Client.DocentesGETAsync(Id);
             await CargarDesignaciones();
         }
@@ -244,6 +283,15 @@
             isLoading = false;
         }
     }
+
+    private void AbrirHistorial()
+    {
+        tabActiva = TabHistorial;
+        historialAbierto = true; // la primera vez monta HistorialTabla, que trae la página 1
+    }
+
+    private Task<PaginaHistorialCambioDto> CargarHistorial(int pagina, int tamanioPagina) =>
+        Client.HistorialDocenteAsync(Id, pagina, tamanioPagina);
 
     // Aparte del docente: si fallan las designaciones, los datos del docente se siguen mostrando
     private async Task CargarDesignaciones()

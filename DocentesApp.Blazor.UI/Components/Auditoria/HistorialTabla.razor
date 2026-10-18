@@ -1,0 +1,180 @@
+@using DocentesApp.Shared.DTOs.Auditoria
+
+@* Tabla de historial de cambios (auditoría), paginada. La usan la pestaña "Historial" de docente y de designación
+   y la página /auditoria. Quien la usa pasa CargarPagina (pagina, tamanioPagina) con sus filtros; para volver
+   a la primera página con filtros nuevos llama a RecargarAsync().
+   La fecha es FechaArgentina tal como llega de la API (sin offset): se muestra sin convertir. *@
+
+@if (isLoading)
+{
+    <p>Cargando...</p>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (pagina == null || !pagina.Items.Any())
+{
+    <div class="alert alert-info">@MensajeVacio</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Entidad</th>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                    <th>Cambios</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in pagina.Items)
+                {
+                    <tr>
+                        <td class="text-nowrap">@fila.FechaArgentina.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(fila.UsuarioId == null ? "Sistema" : fila.UsuarioNombre)</td>
+                        <td>@fila.EntidadNombre</td>
+                        <td><span class="badge @ClaseAccion(fila.Accion)">@fila.AccionNombre</span></td>
+                        <td>@(string.IsNullOrWhiteSpace(fila.EntidadDescripcion) ? $"#{fila.EntidadId}" : fila.EntidadDescripcion)</td>
+                        <td>
+                            @if (!fila.Detalles.Any())
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                            else
+                            {
+                                <ul class="list-unstyled small mb-0">
+                                    @foreach (var detalle in fila.Detalles)
+                                    {
+                                        <li>
+                                            @if (EsEventoDeContrasenia(detalle))
+                                            {
+                                                <span class="fw-semibold">Contraseña modificada</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-semibold">@detalle.Propiedad:</span>
+                                                <span>@Valor(detalle.Anterior)</span>
+                                                <span class="text-muted">→</span>
+                                                <span>@Valor(detalle.Nuevo)</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">
+            Página @pagina.Pagina de @pagina.TotalPaginas — @pagina.Total @(pagina.Total == 1 ? "cambio" : "cambios")
+        </span>
+        <div class="d-flex align-items-center">
+            <label class="form-label small text-muted mb-0 me-2" for="@idTamanio">Por página</label>
+            <select id="@idTamanio" class="form-select form-select-sm w-auto me-3"
+                    value="@tamanio" @onchange="CambiarTamanioAsync">
+                @foreach (var opcion in OpcionesTamanio)
+                {
+                    <option value="@opcion">@opcion</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-outline-secondary me-2"
+                    disabled="@(pagina.Pagina <= 1)"
+                    @onclick="() => IrAPaginaAsync(pagina.Pagina - 1)">
+                Anterior
+            </button>
+            <button class="btn btn-sm btn-outline-secondary"
+                    disabled="@(pagina.Pagina >= pagina.TotalPaginas)"
+                    @onclick="() => IrAPaginaAsync(pagina.Pagina + 1)">
+                Siguiente
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    // Trae una página (pagina empieza en 1)
+    [Parameter, EditorRequired] public Func<int, int, Task<PaginaHistorialCambioDto>> CargarPagina { get; set; } = default!;
+    // [Diana desde v4.0 OBSOLETO] tamaño fijo elegido por quien usa la tabla
+    //[Parameter] public int TamanioPagina { get; set; } = 25;
+    [Parameter] public string MensajeVacio { get; set; } = "No hay cambios registrados.";
+
+    // Tamaño de página: lo elige el usuario en el selector (cambiarlo vuelve a la página 1)
+    private static readonly int[] OpcionesTamanio = { 20, 50, 100 };
+    private int tamanio = 20;
+    private readonly string idTamanio = $"tamanio-{Guid.NewGuid():N}"; // único: puede haber más de una tabla en la página
+
+    private PaginaHistorialCambioDto? pagina;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await IrAPaginaAsync(1);
+    }
+
+    private async Task CambiarTamanioAsync(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var nuevo) || !OpcionesTamanio.Contains(nuevo) || nuevo == tamanio)
+            return;
+
+        tamanio = nuevo;
+        await IrAPaginaAsync(1);
+    }
+
+    // Vuelve a la primera página (ej. después de cambiar los filtros)
+    // (se llama desde el padre: el componente avisa sus propios cambios de estado)
+    public async Task RecargarAsync()
+    {
+        isLoading = true;
+        StateHasChanged();
+        await IrAPaginaAsync(1);
+        StateHasChanged();
+    }
+
+    private async Task IrAPaginaAsync(int numero)
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            // [Diana desde v4.0 OBSOLETO] pagina = await CargarPagina(numero, TamanioPagina);
+            pagina = await CargarPagina(numero, tamanio);
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ex.StatusCode switch
+            {
+                401 or 403 => "No tiene permisos para ver el historial.",
+                400 => ApiErrorHelper.GetMessage(ex, "Los filtros no son válidos."),
+                _ => "Error al cargar el historial."
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string Valor(string? valor) => string.IsNullOrWhiteSpace(valor) ? "—" : valor;
+
+    // Reseteo o cambio de contraseña: la API manda la propiedad sin valores (nunca la contraseña)
+    private static bool EsEventoDeContrasenia(HistorialCambioDetalleDto detalle) =>
+        detalle.Propiedad == "Contraseña" && detalle.Anterior == null && detalle.Nuevo == null;
+
+    private static string ClaseAccion(AccionAuditoria accion) => accion switch
+    {
+        AccionAuditoria.Alta => "bg-success",
+        AccionAuditoria.Modificacion => "bg-primary",
+        AccionAuditoria.Baja => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
