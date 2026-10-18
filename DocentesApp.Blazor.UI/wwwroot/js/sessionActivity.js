@@ -1,4 +1,4 @@
-// [Diana desde v4.0] Detección de actividad del usuario para el timeout por INACTIVIDAD.
+// Detección de actividad del usuario para el timeout por INACTIVIDAD.
 // Se carga como módulo ES desde SessionExpirationWatcher (JS interop) una vez por circuito.
 //
 // Qué hace:

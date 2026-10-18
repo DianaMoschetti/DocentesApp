@@ -24,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
-        // [Diana desde v4.0] Timeout por INACTIVIDAD: la cookie expira a los
+        // Timeout por INACTIVIDAD: la cookie expira a los
         // Session:IdleTimeoutMinutes sin actividad, y con SlidingExpiration cada request HTTP
         // (el keepalive mientras el usuario está activo) la renueva. El tope ABSOLUTO lo sigue
         // fijando el JWT (Jwt:DurationInMinutes en la API): OnValidatePrincipal rechaza el
@@ -149,7 +149,7 @@ app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
     ctx.Response.Redirect("/");
 });
 
-// [Diana desde v4.0] Endpoint "latido": renueva la cookie deslizante mientras el usuario
+// Endpoint "latido": renueva la cookie deslizante mientras el usuario
 // está activo. Su único fin es ser un request HTTP real (dentro del circuito de Blazor Server
 // no hay requests, así que el sliding no se renovaría solo). Lo pinguea sessionActivity.js.
 // La renovación deslizante recién ocurre pasada la mitad de ExpireTimeSpan, por eso el cliente

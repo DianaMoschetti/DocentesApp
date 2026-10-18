@@ -18,8 +18,6 @@ namespace DocentesApp.Tests.Helpers
         private readonly SqliteConnection _connection;
         private readonly DbContextOptions<DocentesDbContext> _options;
 
-        // [Diana desde v4.0 OBSOLETO] sin opción de auditoría
-        //public SqliteTestDatabase()
         public SqliteTestDatabase(ICurrentUserService? usuarioAuditoria = null)
         {
             UsuarioAuditoria = usuarioAuditoria;
@@ -31,8 +29,7 @@ namespace DocentesApp.Tests.Helpers
                 .UseSqlite(_connection)
                 .Options;
 
-            // [Diana desde v4.0 OBSOLETO] CrearContexto() puede venir con auditoría; EnsureCreated no la necesita
-            //using var context = CrearContexto();
+            // CrearContexto() puede venir con auditoría; EnsureCreated no la necesita
             using var context = new DocentesDbContext(_options);
             context.Database.EnsureCreated();
         }
@@ -44,19 +41,11 @@ namespace DocentesApp.Tests.Helpers
 
         public SqliteConnection Connection => _connection;
 
-        // [Diana desde v4.0 OBSOLETO] siempre sin auditoría
-        //public DocentesDbContext CrearContexto() => new DocentesDbContext(_options);
         public DocentesDbContext CrearContexto() =>
             UsuarioAuditoria == null
                 ? new DocentesDbContext(_options)
                 : CrearContextoAuditado(new AuditoriaInterceptor(UsuarioAuditoria, new ContextoOperacionAuditoria()));
 
-        // [Diana desde v4.0 OBSOLETO] sin interceptores previos
-        //public DocentesDbContext CrearContextoAuditado(AuditoriaInterceptor interceptor) =>
-        //    new DocentesDbContext(new DbContextOptionsBuilder<DocentesDbContext>()
-        //        .UseSqlite(_connection)
-        //        .AddInterceptors(interceptor)
-        //        .Options);
         // Contexto con un interceptor dado (ej. compartir el ContextoOperacionAuditoria con IAuditoriaEventos, o forzar fallas).
         // "antes": interceptores que corren antes que la auditoría (ej. uno que captura los estados de las entradas)
         public DocentesDbContext CrearContextoAuditado(AuditoriaInterceptor interceptor, params IInterceptor[] antes) =>

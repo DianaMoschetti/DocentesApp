@@ -2,7 +2,6 @@
 using DocentesApp.Shared.DTOs.Auth;
 using DocentesApp.Shared.DTOs.Udbs;
 using DocentesApp.Shared.DTOs.Usuarios;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -10,9 +9,6 @@ using System.Text.Json;
 
 namespace DocentesApp.Tests.Integration
 {
-    // [Diana desde v4.0 OBSOLETO] roles Admin/User
-    // Política por defecto de la API: todo endpoint requiere un usuario autenticado con rol Admin o User;
-    // las escrituras y el registro de usuarios son solo Admin; el login es el único endpoint anónimo.
     // Ahora: lecturas = cualquier rol (PuedeConsultar), escrituras = Administrador o Editor (PuedeEditar),
     // gestión de usuarios = Administrador (EsAdministrador); el login sigue siendo el único endpoint anónimo.
     public class AutorizacionIntegrationTests : IntegrationTestBase
@@ -63,55 +59,6 @@ namespace DocentesApp.Tests.Integration
 
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
-
-        // [Diana desde v4.0 OBSOLETO] auth/register reemplazado por api/usuarios (ver región Gestión de usuarios)
-        //[Fact]
-        //public async Task Register_SinToken_Devuelve401()
-        //{
-        //    var response = await Client.PostAsJsonAsync("/api/auth/register", NuevoUsuario());
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        //}
-        //
-        //[Fact]
-        //public async Task Register_ConRolUser_Devuelve403()
-        //{
-        //    var user = await Auth.CreateUserClientAsync();
-        //
-        //    var response = await user.PostAsJsonAsync("/api/auth/register", NuevoUsuario());
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        //}
-        //
-        //[Fact]
-        //public async Task Register_ComoAdmin_Devuelve200ConLosDatosDelUsuarioYSinToken()
-        //{
-        //    var admin = await Auth.CreateAdminClientAsync();
-        //    var dto = NuevoUsuario();
-        //
-        //    var response = await admin.PostAsJsonAsync("/api/auth/register", dto);
-        //    var body = await response.Content.ReadAsStringAsync();
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.OK, body);
-        //
-        //    var registrado = JsonSerializer.Deserialize<RegisteredUserDto>(body, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-        //    registrado!.Id.Should().NotBeNullOrWhiteSpace();
-        //    registrado.Email.Should().Be(dto.Email);
-            // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
-            //registrado.Role.Should().Be("User");
-        //    registrado.Role.Should().Be(Roles.Consultante);
-        //
-            // La respuesta no incluye ningún token
-        //    using var json = JsonDocument.Parse(body);
-        //    json.RootElement.EnumerateObject().Select(p => p.Name.ToLowerInvariant())
-        //        .Should().NotContain("token");
-        //
-            // El usuario creado se loguea y obtiene su propio token con rol User
-        //    var login = await Auth.LoginAsync(dto.Email, dto.Password);
-            // [Diana desde v4.0 OBSOLETO] el rol "User" pasa a llamarse Consultante
-            //login.Roles.Should().Contain("User");
-        //    login.Roles.Should().ContainSingle().Which.Should().Be(Roles.Consultante);
-        //}
 
         #region Matriz de roles (políticas PuedeConsultar / PuedeEditar / EsAdministrador)
 
@@ -178,20 +125,6 @@ namespace DocentesApp.Tests.Integration
                 response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden, $"{rol} {metodo} {url}: {body}")
                     .And.NotBe(HttpStatusCode.Unauthorized);
         }
-
-        // Gestión de usuarios: solo Administrador (hoy register; en la etapa 4 pasa a api/usuarios)
-        // [Diana desde v4.0 OBSOLETO] auth/register reemplazado por api/usuarios
-        //[Theory]
-        //[InlineData(Roles.Consultante)]
-        //[InlineData(Roles.Editor)]
-        //public async Task Register_SinRolAdministrador_Devuelve403(string rol)
-        //{
-        //    var client = await ClientePorRolAsync(rol);
-        //
-        //    var response = await client.PostAsJsonAsync("/api/auth/register", NuevoUsuario());
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        //}
 
         // Gestión de usuarios (api/usuarios): solo Administrador
         [Theory]
@@ -298,19 +231,6 @@ namespace DocentesApp.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
-        // [Diana desde v4.0 OBSOLETO] RegisterDto reemplazado por CreateUsuarioDto (NuevoUsuarioDto)
-        //private static RegisterDto NuevoUsuario()
-        //{
-        //    var unique = Guid.NewGuid().ToString("N")[..8];
-        //    return new RegisterDto
-        //    {
-        //        Email = $"nuevo-{unique}@test.com",
-        //        UserName = $"nuevo{unique}",
-        //        Password = "Nuevo123",
-        //        Nombre = "Nuevo",
-        //        Apellido = "Usuario"
-        //    };
-        //}
         private static CreateUsuarioDto NuevoUsuarioDto(string rol)
         {
             var unique = Guid.NewGuid().ToString("N")[..8];

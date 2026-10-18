@@ -3,7 +3,6 @@ using DocentesApp.Tests.Integration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using DocentesApp.Shared.DTOs.Auth;
 using DocentesApp.Shared.Auth;
@@ -21,66 +20,6 @@ namespace DocentesApp.Tests.Helpers
             _factory = factory;
             _client = factory.CreateClient();
         }
-
-        // [Diana desde v4.0 OBSOLETO] el registro era público y devolvía el token del usuario nuevo;
-        // ahora lo hace el Admin y devuelve los datos del usuario creado (RegisteredUserDto)
-        //public async Task<AuthResponseDto> RegisterUserAsync(
-        //    string? email = null,
-        //    string? userName = null,
-        //    string password = "Admin123")
-        //{
-        //    var unique = Guid.NewGuid().ToString("N")[..8];
-        //
-        //    var dto = new RegisterDto
-        //    {
-        //        Email = email ?? $"user-{unique}@test.com",
-        //        UserName = userName ?? $"user{unique}",
-        //        Password = password,
-        //        Nombre = "Test",
-        //        Apellido = "User"
-        //    };
-        //
-        //    var response = await _client.PostAsJsonAsync("/api/auth/register", dto);
-        //    var body = await response.Content.ReadAsStringAsync();
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.OK, body);
-        //
-        //    var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
-        //    authResponse.Should().NotBeNull();
-        //    authResponse!.Token.Should().NotBeNullOrWhiteSpace();
-        //
-        //    return authResponse;
-        //}
-
-        // [Diana desde v4.0 OBSOLETO] auth/register reemplazado por POST api/usuarios (con rol)
-        // Registra un usuario nuevo (rol User) con el cliente admin
-        //public async Task<RegisteredUserDto> RegisterUserAsync(
-        //    string? email = null,
-        //    string? userName = null,
-        //    string password = "Admin123")
-        //{
-        //    var unique = Guid.NewGuid().ToString("N")[..8];
-        //
-        //    var dto = new RegisterDto
-        //    {
-        //        Email = email ?? $"user-{unique}@test.com",
-        //        UserName = userName ?? $"user{unique}",
-        //        Password = password,
-        //        Nombre = "Test",
-        //        Apellido = "User"
-        //    };
-        //
-        //    var admin = await CreateAdminClientAsync();
-        //    var response = await admin.PostAsJsonAsync("/api/auth/register", dto);
-        //    var body = await response.Content.ReadAsStringAsync();
-        //
-        //    response.StatusCode.Should().Be(HttpStatusCode.OK, body);
-        //
-        //    var registered = await response.Content.ReadFromJsonAsync<RegisteredUserDto>();
-        //    registered.Should().NotBeNull();
-        //
-        //    return registered!;
-        //}
 
         // Crea un usuario nuevo con el cliente admin (POST api/usuarios). Por defecto rol Consultante.
         public async Task<UsuarioDto> RegisterUserAsync(
@@ -133,12 +72,6 @@ namespace DocentesApp.Tests.Helpers
             return authResponse;
         }
 
-        // [Diana desde v4.0 OBSOLETO] el registro ya no devuelve token: se loguea el usuario User del seed de Identity
-        //public async Task<string> GetUserTokenAsync()
-        //{
-        //    var registerResponse = await RegisterUserAsync();
-        //    return registerResponse.Token;
-        //}
         public async Task<string> GetUserTokenAsync()
         {
             var loginResponse = await LoginAsync("user@docentesapp.com", "User123!");
@@ -166,12 +99,7 @@ namespace DocentesApp.Tests.Helpers
             return CreateAuthenticatedClient(token);
         }
 
-        // [Diana desde v4.0 OBSOLETO] el rol User pasa a llamarse Consultante: CreateUserClientAsync queda como alias
-        //public async Task<HttpClient> CreateUserClientAsync()
-        //{
-        //    var token = await GetUserTokenAsync();
-        //    return CreateAuthenticatedClient(token);
-        //}
+        // el rol User pasa a llamarse Consultante: CreateUserClientAsync queda como alias
         public Task<HttpClient> CreateUserClientAsync() => CreateConsultanteClientAsync();
 
         // Usuarios del seed de Identity (Development/Testing), uno por rol

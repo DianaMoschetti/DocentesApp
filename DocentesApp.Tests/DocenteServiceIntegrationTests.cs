@@ -7,7 +7,6 @@ using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
 using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Tests.Helpers;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
@@ -488,25 +487,8 @@ public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictExceptio
         _context.Designaciones.Add(new Designacion
         {
             DocenteId = docente.Id,
-            // [Diana desde v4.0 OBSOLETO] CargoId y DedicacionId eliminados
-            // CargoId = 1,
-            // DedicacionId = 1,
             FechaInicio = DateTime.UtcNow,
             EstadoDesignacion = Estado.Activa,
-            // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
-    //        Detalles = new List<DetalleDesignacion>
-    //{
-    //    new DetalleDesignacion
-    //    {
-    //        Denominacion = DenominacionCargo.JefeDeTrabajosPracticos,
-    //        TipoCargo = TipoCargo.Adjunto,
-    //        Condicion = Condicion.Interino,
-    //        TipoDedicacion = TipoDedicacion.Simple,
-    //        CantidadDedicacion = 1,
-    //        Especificacion = EspecificacionCargo.Docencia,
-    //        PuntosAsignados = 119
-    //    }
-    //}
             Cargos = new List<CargoDesignacion>
             {
                 new CargoDesignacion

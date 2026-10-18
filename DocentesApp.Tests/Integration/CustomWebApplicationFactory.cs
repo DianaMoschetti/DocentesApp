@@ -59,8 +59,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddDbContext<DocentesDbContext>((sp, options) =>
             {
                 var connection = sp.GetRequiredService<DbConnection>();
-                // [Diana desde v4.0 OBSOLETO] sin interceptor de auditoría
-                //options.UseSqlite(connection);
                 // Mismo interceptor de auditoría que Program.cs (registrado allí como scoped)
                 options.UseSqlite(connection)
                     .AddInterceptors(sp.GetRequiredService<AuditoriaInterceptor>());
@@ -76,8 +74,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         });
     }
 
-    // [Diana desde v4.0 OBSOLETO] virtual para que un factory derivado agregue datos previos al arranque (p. ej. roles viejos)
-    //private static void SeedData(DocentesDbContext db)
+    // virtual para que un factory derivado agregue datos previos al arranque (p. ej. roles viejos)
     protected virtual void SeedData(DocentesDbContext db)
     {
         if (db.Docentes.Any())

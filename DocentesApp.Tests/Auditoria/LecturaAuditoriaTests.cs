@@ -8,16 +8,6 @@ namespace DocentesApp.Tests.Auditoria
     // Piezas sin base de datos de la lectura del historial: zona horaria y formato de valores
     public class LecturaAuditoriaTests
     {
-        // [Diana desde v4.0 OBSOLETO] probaba el fallback cuando el sistema no tenía el id IANA (ya no se busca la zona)
-        //[Fact]
-        //public void ZonaHoraria_SinElIdIana_UsaUtcMenos3Fijo()
-        //{
-        //    var zona = ZonaHorariaArgentina.Crear("No/Existe");
-        //
-        //    zona.BaseUtcOffset.Should().Be(TimeSpan.FromHours(-3));
-        //    zona.SupportsDaylightSavingTime.Should().BeFalse();
-        //}
-
         // Offset fijo UTC-3 (Argentina no tiene horario de verano desde 2009): igual en enero que en julio
         [Theory]
         [InlineData(1)]
