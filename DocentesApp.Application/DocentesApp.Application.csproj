@@ -17,8 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- [Diana desde v4.0 OBSOLETO] misma versión de FluentValidation en toda la solución -->
-    <!--<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />-->
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
     <PackageReference Include="Mapster" Version="10.0.6" />
     <PackageReference Include="Mapster.DependencyInjection" Version="10.0.6" />

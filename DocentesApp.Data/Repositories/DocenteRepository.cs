@@ -31,19 +31,6 @@ namespace DocentesApp.Data.Repositories
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
-        // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5)
-        //public async Task<Docente?> GetByLegajoAsync(int legajo)
-        //{
-        //    return await _context.Docentes
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(d => d.Legajo == legajo);
-        //}
-        //
-        //public async Task<bool> ExistsByLegajoAsync(int legajo)
-        //{
-        //    return await _context.Docentes
-        //        .AnyAsync(d => d.Legajo == legajo);
-        //}
         public async Task<Docente?> GetByLegajoAsync(int? legajo)
         {
             if (!legajo.HasValue)

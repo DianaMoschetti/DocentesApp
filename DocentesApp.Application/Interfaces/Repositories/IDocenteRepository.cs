@@ -6,9 +6,7 @@ namespace DocentesApp.Application.Interfaces.Repositories
     {
         Task<IEnumerable<Docente>> GetAllAsync();
         Task<Docente?> GetByIdAsync(int id);
-        // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): sin legajo no hay docente ni duplicado
-        //Task<Docente?> GetByLegajoAsync(int legajo);
-        //Task<bool> ExistsByLegajoAsync(int legajo);
+        // el legajo es opcional (v5): sin legajo no hay docente ni duplicado
         Task<Docente?> GetByLegajoAsync(int? legajo);
         Task<bool> ExistsByLegajoAsync(int? legajo);
         Task<bool> ExistsByDniAsync(string dni);

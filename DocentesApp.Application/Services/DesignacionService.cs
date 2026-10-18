@@ -15,8 +15,6 @@ namespace DocentesApp.Application.Services
     {
         private readonly IDesignacionRepository _designacionRepository;
         private readonly IDocenteRepository _docenteRepository;
-        // [Diana desde v4.0 OBSOLETO] ICargoRepository eliminado — cargo pasa a DetalleDesignacion
-        // private readonly ICargoRepository _cargoRepository;
         // v5: validaciones de cargos y actividades
         private readonly IUdbRepository _udbRepository;
         private readonly IPuntosPorCargoRepository _puntosPorCargoRepository;
@@ -27,8 +25,6 @@ namespace DocentesApp.Application.Services
         public DesignacionService(
             IDesignacionRepository designacionRepository,
             IDocenteRepository docenteRepository,
-            // [Diana desde v4.0 OBSOLETO] ICargoRepository eliminado
-            // ICargoRepository cargoRepository,
             IUdbRepository udbRepository,
             IPuntosPorCargoRepository puntosPorCargoRepository,
             IAsignaturaRepository asignaturaRepository,
@@ -37,8 +33,6 @@ namespace DocentesApp.Application.Services
         {
             _designacionRepository = designacionRepository;
             _docenteRepository = docenteRepository;
-            // [Diana desde v4.0 OBSOLETO]
-            // _cargoRepository = cargoRepository;
             _udbRepository = udbRepository;
             _puntosPorCargoRepository = puntosPorCargoRepository;
             _asignaturaRepository = asignaturaRepository;
@@ -58,8 +52,6 @@ namespace DocentesApp.Application.Services
             return _mapper.Map<IEnumerable<ListDesignacionDto>>(designaciones);
         }
 
-        // [Diana desde v4.0 OBSOLETO] devuelve cabecera + cargos (DetalleDocente)
-        //public async Task<IEnumerable<ListDesignacionDto>> GetByDocenteAsync(int docenteId)
         public async Task<IEnumerable<DesignacionDto>> GetByDocenteAsync(int docenteId)
         {
             var docente = await _docenteRepository.GetByIdAsync(docenteId);
@@ -67,8 +59,6 @@ namespace DocentesApp.Application.Services
                 throw new NotFoundException($"No se encontró el docente con ID {docenteId}.");
 
             var designaciones = await _designacionRepository.GetByDocenteAsync(docenteId);
-            // [Diana desde v4.0 OBSOLETO] devuelve cabecera + cargos (DetalleDocente)
-            //return _mapper.Map<IEnumerable<ListDesignacionDto>>(designaciones);
             return _mapper.Map<IEnumerable<DesignacionDto>>(designaciones);
         }
 
@@ -99,47 +89,6 @@ namespace DocentesApp.Application.Services
                     c.Cargo, c.CantidadDedicacion, c.TipoDedicacion)
             });
         }
-
-        // [Diana desde v4.0 OBSOLETO] creación v4 (cabecera + detalles con Mapster); reemplazada por la versión v5 de abajo
-        //public async Task<DesignacionDto> CreateAsync(CreateDesignacionDto dto)
-        //{
-        //    // Validar que el docente existe
-        //    var docente = await _docenteRepository.GetByIdAsync(dto.DocenteId);
-        //    if (docente == null)
-        //        throw new NotFoundException($"No se encontró el docente con ID {dto.DocenteId}.");
-        //
-        //    // [Diana desde v4.0 OBSOLETO] validación de cargo eliminada — cargo pasa a DetalleDesignacion
-        //    // var cargo = await _cargoRepository.GetByIdAsync(dto.CargoId);
-        //    // if (cargo == null)
-        //    //     throw new NotFoundException($"No se encontró el cargo con ID {dto.CargoId}.");
-        //
-        //    // [Diana desde v4.0 OBSOLETO] Regla 33 eliminada — Regla 41: un docente puede tener
-        //    // múltiples designaciones activas con la misma categoría de cargo
-        //    // var existeActiva = await _designacionRepository
-        //    //     .ExisteDesignacionActivaAsync(dto.DocenteId, dto.CargoId);
-        //    // if (existeActiva)
-        //    //     throw new BadRequestException(
-        //    //         "Ya existe una designación activa para ese docente con ese cargo.");
-        //
-        //    // DIANA VER Validar que tenga al menos un detalle (regla 25)
-        //    // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5); la creación completa se reescribe en la etapa Application
-        //    //if (dto.Detalles == null || !dto.Detalles.Any())
-        //    //    throw new BadRequestException(
-        //    //        "La designación debe tener al menos un detalle de actividad.");
-        //    if (dto.Cargos == null || !dto.Cargos.Any())
-        //        throw new BadRequestException(
-        //            "La designación debe tener al menos un cargo.");
-        //
-        //    // Mapster crea la cabecera y los detalles juntos
-        //    var designacion = _mapper.Map<Designacion>(dto);
-        //
-        //    await _designacionRepository.AddAsync(designacion);
-        //    await _designacionRepository.SaveChangesAsync();
-        //
-        //    // Recargo con todas las navegaciones para devolver el dto completo
-        //    var designacionCompleta = await _designacionRepository.GetByIdAsync(designacion.Id);
-        //    return _mapper.Map<DesignacionDto>(designacionCompleta!);
-        //}
 
         public async Task<DesignacionDto> CreateAsync(CreateDesignacionDto dto)
         {
@@ -174,43 +123,11 @@ namespace DocentesApp.Application.Services
             return _mapper.Map<DesignacionDto>(designacionCompleta!);
         }
 
-        // [Diana desde v4.0 OBSOLETO] edición v4 (Mapster sobre cabecera + detalles); reemplazada por la versión v5 de abajo
-        //public async Task UpdateAsync(int id, UpdateDesignacionDto dto)
-        //{
-        //    var designacion = await _designacionRepository.GetByIdAsync(id);
-        //    if (designacion == null)
-        //        throw new NotFoundException($"No se encontró la designación con ID {id}.");
-        //
-        //    // [Diana desde v4.0 OBSOLETO] validación de CargoId eliminada — cargo pasa a DetalleDesignacion
-        //    // if (dto.CargoId != designacion.CargoId)
-        //    // {
-        //    //     var existeActiva = await _designacionRepository
-        //    //         .ExisteDesignacionActivaAsync(designacion.DocenteId, dto.CargoId, excludeId: id);
-        //    //     if (existeActiva)
-        //    //         throw new BadRequestException(
-        //    //             "Ya existe una designación activa para ese docente con ese cargo.");
-        //    // }
-        //
-        //    // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos (v5); la edición completa se reescribe en la etapa Application
-        //    //if (dto.Detalles == null || !dto.Detalles.Any())
-        //    //    throw new BadRequestException(
-        //    //        "La designación debe tener al menos un detalle de actividad.");
-        //    if (dto.Cargos == null || !dto.Cargos.Any())
-        //        throw new BadRequestException(
-        //            "La designación debe tener al menos un cargo.");
-        //
-        //    _mapper.Map(dto, designacion);
-        //    _designacionRepository.Update(designacion);
-        //    await _designacionRepository.SaveChangesAsync();
-        //}
-
         // Edición v5: sincroniza los cargos por Id.
         //   - cargo sin Id: se agrega y se calculan sus puntos
         //   - cargo con Id: se actualiza; los puntos se recalculan SOLO si cambió Cargo, dedicación, cantidad o EnLicencia
         //     (un cambio posterior en PuntosPorCargo no altera designaciones existentes)
         //   - cargo que no viene: se quita (409 si otro cargo lo reemplaza)
-        // [Diana desde v4.0 OBSOLETO]
-        //   - las actividades de cada cargo se reemplazan por las que vienen
         //   - las actividades de cada cargo se sincronizan por Id (sin Id: nueva; con Id: se edita en su lugar; la que no viene: se quita).
         //     Un Id que no es de ese cargo (de otro cargo, inexistente o en un cargo nuevo) -> 400: una actividad nunca se mueve
         public async Task UpdateAsync(int id, UpdateDesignacionDto dto)
@@ -282,10 +199,7 @@ namespace DocentesApp.Application.Services
                     cargo.Puntos = CalculadoraPuntos.Calcular(
                         puntosBase[cargoDto.Cargo], cargoDto.TipoDedicacion, cargoDto.CantidadDedicacion, cargoDto.EnLicencia);
 
-                // [Diana desde v4.0 OBSOLETO] reemplazar todas las actividades daba Baja + Alta de cada una en cada guardado
-                //cargo.Actividades.Clear(); // EF borra las actividades huérfanas
-                //foreach (var actividadDto in cargoDto.Actividades)
-                //    cargo.Actividades.Add(CrearActividad(actividadDto));
+                // reemplazar todas las actividades daba Baja + Alta de cada una en cada guardado
                 SincronizarActividades(cargo, cargoDto.Actividades);
             }
 
@@ -308,9 +222,7 @@ namespace DocentesApp.Application.Services
             designacion.FechaFin = DateTime.Now;
             designacion.EstadoDesignacion = Estado.Finalizada;
 
-            // [Diana desde v4.0 OBSOLETO] la entidad ya está trackeada; Update() marcaría como modificado todo el grafo
-            // cargado por GetByIdAsync (cargos, actividades y designaciones de los cargos reemplazados)
-            //_designacionRepository.Update(designacion);
+            // La entidad ya está trackeada: no llamar a Update()
             await _designacionRepository.SaveChangesAsync();
         }
 

@@ -266,14 +266,6 @@ namespace DocentesApp.Data.Auditoria
             {
                 // Historial no guardado: se descartan sus filas y se deshace la transacción propia (también el cambio de negocio).
                 // Con una transacción del llamador, la excepción le llega y la deshace él.
-                // [Diana desde v4.0 OBSOLETO] movido a DesconectarFilas (también se usa al guardar bien)
-                //foreach (var fila in estado.Filas)
-                //{
-                //    // copia: al desconectar un detalle EF lo saca de fila.Detalles
-                //    foreach (var detalle in fila.Detalles.ToList())
-                //        context.Entry(detalle).State = EntityState.Detached;
-                //    context.Entry(fila).State = EntityState.Detached;
-                //}
                 DesconectarFilas(context, estado.Filas);
                 await TerminarTransaccionAsync(estado, confirmar: false, async, cancellationToken);
                 throw;

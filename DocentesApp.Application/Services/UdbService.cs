@@ -52,8 +52,6 @@ namespace DocentesApp.Application.Services
 
         public async Task UpdateAsync(int id, UpdateUdbDto dto)
         {
-            // [Diana desde v4.0 OBSOLETO] cargaba Director y Secretario, que no hacen falta para editar
-            //var udb = await _udbRepository.GetByIdAsync(id);
             var udb = await _udbRepository.GetByIdParaEditarAsync(id);
 
             if (udb == null)
@@ -70,9 +68,7 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, udb);
 
-            // [Diana desde v4.0 OBSOLETO] la UDB ya está trackeada: Update() marcaba todas sus columnas como modificadas
-            // (también CreatedDate/CreatedBy) y escribía la fila aunque no cambiara nada
-            //_udbRepository.Update(udb);
+            // La entidad ya está trackeada: no llamar a Update()
             await _udbRepository.SaveChangesAsync();
         }
 
@@ -84,8 +80,7 @@ namespace DocentesApp.Application.Services
 
         public async Task DeleteAsync(int id)
         {
-            // [Diana desde v4.0 OBSOLETO] sin las membresías, la cascada a DocentesUdb la hacía solo la base (sin historial)
-            //var udb = await _udbRepository.GetByIdAsync(id);
+            // sin las membresías, la cascada a DocentesUdb la hacía solo la base (sin historial)
             var udb = await _udbRepository.GetByIdConMembresiasAsync(id);
 
             if (udb == null)

@@ -9,6 +9,6 @@ namespace DocentesApp.Shared.DTOs.Docentes
         public string NombreCompleto { get; set; }       
         public string? Email { get; set; }
         public string? Observaciones { get; set; }
-        public List<ListDesignacionDto> Designaciones { get; set; } = new(); //List<ListDesignacionDto>();
+        public List<ListDesignacionDto> Designaciones { get; set; } = new();
     }
 }

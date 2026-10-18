@@ -66,8 +66,7 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, curso);
 
-            // [Diana desde v4.0 OBSOLETO] el curso ya está trackeado: Update() marcaba todas sus columnas como modificadas
-            //_cursoRepository.Update(curso);
+            // La entidad ya está trackeada: no llamar a Update()
             await _cursoRepository.SaveChangesAsync();
         }
 

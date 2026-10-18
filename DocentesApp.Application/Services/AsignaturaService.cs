@@ -30,8 +30,6 @@ namespace DocentesApp.Application.Services
         }
         public async Task<AsignaturaDto> CreateAsync(CreateAsignaturaDto dto)
         {
-            // [Diana desde v4.0 OBSOLETO] ExistsAsync usaba (Materia)dto.NombreAsignatura
-            // ahora usa dto.Nombre (string) directamente
             var existe = await _asignaturaRepository.ExistsAsync(
                 dto.Nombre, (Nivel)dto.Nivel, dto.UdbId);
             if (existe)
@@ -47,15 +45,12 @@ namespace DocentesApp.Application.Services
             var asignatura = await _asignaturaRepository.GetByIdAsync(id);
             if (asignatura == null)
                 throw new NotFoundException($"No se encontró la asignatura con ID {id}.");
-            // [Diana desde v4.0 OBSOLETO] ExistsAsync usaba (Materia)dto.NombreAsignatura
-            // ahora usa dto.Nombre (string) directamente
             var existe = await _asignaturaRepository.ExistsAsync(
                 dto.Nombre, (Nivel)dto.Nivel, dto.UdbId, excludeId: id);
             if (existe)
                 throw new BadRequestException("Ya existe una asignatura con esa combinación de nombre, nivel y UDB.");
             _mapper.Map(dto, asignatura);
-            // [Diana desde v4.0 OBSOLETO] la asignatura ya está trackeada: Update() marcaba todas sus columnas como modificadas
-            //_asignaturaRepository.Update(asignatura);
+            // La entidad ya está trackeada: no llamar a Update()
             await _asignaturaRepository.SaveChangesAsync();
         }
         public async Task DeleteAsync(int id)
