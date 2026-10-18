@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace DocentesApp.Data.Identity
 {
-    // [Diana desde v4.0 OBSOLETO] ahora implementa IAuditable (no puede heredar de BaseDomainModel porque hereda de IdentityUser)
-    //public class ApplicationUser : IdentityUser
+    // ahora implementa IAuditable (no puede heredar de BaseDomainModel porque hereda de IdentityUser)
     public class ApplicationUser : IdentityUser, IAuditable
     {
         public string? Nombre { get; set; }

@@ -10,24 +10,15 @@ namespace DocentesApp.Domain.Entities
         public int Id { get; set; }
         public int DocenteId { get; set; }
         public Docente Docente { get; set; }
-        //public int? AsignaturaId { get; set; } // puede no tener asignatura (ej cargos de gestión)
-        //public Asignatura? Asignatura { get; set; }
 
         public string? NroResolucion { get; set; }
         public string? NroNota { get; set; } // Ver si es necesario
         public DateTime FechaInicio{ get; set; } //  actual = FechaInicio <= hoy && (FechaFin == null || FechaFin > hoy
         public DateTime? FechaFin { get; set; } // historial
         public string? Observaciones { get; set; }
-        //public decimal PuntosUtilizados { get; set; }
-        // [Diana desde v4.0 OBSOLETO] reemplazado por el total de puntos de los cargos (TotalPuntos en el DTO)
-        //public decimal PuntosLibres { get; set; }     // diana ver si sirve de algo,
         public Estado EstadoDesignacion { get; set; } // Activa, Finalizada
-        //public int CursoId { get; set; }
-        //public Curso? Curso { get; set; }
 
         // Navigation Properties
-        // [Diana desde v4.0 OBSOLETO] reemplazado por Cargos (v5)
-        //public ICollection<DetalleDesignacion> Detalles { get; set; } = new HashSet<DetalleDesignacion>();
         public ICollection<CargoDesignacion> Cargos { get; set; } = new HashSet<CargoDesignacion>(); // 1..N
     }
 }

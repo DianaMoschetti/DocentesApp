@@ -14,21 +14,6 @@ public class AuthService : IAuthService
         _client = client;
     }
 
-    // [Diana desde v4.0 OBSOLETO] se agrega el mensaje de error de la API (usuario inactivo)
-    //public async Task<(bool success, string? token)> LoginAsync(LoginDto loginDto)
-    //{
-    //    try
-    //    {
-    //        var response = await _client.LoginAsync(loginDto);
-    //        if (response?.Token == null)
-    //            return (false, null);
-    //        return (true, response.Token);
-    //    }
-    //    catch (ApiException)
-    //    {
-    //        return (false, null);
-    //    }
-    //}
     public async Task<(bool success, string? token, string? errorMessage)> LoginAsync(LoginDto loginDto)
     {
         try

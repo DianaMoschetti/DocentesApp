@@ -32,13 +32,6 @@ namespace DocentesApp.API.Services
         private const string PropiedadRol = "Rol";
         private const string PropiedadContrasenia = "Contraseña"; // sin valores: nunca se guarda la contraseña ni el hash
 
-        // [Diana desde v4.0 OBSOLETO] sin eventos de auditoría
-        //public UsuarioService(UserManager<ApplicationUser> userManager, DocentesDbContext context, ITokenService tokenService)
-        //{
-        //    _userManager = userManager;
-        //    _context = context;
-        //    _tokenService = tokenService;
-        //}
         public UsuarioService(UserManager<ApplicationUser> userManager, DocentesDbContext context, ITokenService tokenService, IAuditoriaEventos auditoria)
         {
             _userManager = userManager;

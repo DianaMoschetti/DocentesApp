@@ -12,8 +12,6 @@ namespace DocentesApp.Domain.Enums
         [Obsolete("La licencia se registra en CargoDesignacion.EnLicencia.")]
         [Description("Licencia con haberes")]
         LicenciaConHaberes = 4,
-        // [Diana desde v4.0 OBSOLETO] typo corregido en la descripción
-        //[Description("Licencia sinn haberes")]
         [Obsolete("La licencia se registra en CargoDesignacion.EnLicencia.")]
         [Description("Licencia sin haberes")]
         LicenciaSinHaberes = 5,

@@ -14,18 +14,6 @@
    por eso el chequeo que estaba en el layout nunca llegaba a correr).
    NO se usa en EmptyLayout / Login para evitar loops de redirección. *@
 
-@* [Diana desde v4.0 OBSOLETO] — aviso viejo de "expira en 5 minutos" (expiración FIJA).
-   Reemplazado por el aviso de INACTIVIDAD de más abajo.
-@if (_mostrarAvisoExpiracion)
-{
-    <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-        Tu sesión expira en 5 minutos. Guardá tu trabajo y volvé a iniciar sesión.
-        <button type="button" class="btn-close" aria-label="Close"
-                @onclick="() => _mostrarAvisoExpiracion = false"></button>
-    </div>
-}
-*@
-
 @* Aviso de cierre por INACTIVIDAD, con cuenta regresiva y botón para seguir conectado. *@
 @if (_mostrarAvisoInactividad)
 {
@@ -39,24 +27,17 @@
 @code {
     private const string SignOutUrl = "/auth/signout?expired=true";
 
-    // [Diana desde v4.0 OBSOLETO] — antelación fija de 5 min del aviso previo al vencimiento del JWT.
-    // private static readonly TimeSpan TiempoAvisoExpiracion = TimeSpan.FromMinutes(5);
-
     // Timeout por inactividad y antelación del aviso (configurables, sin números mágicos).
     private TimeSpan _idleTimeout;
     private TimeSpan _idleWarning;
 
     private Timer? _timerExpiracion;    // tope ABSOLUTO (exp del JWT)
-    // [Diana desde v4.0 OBSOLETO] — timer del aviso fijo de 5 min.
-    // private Timer? _timerAviso;
     private Timer? _timerIdle;          // cierre por inactividad
     private Timer? _timerIdleAviso;     // disparo del aviso de inactividad
     private Timer? _timerCuenta;        // cuenta regresiva del aviso (cada 1s)
 
     private bool _suscripto;
     private bool _redirigiendo;
-    // [Diana desde v4.0 OBSOLETO] — flag del aviso fijo de 5 min.
-    // private bool _mostrarAvisoExpiracion;
     private bool _mostrarAvisoInactividad;
     private int _segundosRestantes;
 
@@ -102,28 +83,7 @@
         // Timer que redirige justo al vencer el JWT (tope ABSOLUTO), sin esperar a la próxima revalidación.
         _timerExpiracion = new Timer(_ => OnSessionExpired(), null, Clamp(restante), Timeout.InfiniteTimeSpan);
 
-        // [Diana desde v4.0 OBSOLETO] — programación del aviso fijo de 5 min antes del vencimiento.
-        // var hastaAviso = restante - TiempoAvisoExpiracion;
-        // if (hastaAviso <= TimeSpan.Zero)
-        // {
-        //     _mostrarAvisoExpiracion = true;
-        //     StateHasChanged();
-        // }
-        // else
-        // {
-        //     _timerAviso = new Timer(_ => _ = InvokeAsync(() =>
-        //     {
-        //         _mostrarAvisoExpiracion = true;
-        //         StateHasChanged();
-        //     }), null, Clamp(hastaAviso), Timeout.InfiniteTimeSpan);
-        // }
-
         // Detección de actividad (JS): cada actividad local o de otra pestaña llama a OnActivity.
-        // [Diana desde v4.0 OBSOLETO] — sin manejo de errores: si el import o init fallaban, la
-        // excepción cortaba este método antes de ReiniciarIdle (sin timers de idle) y tiraba el circuito.
-        // _selfRef = DotNetObjectReference.Create(this);
-        // _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/sessionActivity.js");
-        // await _module.InvokeVoidAsync("init", _selfRef);
         try
         {
             _selfRef = DotNetObjectReference.Create(this);
@@ -310,8 +270,6 @@
             SessionExpiration.SessionExpired -= OnSessionExpired;
         }
         _timerExpiracion?.Dispose();
-        // [Diana desde v4.0 OBSOLETO]
-        // _timerAviso?.Dispose();
         _timerIdle?.Dispose();
         _timerIdleAviso?.Dispose();
         _timerCuenta?.Dispose();

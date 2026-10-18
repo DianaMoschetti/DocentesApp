@@ -7,7 +7,6 @@ using DocentesApp.Domain.Enums;
 using DocentesApp.Shared.DTOs.Designaciones;
 using DocentesApp.Shared.DTOs.PuntosPorCargo;
 using DocentesApp.Tests.Helpers;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +16,6 @@ namespace DocentesApp.Tests.Services
     // Cada operación usa un contexto nuevo, como un request de la API.
     public class DesignacionServiceTests : IDisposable
     {
-        // [Diana desde v4.0 OBSOLETO] sin auditoría
-        //private readonly SqliteTestDatabase _db = new();
         // Todos los tests corren con el interceptor de auditoría (como la API)
         private readonly SqliteTestDatabase _db = new(UsuarioActualFalso.Editor());
         private readonly MapsterMapper.IMapper _mapper = MapperFactory.Create();

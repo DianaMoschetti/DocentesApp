@@ -3,7 +3,6 @@
 @using DocentesApp.Shared.DTOs.Udbs
 @using DocentesApp.Shared.DTOs.Docentes
 @using DocentesApp.Shared.Validators.Udbs
-@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
 @attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
@@ -166,18 +165,6 @@
                 await Client.UdbsPUTAsync(Id!.Value, updateDto);
                 Navigation.NavigateTo("udbs", new NavigationOptions { ReplaceHistoryEntry = true });
             }
-            // [Diana desde v4.0 OBSOLETO] todo 400 se mostraba como nombre repetido (también director/secretario inexistente)
-            //catch (ApiException ex)
-            //{
-            //    errorMessage = ex.StatusCode switch
-            //    {
-            //        400 => "Ya existe una UDB con ese nombre.",
-            //        401 => "No tiene permisos para realizar esta acción.",
-            //        403 => "No tiene permisos para realizar esta acción.",
-            //        404 => "La UDB no existe.",
-            //        _ => "Error al guardar. Intentá de nuevo."
-            //    };
-            //}
             catch (ApiException ex)
             {
                 // El mensaje de la API (ProblemDetails.Detail): nombre repetido, docente inexistente, UDB inexistente...
@@ -210,17 +197,6 @@
                 await Client.UdbsPOSTAsync(udbDto);
                 Navigation.NavigateTo("udbs", new NavigationOptions { ReplaceHistoryEntry = true });
             }
-            // [Diana desde v4.0 OBSOLETO] todo 400 se mostraba como nombre repetido
-            //catch (ApiException ex)
-            //{
-            //    errorMessage = ex.StatusCode switch
-            //    {
-            //        400 => "Ya existe una UDB con ese nombre.",
-            //        401 => "No tiene permisos para realizar esta acción.",
-            //        403 => "No tiene permisos para realizar esta acción.",
-            //        _ => "Error al guardar. Intentá de nuevo."
-            //    };
-            //}
             catch (ApiException ex)
             {
                 // El mensaje de la API (ProblemDetails.Detail)

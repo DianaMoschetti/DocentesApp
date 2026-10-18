@@ -7,10 +7,6 @@ namespace DocentesApp.Shared.Validators.Asignaturas
     {
         public CreateAsignaturaDtoValidator()
         {
-            // [Diana desde v4.0 OBSOLETO] NombreAsignatura (enum Materia) reemplazado por Nombre (string)
-            // RuleFor(x => x.NombreAsignatura)
-            //     .Must(v => Enum.IsDefined(typeof(Materia), v))
-            //     .WithMessage("La materia seleccionada no es válida.");
             RuleFor(x => x.Nombre)
                 .NotEmpty().WithMessage("El nombre de la asignatura es obligatorio.")
                 .MaximumLength(200).WithMessage("El nombre no puede superar los 200 caracteres.");

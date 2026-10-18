@@ -25,8 +25,5 @@
   <ItemGroup>
     <Folder Include="Services\Base\" />
   </ItemGroup>
-  <!--<Target Name="NSwag" AfterTargets="PostBuildEvent">
-    <Exec Command="$(NSwagExe_Net90) run nswag.json /variables:Configuration=$(Configuration)" />
-  </Target>-->
 
 </Project>

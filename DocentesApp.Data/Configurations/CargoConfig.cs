@@ -20,22 +20,6 @@ namespace DocentesApp.Data.Configurations
             // v5: Designacion ya no tiene CargoId. Sin esto EF crea por convención la columna sombra
             // Designaciones.CargoId (FK a Cargos) a partir de Cargo.Designaciones.
             builder.Ignore(c => c.Designaciones);
-
-            //builder.ToTable("Cargos");
-            //builder.HasKey(c => c.Id);
-
-            //// Guardo los enums como ints -> no hace falta pq se guardan como int por defecto
-            ////builder.Property(c => c.TipoCargo).HasConversion<int>();
-            //builder.Property(c => c.Observaciones).HasMaxLength(500);
-
-            //builder.HasIndex(x => new { x.Denominacion, x.TipoCargo, x.Condicion })
-            //    .IsUnique();
-
-            //// Relaciones
-            //builder.HasMany(x => x.Designaciones)
-            // .WithOne(d => d.Cargo)
-            // .HasForeignKey(d => d.CargoId)
-            // .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

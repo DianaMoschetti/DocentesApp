@@ -103,8 +103,6 @@ else
 @code {
     // Trae una página (pagina empieza en 1)
     [Parameter, EditorRequired] public Func<int, int, Task<PaginaHistorialCambioDto>> CargarPagina { get; set; } = default!;
-    // [Diana desde v4.0 OBSOLETO] tamaño fijo elegido por quien usa la tabla
-    //[Parameter] public int TamanioPagina { get; set; } = 25;
     [Parameter] public string MensajeVacio { get; set; } = "No hay cambios registrados.";
 
     // Tamaño de página: lo elige el usuario en el selector (cambiarlo vuelve a la página 1)
@@ -146,7 +144,6 @@ else
         {
             isLoading = true;
             errorMessage = null;
-            // [Diana desde v4.0 OBSOLETO] pagina = await CargarPagina(numero, TamanioPagina);
             pagina = await CargarPagina(numero, tamanio);
         }
         catch (ApiException ex)

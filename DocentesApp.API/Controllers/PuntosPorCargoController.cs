@@ -41,8 +41,6 @@ namespace DocentesApp.API.Controllers
         #region Create
 
         [HttpPost]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(typeof(PuntosPorCargoDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,8 +59,6 @@ namespace DocentesApp.API.Controllers
 
         // Solo cambia PuntosBase; no recalcula los puntos guardados en designaciones existentes
         [HttpPut("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -80,15 +76,11 @@ namespace DocentesApp.API.Controllers
         #region Delete
 
         [HttpDelete("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // [Diana desde v4.0 OBSOLETO] ahora documenta el cuerpo ProblemDetails del 409
-        //[ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)] // el cargo se usa en designaciones
         public async Task<IActionResult> DeletePuntosPorCargo(int id)
         {

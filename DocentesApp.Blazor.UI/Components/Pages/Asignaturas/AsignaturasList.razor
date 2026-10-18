@@ -10,7 +10,6 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Asignaturas</h2>
-        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
         <AuthorizeView Policy="@Politicas.PuedeEditar">
             <Authorized>
                 <button class="btn btn-primary"
@@ -65,7 +64,6 @@
                         <td>@asignatura.NivelTexto</td>
                         <td>@(asignatura.NombreUdb ?? "—")</td>
                         <td>
-                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                             <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-secondary me-1"
@@ -102,7 +100,6 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                     <AuthorizeView Policy="@Politicas.PuedeEditar">
                         <Authorized>
                             <button class="btn btn-secondary"

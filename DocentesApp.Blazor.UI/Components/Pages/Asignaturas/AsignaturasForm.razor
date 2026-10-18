@@ -5,7 +5,6 @@
 @using DocentesApp.Shared.Validators.Asignaturas
 @using DocentesApp.Blazor.UI.Helpers
 @using DocentesApp.Domain.Enums
-@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
 @attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
@@ -111,8 +110,6 @@
     private string? errorMessage;
     private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
 
-    // [Diana desde v4.0 OBSOLETO] materias (enum Materia) reemplazado por Nombre (string)
-    // private readonly List<(Materia Value, string Display)> materias = EnumHelper.GetOptions<Materia>();
     private readonly List<(Frecuencia Value, string Display)> frecuencias = EnumHelper.GetOptions<Frecuencia>();
     private readonly List<(Nivel Value, string Display)> niveles = EnumHelper.GetOptions<Nivel>();
 
@@ -152,8 +149,6 @@
 
             asignaturaDto = new CreateAsignaturaDto
             {
-                // [Diana desde v4.0 OBSOLETO] NombreAsignatura reemplazado por Nombre
-                // NombreAsignatura = asignatura.NombreAsignatura,
                 Nombre = asignatura.Nombre,
                 EsVigente = asignatura.EsVigente,
                 Frecuencia = asignatura.Frecuencia,
@@ -179,8 +174,6 @@
         {
             var updateDto = new UpdateAsignaturaDto
             {
-                // [Diana desde v4.0 OBSOLETO] NombreAsignatura reemplazado por Nombre
-                // NombreAsignatura = asignaturaDto.NombreAsignatura,
                 Nombre = asignaturaDto.Nombre,
                 EsVigente = asignaturaDto.EsVigente,
                 Frecuencia = asignaturaDto.Frecuencia,

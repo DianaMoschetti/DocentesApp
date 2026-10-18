@@ -36,12 +36,6 @@ namespace DocentesApp.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
-        // [Diana desde v4.0 OBSOLETO] DedicacionId ya no existe en Designacion
-        // public async Task<bool> HasDesignacionesAsync(int dedicacionId)
-        // {
-        //     return await _context.Designaciones
-        //         .AnyAsync(d => d.DedicacionId == dedicacionId);
-        // }
         public async Task<bool> HasDesignacionesAsync(int dedicacionId)
         {
             // [Diana desde v4.0 OBSOLETO] DedicacionId ya no existe en Designacion — siempre devuelve false

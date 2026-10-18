@@ -4,7 +4,6 @@ using DocentesApp.Data.Repositories;
 using DocentesApp.Domain.Enums;
 using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Tests.Helpers;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 
 namespace DocentesApp.Tests.Services

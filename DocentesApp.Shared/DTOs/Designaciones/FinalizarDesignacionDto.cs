@@ -8,9 +8,6 @@ namespace DocentesApp.Shared.DTOs.Designaciones
 {
     public class FinalizarDesignacionDto
     {
-        
-        //public int DedicacionId { get; set; }
-        
         public DateTime? FechaFin { get; set; }
 
         public string? NroResolucion { get; set; }

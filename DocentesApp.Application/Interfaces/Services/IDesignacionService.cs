@@ -7,8 +7,6 @@ namespace DocentesApp.Application.Interfaces.Services
     {
         Task<IEnumerable<ListDesignacionDto>> GetAllAsync();
         Task<IEnumerable<ListDesignacionDto>> GetVigentesAsync();
-        // [Diana desde v4.0 OBSOLETO] devuelve cabecera + cargos (DetalleDocente)
-        //Task<IEnumerable<ListDesignacionDto>> GetByDocenteAsync(int docenteId);
         Task<IEnumerable<DesignacionDto>> GetByDocenteAsync(int docenteId);
         Task<DesignacionDto> GetByIdAsync(int id);
         Task<DesignacionDto> CreateAsync(CreateDesignacionDto dto);

@@ -41,8 +41,6 @@ namespace DocentesApp.API.Controllers
         #region Create
 
         [HttpPost]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(typeof(DocenteDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,8 +58,6 @@ namespace DocentesApp.API.Controllers
         #region Update
 
         [HttpPut("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,8 +72,6 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/contacto")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -91,8 +85,6 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/academico")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -106,8 +98,6 @@ namespace DocentesApp.API.Controllers
         }
 
         [HttpPatch("{id}/observaciones")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -123,8 +113,6 @@ namespace DocentesApp.API.Controllers
         #endregion
 
         [HttpDelete("{id}")]
-        // [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por politicas
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = Politicas.PuedeEditar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

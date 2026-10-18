@@ -17,8 +17,6 @@ namespace DocentesApp.Data.Repositories
             return await _context.Designaciones
                 .AsNoTracking()
                 .Include(d => d.Docente)
-                // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
-                //.Include(d => d.Detalles)
                 .Include(d => d.Cargos)
                 .OrderByDescending(d => d.FechaInicio)
                 .ToListAsync();
@@ -27,10 +25,6 @@ namespace DocentesApp.Data.Repositories
         {
             return await _context.Designaciones
                 .AsNoTracking()
-                // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
-                //.Include(d => d.Detalles)
-                // [Diana desde v4.0 OBSOLETO] DetalleDocente muestra el docente y la UDB de cada cargo
-                //.Include(d => d.Cargos)
                 .Include(d => d.Docente)
                 .Include(d => d.Cargos)
                     .ThenInclude(c => c.Udb)
@@ -44,11 +38,8 @@ namespace DocentesApp.Data.Repositories
             return await _context.Designaciones
                 .AsNoTracking()
                 .Include(d => d.Docente)
-                // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
-                //.Include(d => d.Detalles)
                 .Include(d => d.Cargos)
-                // [Diana desde v4.0 OBSOLETO] vigente = Activa y sin FechaFin o con FechaFin futura
-                //.Where(d => d.FechaFin == null || d.FechaFin > hoy)
+                // vigente = Activa y sin FechaFin o con FechaFin futura
                 .Where(d => d.EstadoDesignacion == Estado.Activa && (d.FechaFin == null || d.FechaFin > hoy))
                 .OrderBy(d => d.Docente.Apellido)
                 .ToListAsync();
@@ -57,11 +48,6 @@ namespace DocentesApp.Data.Repositories
         {
             return await _context.Designaciones
                 .Include(d => d.Docente)
-                // [Diana desde v4.0 OBSOLETO] Detalles reemplazado por Cargos -> Actividades (v5)
-                //.Include(d => d.Detalles)
-                //    .ThenInclude(det => det.Asignatura)
-                //.Include(d => d.Detalles)
-                //    .ThenInclude(det => det.Curso)
                 .Include(d => d.Cargos)
                     .ThenInclude(c => c.Udb)
                 .Include(d => d.Cargos)
@@ -77,17 +63,6 @@ namespace DocentesApp.Data.Repositories
                 .AsSplitQuery() // varios niveles de colecciones: evita el producto cartesiano
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
-        // [Diana refactor v4] Ya no existe restricción de unicidad docente-cargo (Regla 41)
-        // public async Task<bool> ExisteDesignacionActivaAsync(int docenteId, int cargoId, int? excludeId = null)
-        // {
-        //     var hoy = DateTime.Now;
-        //     return await _context.Designaciones
-        //         .AnyAsync(d =>
-        //             d.DocenteId == docenteId &&
-        //             d.CargoId == cargoId &&
-        //             (d.FechaFin == null || d.FechaFin > hoy) &&
-        //             (excludeId == null || d.Id != excludeId));
-        // }
         // Cargos en licencia de una UDB, en designaciones vigentes y sin suplente vigente:
         // son los candidatos para el selector "Reemplaza a" de un cargo suplente.
         public async Task<IEnumerable<CargoDesignacion>> GetCargosEnLicenciaAsync(int udbId)

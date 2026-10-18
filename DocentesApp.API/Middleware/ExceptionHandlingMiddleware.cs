@@ -139,11 +139,7 @@ namespace DocentesApp.API.Middleware
 
             context.Response.StatusCode = statusCode;
 
-            // [Diana desde v4.0 OBSOLETO] ahora se devuelve ProblemDetails (lo que espera el cliente NSwag)
-            //var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
-            //{
-            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            //});
+            // ahora se devuelve ProblemDetails (lo que espera el cliente NSwag)
 
             // ProblemDetails estándar: el mensaje para el usuario va en "detail".
             // Se mantienen statusCode/message/details/traceId como extensiones para no romper

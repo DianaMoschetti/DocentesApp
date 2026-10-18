@@ -3,7 +3,6 @@ using DocentesApp.Data.Context;
 using DocentesApp.Domain.Entities;
 using DocentesApp.Domain.Enums;
 using DocentesApp.Tests.Helpers;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

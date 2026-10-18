@@ -1,6 +1,5 @@
 ﻿using DocentesApp.Domain.Enums;
 using DocentesApp.Domain.Services;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 
 namespace DocentesApp.Tests.Dominio

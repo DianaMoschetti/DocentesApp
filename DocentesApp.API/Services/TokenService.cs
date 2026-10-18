@@ -77,14 +77,6 @@ namespace DocentesApp.API.Services
             };
         }
 
-        // [Diana desde v4.0 OBSOLETO] formato "Nombre Apellido"; la app muestra a las personas como "Apellido, Nombre"
-        //// "Nombre Apellido"; si no tiene ninguno de los dos, el userName (o el email)
-        //public static string NombreParaMostrar(ApplicationUser user)
-        //{
-        //    var nombre = $"{user.Nombre} {user.Apellido}".Trim();
-        //    return nombre.Length > 0 ? nombre : user.UserName ?? user.Email ?? string.Empty;
-        //}
-
         // "Apellido, Nombre"; con uno solo de los dos, ese; sin ninguno, el userName (o el email)
         public static string NombreParaMostrar(ApplicationUser user)
         {

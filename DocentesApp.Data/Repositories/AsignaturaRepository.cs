@@ -25,15 +25,6 @@ namespace DocentesApp.Data.Repositories
                 .Include(a => a.Udb)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
-        // [Diana desde v4.0 OBSOLETO] primer parámetro era Materia (enum), ahora es string
-        // public async Task<bool> ExistsAsync(Materia nombre, Nivel nivel, int? udbId, int? excludeId = null)
-        // {
-        //     return await _context.Asignaturas
-        //         .AnyAsync(a => a.NombreAsignatura == nombre
-        //                     && a.Nivel == nivel
-        //                     && a.UdbId == udbId
-        //                     && (excludeId == null || a.Id != excludeId));
-        // }
         public async Task<bool> ExistsAsync(string nombre, Nivel nivel, int? udbId, int? excludeId = null)
         {
             return await _context.Asignaturas
@@ -65,9 +56,6 @@ namespace DocentesApp.Data.Repositories
         }
         public async Task<bool> HasDetallesDesignacionAsync(int asignaturaId)
         {
-            // [Diana desde v4.0 OBSOLETO] DetalleDesignacion reemplazado por Actividad (v5)
-            //return await _context.DetalleDesignaciones
-            //    .AnyAsync(d => d.AsignaturaId == asignaturaId);
             return await _context.Actividades
                 .AnyAsync(a => a.AsignaturaId == asignaturaId);
         }

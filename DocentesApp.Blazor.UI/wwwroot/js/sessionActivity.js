@@ -1,4 +1,4 @@
-// [Diana desde v4.0] Detección de actividad del usuario para el timeout por INACTIVIDAD.
+// Detección de actividad del usuario para el timeout por INACTIVIDAD.
 // Se carga como módulo ES desde SessionExpirationWatcher (JS interop) una vez por circuito.
 //
 // Qué hace:
@@ -61,9 +61,6 @@ function keepAlive(t) {
 }
 
 function onLocalActivity() {
-    // [Diana desde v4.0 OBSOLETO]
-    // notifyActivity(false);
-
     // En modo aviso, la actividad pasiva local no cuenta (ni reinicia timers, ni escribe
     // localStorage, ni pinguea keepalive). Solo el botón "Seguir conectado" extiende la sesión.
     if (modoAviso) {

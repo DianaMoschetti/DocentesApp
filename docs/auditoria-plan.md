@@ -1,7 +1,7 @@
 # Auditoría (historial de cambios): análisis y plan por etapas — v2 (revisado)
 
 Branch `auditoria`. Stage 1 = this analysis; nothing is implemented. Every later stage ends with `dotnet build` + `dotnet test` (0 failures) and STOPS for Diana's OK.
-Conventions: replaced code commented with `// [Diana desde v4.0 OBSOLETO]` / `@* … *@`, keep comments, Bootstrap only, keep encoding/line endings, migration generated but NOT applied, no commit, don't touch `.claude/settings.json`.
+Conventions: replaced code is deleted, not commented out (git keeps the history); keep only comments that explain the current code, Bootstrap only, keep encoding/line endings, migration generated but NOT applied, no commit, don't touch `.claude/settings.json`.
 
 ## Context
 The app needs a change history of every create/update/delete (docentes, designaciones, cargos, actividades, catalogs, users), visible only to the Administrador, with who/when/what (old → new). Today the audit columns exist on a few entities but nothing fills them, and some write paths would produce wrong, noisy or invisible history.

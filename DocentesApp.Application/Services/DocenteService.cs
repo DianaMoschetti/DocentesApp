@@ -36,11 +36,7 @@ namespace DocentesApp.Application.Services
 
         public async Task<DocenteDto> CreateAsync(CreateDocenteDto dto)
         {
-            // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): solo se valida si viene
-            //var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
-            //
-            //if (yaExisteLegajo)
-            //    throw new BadRequestException("Ya existe un docente con ese legajo.");
+            // el legajo es opcional (v5): solo se valida si viene
             if (dto.Legajo.HasValue)
             {
                 var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo.Value);
@@ -53,9 +49,7 @@ namespace DocentesApp.Application.Services
             {
                 var yaExisteDni = await _docenteRepository.ExistsByDniAsync(dto.Dni);
 
-                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
-                //if (yaExisteDni)
-                //    throw new BadRequestException("Ya existe un docente con ese DNI.");
+                // DNI duplicado es un conflicto de negocio -> 409, no 400
                 if (yaExisteDni)
                     throw new ConflictException($"Ya existe un docente con el DNI {dto.Dni}.");
             }
@@ -82,10 +76,7 @@ namespace DocentesApp.Application.Services
             if (docente == null)
                 throw new NotFoundException($"No se encontró el docente con ID {id}.");
 
-            // [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): solo se valida si viene y cambió
-            //if (dto.Legajo != docente.Legajo)
-            //{
-            //    var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo);
+            // el legajo es opcional (v5): solo se valida si viene y cambió
             if (dto.Legajo.HasValue && dto.Legajo != docente.Legajo)
             {
                 var yaExisteLegajo = await _docenteRepository.ExistsByLegajoAsync(dto.Legajo.Value);
@@ -97,17 +88,14 @@ namespace DocentesApp.Application.Services
             {
                 var yaExisteDni = await _docenteRepository.ExistsAnotherByDniAsync(dto.Dni, id);
 
-                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
-                //if (yaExisteDni)
-                //    throw new BadRequestException("Ya existe un docente con ese DNI.");
+                // DNI duplicado es un conflicto de negocio -> 409, no 400
                 if (yaExisteDni)
                     throw new ConflictException($"Ya existe otro docente con el DNI {dto.Dni}.");
             }
 
             _mapper.Map(dto, docente);
 
-            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
-            //_docenteRepository.Update(docente);
+            // La entidad ya está trackeada: no llamar a Update()
             try
             {
                 await _docenteRepository.SaveChangesAsync();
@@ -127,8 +115,7 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
-            //_docenteRepository.Update(docente);
+            // La entidad ya está trackeada: no llamar a Update()
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -141,8 +128,7 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
-            //_docenteRepository.Update(docente);
+            // La entidad ya está trackeada: no llamar a Update()
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -155,8 +141,7 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
-            //_docenteRepository.Update(docente);
+            // La entidad ya está trackeada: no llamar a Update()
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -204,8 +189,7 @@ namespace DocentesApp.Application.Services
 
             if ((normalized.Contains("ix_docentes_dni") || normalized.Contains("dni")) && normalized.Contains("unique"))
             {
-                // [Diana desde v4.0 OBSOLETO] DNI duplicado es un conflicto de negocio -> 409, no 400
-                //mappedException = new BadRequestException("Ya existe un docente con ese DNI.");
+                // DNI duplicado es un conflicto de negocio -> 409, no 400
                 mappedException = new ConflictException("Ya existe un docente con ese DNI.");
                 return true;
             }

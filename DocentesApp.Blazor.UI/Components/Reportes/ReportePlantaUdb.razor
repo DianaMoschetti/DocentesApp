@@ -45,55 +45,6 @@
         <div class="alert alert-danger">@errorMessage</div>
     }
 
-    @* [Diana desde v4.0 OBSOLETO] tabla v4 (PlantaDocenteReporteDto); reemplazada por las dos vistas v5 de abajo
-    @if (planta.Any())
-    {
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>
-                    <strong>@udbs.FirstOrDefault(u => u.Id == udbSeleccionada)?.Nombre</strong>
-                    — @planta.Count() docentes activos
-                </span>
-            </div>
-            <div class="card-body p-0">
-                <table class="table table-hover table-sm mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Docente</th>
-                            <th>Legajo</th>
-                            <th>Categoría</th>
-                            <th>Dedicación</th>
-                            <th>Especificación</th>
-                            <th>Asignatura</th>
-                            <th>Puntos</th>
-                            <th>Resolución</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var fila in planta)
-                        {
-                            <tr>
-                                <td>@fila.NombreCompleto</td>
-                                <td>@fila.Legajo</td>
-                                <td>@($"{fila.Denominacion} {fila.TipoCargo} {fila.Condicion}")</td>
-                                <td>@($"{fila.CantidadDedicacion} {fila.TipoDedicacion}")</td>
-                                <td>@fila.Especificacion</td>
-                                <td>@(fila.Asignatura ?? "—")</td>
-                                <td>@fila.PuntosAsignados</td>
-                                <td>@(fila.NroResolucion ?? "—")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    }
-    else if (!isLoading && udbSeleccionada > 0 && hasBuscado)
-    {
-        <div class="alert alert-info">No hay docentes con designaciones vigentes en esta UDB.</div>
-    }
-    *@
-
     @if (porAsignatura != null && porDocente != null && porAsignatura.Filas.Any())
     {
         <ul class="nav nav-tabs">
@@ -240,8 +191,6 @@
 
 @code {
     private ICollection<ListUdbDto> udbs = new List<ListUdbDto>();
-    // [Diana desde v4.0 OBSOLETO] reemplazado por las dos vistas v5
-    //private IEnumerable<PlantaDocenteReporteDto> planta = new List<PlantaDocenteReporteDto>();
     private const string TabAsignatura = "asignatura";
     private const string TabDocente = "docente";
     private PlantaUdbReporteDto? porAsignatura;
@@ -267,8 +216,6 @@
     private void OnUdbChanged(ChangeEventArgs e)
     {
         udbSeleccionada = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
-        // [Diana desde v4.0 OBSOLETO]
-        //planta = new List<PlantaDocenteReporteDto>();
         porAsignatura = null;
         porDocente = null;
         hasBuscado = false;
@@ -283,8 +230,6 @@
         {
             isLoading = true;
             errorMessage = null;
-            // [Diana desde v4.0 OBSOLETO]
-            //planta = await Client.UdbAsync(udbSeleccionada);
             var tareaAsignatura = Client.PorAsignaturaAsync(udbSeleccionada);
             var tareaDocente = Client.PorDocenteAsync(udbSeleccionada);
             await Task.WhenAll(tareaAsignatura, tareaDocente);

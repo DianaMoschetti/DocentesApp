@@ -3,7 +3,6 @@ using DocentesApp.Shared.DTOs.Docentes;
 using DocentesApp.Application.Interfaces.Repositories;
 using DocentesApp.Application.Services;
 using DocentesApp.Domain.Entities;
-// [Diana desde v4.0 OBSOLETO] using FluentAssertions;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using MapsterMapper;
@@ -194,8 +193,6 @@ public class DocenteServiceUnitTests
     }
 
     [Fact]
-    // [Diana desde v4.0 OBSOLETO] DNI duplicado ahora lanza ConflictException (409)
-    //public async Task CreateAsync_WhenDniExists_ThrowsBadRequestException()
     public async Task CreateAsync_WhenDniExists_ThrowsConflictException()
     {
         // Arrange
@@ -219,10 +216,6 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.CreateAsync(dto);
 
         // Assert
-        // [Diana desde v4.0 OBSOLETO]
-        //await act.Should()
-        //    .ThrowAsync<BadRequestException>()
-        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
             .ThrowAsync<ConflictException>()
             .WithMessage("Ya existe un docente con el DNI 12.345.678.");
@@ -419,8 +412,6 @@ public class DocenteServiceUnitTests
     }
 
     [Fact]
-    // [Diana desde v4.0 OBSOLETO] DNI de otro docente ahora lanza ConflictException (409)
-    //public async Task UpdateAsync_WhenDniAlreadyExistsInAnotherDocente_ThrowsBadRequestException()
     public async Task UpdateAsync_WhenDniAlreadyExistsInAnotherDocente_ThrowsConflictException()
     {
         // Arrange
@@ -454,10 +445,6 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.UpdateAsync(1, dto);
 
         // Assert
-        // [Diana desde v4.0 OBSOLETO]
-        //await act.Should()
-        //    .ThrowAsync<BadRequestException>()
-        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
             .ThrowAsync<ConflictException>()
             .WithMessage("Ya existe otro docente con el DNI 22.222.222.");
@@ -518,15 +505,11 @@ public class DocenteServiceUnitTests
         _docenteRepositoryMock.Verify(r => r.ExistsByLegajoAsync(dto.Legajo), Times.Once);
         _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(dto.Dni!, 1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
-        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
-    // [Diana desde v4.0 OBSOLETO] violación del índice único de DNI ahora se mapea a ConflictException (409)
-    //public async Task UpdateAsync_WhenUniqueConstraintFailsOnSave_ThrowsBadRequestException()
     public async Task UpdateAsync_WhenDniUniqueConstraintFailsOnSave_ThrowsConflictException()
     {
         // Arrange
@@ -556,10 +539,6 @@ public class DocenteServiceUnitTests
         Func<Task> act = async () => await _service.UpdateAsync(1, dto);
 
         // Assert
-        // [Diana desde v4.0 OBSOLETO]
-        //await act.Should()
-        //    .ThrowAsync<BadRequestException>()
-        //    .WithMessage("Ya existe un docente con ese DNI.");
         await act.Should()
             .ThrowAsync<ConflictException>()
             .WithMessage("Ya existe un docente con ese DNI.");
@@ -593,8 +572,6 @@ public class DocenteServiceUnitTests
 
         // Assert
         _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
-        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
-        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
@@ -658,8 +635,6 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
-        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
@@ -720,8 +695,6 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
-        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
@@ -782,8 +755,6 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
-        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
         _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }

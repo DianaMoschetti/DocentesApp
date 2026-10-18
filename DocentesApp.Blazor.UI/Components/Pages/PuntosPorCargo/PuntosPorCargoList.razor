@@ -11,7 +11,6 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Puntos por cargo</h2>
-        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
         <AuthorizeView Policy="@Politicas.PuedeEditar">
             <Authorized>
                 <button class="btn btn-primary"
@@ -45,15 +44,13 @@
                 </tr>
             </thead>
             <tbody>
-                @* [Diana desde v4.0 OBSOLETO] ordenado por cargo (Profesores primero, después Auxiliares)
-                @foreach (var punto in puntosPorCargo) *@
+                @* ordenado por cargo (Profesores primero, después Auxiliares) *@
                 @foreach (var punto in puntosPorCargo.OrderBy(p => p.Cargo))
                 {
                     <tr>
                         <td>@punto.Descripcion</td>
                         <td>@punto.PuntosBase</td>
                         <td>
-                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                             <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-primary me-1"
@@ -91,7 +88,6 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                     <AuthorizeView Policy="@Politicas.PuedeEditar">
                         <Authorized>
                             <button class="btn btn-secondary"
@@ -171,13 +167,6 @@
         }
         catch (ApiException ex)
         {
-            // [Diana desde v4.0 OBSOLETO] el 409 trae el mensaje del backend (qué cargo y por qué)
-            //deleteErrorMessage = ex.StatusCode switch
-            //{
-            //    409 => "No se pueden eliminar los puntos por cargo porque tienen designaciones asociadas.",
-            //    404 => "Los puntos por cargo no existen.",
-            //    _ => "Error al eliminar los puntos por cargo."
-            //};
             deleteErrorMessage = ex.StatusCode switch
             {
                 409 => ApiErrorHelper.GetMessage(ex, "No se pueden eliminar los puntos por cargo porque hay designaciones con ese cargo."),

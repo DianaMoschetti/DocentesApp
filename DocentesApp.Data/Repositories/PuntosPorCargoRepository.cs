@@ -23,13 +23,6 @@ namespace DocentesApp.Data.Repositories
             return await _context.PuntosPorCargo
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
-        // [Diana desde v4.0 OBSOLETO] la clave pasa a ser CargoDocente
-        //public async Task<PuntosPorCargo?> GetByCargoAsync(DenominacionCargo denominacion, TipoCargo tipoCargo)
-        //{
-        //    return await _context.PuntosPorCargo
-        //        .FirstOrDefaultAsync(p => p.Denominacion == denominacion
-        //            && p.TipoCargo == tipoCargo);
-        //}
         public async Task<PuntosPorCargo?> GetByCargoAsync(CargoDocente cargo)
         {
             return await _context.PuntosPorCargo

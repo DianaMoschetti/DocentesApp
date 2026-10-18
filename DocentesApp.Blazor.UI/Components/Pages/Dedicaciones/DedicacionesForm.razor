@@ -4,7 +4,6 @@
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
 @using DocentesApp.Shared.Validators.Dedicaciones
-@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
 @attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
