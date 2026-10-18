@@ -20,17 +20,7 @@ namespace DocentesApp.Blazor.UI.Services.Auth
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // [Diana desde v4.0 OBSOLETO]
-        // protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
         protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
-
-        // [Diana desde v4.0 OBSOLETO]
-        // protected override Task<bool> ValidateAuthenticationStateAsync(
-        //     AuthenticationState authenticationState,
-        //     CancellationToken cancellationToken)
-        // {
-        //     return Task.FromResult(true);
-        // }
 
         // Dentro del circuito no hay requests HTTP nuevos, así que la cookie nunca se re-evalúa.
         // Por eso se revisa el "exp" del JWT guardado en el claim "access_token".

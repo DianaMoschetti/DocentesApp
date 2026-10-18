@@ -10,7 +10,6 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Designaciones</h2>
-        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
         <AuthorizeView Policy="@Politicas.PuedeEditar">
             <Authorized>
                 <button class="btn btn-primary"
@@ -68,10 +67,6 @@
             <thead>
                 <tr>
                     <th>Docente</th>
-                    @* [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion ya no existen en ListDesignacionDto
-                    <th>Cargo</th>
-                    <th>Dedicación</th>
-                    *@
                     <th>Nro. Resolución</th>
                     <th>Fecha inicio</th>
                     <th>Fecha fin</th>
@@ -85,10 +80,6 @@
                 {
                     <tr>
                         <td>@d.NombreCompletoDocente</td>
-                        @* [Diana desde v4.0 OBSOLETO] DescripcionCargo y DescripcionDedicacion ya no existen en ListDesignacionDto
-                        <td>@d.DescripcionCargo</td>
-                        <td>@d.DescripcionDedicacion</td>
-                        *@
                         <td>@d.NroResolucion</td>
                         <td>@d.FechaInicio.ToString("dd/MM/yyyy")</td>
                         <td>@(d.FechaFin?.ToString("dd/MM/yyyy") ?? "-")</td>
@@ -110,14 +101,8 @@
                             </button>
                             @if (d.EsVigente)
                             {
-                                @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                                 <AuthorizeView Policy="@Politicas.PuedeEditar">
                                     <Authorized>
-                                        @* [Diana desde v4.0 OBSOLETO] la acción se llama "Finalizar" (el endpoint sigue siendo /cerrar)
-                                        <button class="btn btn-sm btn-outline-warning"
-                                                @onclick="() => ConfirmarCerrar(d)">
-                                            Cerrar
-                                        </button> *@
                                         <button class="btn btn-sm btn-outline-warning"
                                                 @onclick="() => ConfirmarCerrar(d)">
                                             Finalizar
@@ -135,44 +120,6 @@
 </div>
 
 @* Modal de confirmación de cierre *@
-@* [Diana desde v4.0 OBSOLETO] el modal pasa a CerrarDesignacionModal (se reusa en la edición de la designación)
-@if (designacionACerrar != null)
-{
-    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar cierre de designación</h5>
-                </div>
-                <div class="modal-body">
-                    <p>¿Estás segura que querés cerrar la designación de <strong>@designacionACerrar.NombreCompletoDocente</strong>?</p>
-                    <p class="text-muted">Esta acción establecerá la fecha de fin como hoy. No se puede deshacer.</p>
-                    @if (cerrarErrorMessage != null)
-                    {
-                        <div class="alert alert-danger">@cerrarErrorMessage</div>
-                    }
-                </div>
-                <div class="modal-footer">
-                    <AuthorizeView Roles="Admin">
-                        <Authorized>
-                            <button class="btn btn-secondary"
-                                    @onclick="CancelarCerrar"
-                                    disabled="@isCerrando">
-                                Cancelar
-                            </button>
-                            <button class="btn btn-warning"
-                                    @onclick="EjecutarCerrar"
-                                    disabled="@isCerrando">
-                                @(isCerrando ? "Cerrando..." : "Cerrar designación")
-                            </button>
-                        </Authorized>
-                    </AuthorizeView>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-*@
 <CerrarDesignacionModal DesignacionId="designacionACerrar?.Id"
                         NombreDocente="@designacionACerrar?.NombreCompletoDocente"
                         OnCerrada="DesignacionCerrada"
@@ -189,9 +136,6 @@
 
     // Estado del modal de cierre
     private ListDesignacionDto? designacionACerrar;
-    // [Diana desde v4.0 OBSOLETO] el estado del cierre lo maneja CerrarDesignacionModal
-    //private bool isCerrando;
-    //private string? cerrarErrorMessage;
 
     // Propiedad calculada que aplica los filtros en memoria
     private IEnumerable<ListDesignacionDto> DesignacionesFiltradas =>
@@ -233,46 +177,6 @@
         filtroDocente = string.Empty;
         filtroEstado = "todas";
     }
-
-    // [Diana desde v4.0 OBSOLETO] el estado del cierre (error, "Cerrando...") y la llamada a la API pasan a CerrarDesignacionModal
-    //private void ConfirmarCerrar(ListDesignacionDto designacion)
-    //{
-    //    designacionACerrar = designacion;
-    //    cerrarErrorMessage = null;
-    //}
-    //
-    //private void CancelarCerrar()
-    //{
-    //    designacionACerrar = null;
-    //    cerrarErrorMessage = null;
-    //}
-    //
-    //private async Task EjecutarCerrar()
-    //{
-    //    if (designacionACerrar == null) return;
-    //
-    //    try
-    //    {
-    //        isCerrando = true;
-    //        cerrarErrorMessage = null;
-    //        await Client.CerrarAsync(designacionACerrar.Id);
-    //        designacionACerrar = null;
-    //        await CargarDesignaciones();
-    //    }
-    //    catch (ApiException ex)
-    //    {
-    //        cerrarErrorMessage = ex.StatusCode switch
-    //        {
-    //            400 => "La designación ya está cerrada.",
-    //            404 => "La designación no existe.",
-    //            _ => "Error al cerrar la designación."
-    //        };
-    //    }
-    //    finally
-    //    {
-    //        isCerrando = false;
-    //    }
-    //}
 
     private void ConfirmarCerrar(ListDesignacionDto designacion) => designacionACerrar = designacion;
 

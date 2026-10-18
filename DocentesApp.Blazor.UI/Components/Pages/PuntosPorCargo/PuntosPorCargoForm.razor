@@ -4,20 +4,15 @@
 @using DocentesApp.Domain.Enums
 @using DocentesApp.Blazor.UI.Helpers
 @using DocentesApp.Shared.Validators.PuntosPorCargo
-@* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: @attribute [Authorize] *@
 @attribute [Authorize(Policy = Politicas.PuedeEditar)]
 @rendermode InteractiveServer
 @inject IClient Client
 @inject NavigationManager Navigation
 
-@* [Diana desde v4.0 OBSOLETO] el form ahora sirve para alta y edición
-<PageTitle>Nuevos puntos por cargo</PageTitle> *@
 <PageTitle>@(esEdicion ? "Editar puntos por cargo" : "Nuevos puntos por cargo")</PageTitle>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        @* [Diana desde v4.0 OBSOLETO]
-        <h2>Nuevos puntos por cargo</h2> *@
         <h2>@(esEdicion ? "Editar puntos por cargo" : "Nuevos puntos por cargo")</h2>
         <button class="btn btn-outline-secondary"
                 @onclick='() => Navigation.NavigateTo("puntosporcargo")'>
@@ -46,28 +41,6 @@
             <div class="card-header">Datos de puntos por cargo</div>
             <div class="card-body">
                 <div class="row">
-                    @* [Diana desde v4.0 OBSOLETO] Denominación + Tipo reemplazados por Cargo (CargoDocente)
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Denominación <span class="text-danger">*</span></label>
-                        <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.Denominacion">
-                            <option value="">-- Seleccionar --</option>
-                            @foreach (var (value, display) in denominaciones)
-                            {
-                                <option value="@value">@display</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Tipo <span class="text-danger">*</span></label>
-                        <InputSelect class="form-select" @bind-Value="puntosPorCargoDto.TipoCargo">
-                            <option value="">-- Seleccionar --</option>
-                            @foreach (var (value, display) in tipos)
-                            {
-                                <option value="@value">@display</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    *@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cargo <span class="text-danger">*</span></label>
                         @if (esEdicion)
@@ -123,12 +96,6 @@
     private string? successMessage;
     private string descripcionCargo = string.Empty; // edición: el cargo se muestra pero no se cambia
 
-    // [Diana desde v4.0 OBSOLETO] Denominación + Tipo reemplazados por Cargo (CargoDocente)
-    //private readonly List<(DenominacionCargo Value, string Display)> denominaciones =
-    //    EnumHelper.GetOptions<DenominacionCargo>();
-    //private readonly List<(TipoCargo Value, string Display)> tipos =
-    //    EnumHelper.GetOptions<TipoCargo>();
-
     // Alta: solo los cargos que todavía no tienen fila (una fila por cargo)
     private List<(CargoDocente Value, string Display)> cargosDisponibles = new();
 
@@ -171,35 +138,15 @@
         errorMessage = null;
         successMessage = null;
 
-        // [Diana desde v4.0 OBSOLETO] validación y alta movidas a GuardarAltaAsync / GuardarEdicionAsync
-        //// Validación client-side
-        //var validator = new CreatePuntosPorCargoDtoValidator();
-        //var result = await validator.ValidateAsync(puntosPorCargoDto);
-        //if (!result.IsValid)
-        //{
-        //    errorMessage = string.Join(" | ", result.Errors.Select(e => e.ErrorMessage));
-        //    return;
-        //}
-
         try
         {
             isSaving = true;
-            // [Diana desde v4.0 OBSOLETO]
-            //await Client.PuntosPorCargoPOSTAsync(puntosPorCargoDto);
             var guardado = esEdicion ? await GuardarEdicionAsync() : await GuardarAltaAsync();
             if (guardado)
                 Navigation.NavigateTo("puntosporcargo", new NavigationOptions { ReplaceHistoryEntry = true });
         }
         catch (ApiException ex)
         {
-            // [Diana desde v4.0 OBSOLETO] el 409 (cargo ya cargado) y los 400 traen el mensaje del backend
-            //errorMessage = ex.StatusCode switch
-            //{
-            //    400 => "Ya existen puntos por cargo con esa combinación.",
-            //    401 => "No tiene permisos para realizar esta acción.",
-            //    403 => "No tiene permisos para realizar esta acción.",
-            //    _ => "Error al guardar. Intentá de nuevo."
-            //};
             errorMessage = ex.StatusCode switch
             {
                 401 => "No tiene permisos para realizar esta acción.",

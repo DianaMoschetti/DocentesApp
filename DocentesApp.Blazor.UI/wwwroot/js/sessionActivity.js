@@ -61,9 +61,6 @@ function keepAlive(t) {
 }
 
 function onLocalActivity() {
-    // [Diana desde v4.0 OBSOLETO]
-    // notifyActivity(false);
-
     // En modo aviso, la actividad pasiva local no cuenta (ni reinicia timers, ni escribe
     // localStorage, ni pinguea keepalive). Solo el botón "Seguir conectado" extiende la sesión.
     if (modoAviso) {

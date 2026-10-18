@@ -34,11 +34,6 @@ namespace DocentesApp.Blazor.UI.Helpers
         /// </summary>
         public static List<(T Value, string Display)> GetOptions<T>() where T : Enum
         {
-            // [Diana desde v4.0 OBSOLETO] ahora se excluyen los valores obsoletos
-            //return Enum.GetValues(typeof(T))
-            //    .Cast<T>()
-            //    .Select(e => (e, GetDisplayName(e)))
-            //    .ToList();
             return Enum.GetValues(typeof(T))
                 .Cast<T>()
                 .Where(e => !e.EsObsoleto())

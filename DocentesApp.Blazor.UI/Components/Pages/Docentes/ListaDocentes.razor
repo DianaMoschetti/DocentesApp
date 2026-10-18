@@ -14,7 +14,6 @@
             <h2> Docentes</h2>
         </div>
         <div class="col text-end">
-            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
             <AuthorizeView Policy="@Politicas.PuedeEditar">
                 <Authorized>
                     <button class="btn btn-primary"
@@ -70,13 +69,9 @@
                 </tr>
             </thead>
             <tbody>
-                @* [Diana desde v4.0 OBSOLETO] se recorre la lista filtrada por la búsqueda
-                @foreach (var docente in _docentes) *@
                 @foreach (var docente in _docentesFiltrados)
                 {
                     <tr>
-                        @* [Diana desde v4.0 OBSOLETO] el legajo es opcional (v5): "-" si no tiene
-                        <td>@docente.Legajo</td> *@
                         <td>@(docente.Legajo?.ToString() ?? "-")</td>
                         <td>@docente.NombreCompleto</td>
                         <td>@docente.Dni</td>
@@ -86,7 +81,6 @@
                                     @onclick="@(() => Navigation.NavigateTo($"docentes/{docente.Id}"))">
                                 Ver
                             </button>
-                            @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                             <AuthorizeView Policy="@Politicas.PuedeEditar">
                                 <Authorized>
                                     <button class="btn btn-sm btn-outline-secondary me-1"
@@ -119,7 +113,6 @@
                         ¿Estás segura que querés eliminar a <strong>@_nombreAEliminar</strong>?
                     </div>
                     <div class="modal-footer">
-                        @* [Diana desde v4.0 OBSOLETO] roles Admin/User reemplazados por políticas: <AuthorizeView Roles="Admin"> *@
                         <AuthorizeView Policy="@Politicas.PuedeEditar">
                             <Authorized>
                                 <button class="btn btn-secondary"

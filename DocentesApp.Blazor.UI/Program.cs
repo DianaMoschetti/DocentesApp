@@ -24,21 +24,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
-        // [Diana desde v4.0 OBSOLETO]
-        // options.ExpireTimeSpan = TimeSpan.FromHours(8);
-
-        // La cookie no debe vivir más que el JWT. La expiración real la fija /auth/signin
-        // con ExpiresUtc = jwt.ValidTo; esto es solo el valor por defecto, alineado con
-        // Jwt:DurationInMinutes de la API (15).
-        // [Diana desde v4.0 OBSOLETO]
-        // options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
-
-        // SlidingExpiration renovaría la cookie en requests HTTP más allá del vencimiento del JWT
-        // (cookie válida + token vencido = 401). Además, dentro de un circuito de Blazor Server
-        // no hay requests HTTP, así que el sliding no tendría efecto práctico igual.
-        // [Diana desde v4.0 OBSOLETO]
-        // options.SlidingExpiration = false;
-
         // [Diana desde v4.0] Timeout por INACTIVIDAD: la cookie expira a los
         // Session:IdleTimeoutMinutes sin actividad, y con SlidingExpiration cada request HTTP
         // (el keepalive mientras el usuario está activo) la renueva. El tope ABSOLUTO lo sigue
@@ -79,8 +64,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
-// [Diana desde v4.0 OBSOLETO] sin políticas: las páginas chequeaban Roles="Admin"
-//builder.Services.AddAuthorizationCore();
 // Mismas políticas que la API (DocentesApp.Shared/Auth/Politicas.cs). Sin FallbackPolicy:
 // bloquearía /login y /auth/signin, que tienen que ser anónimos.
 builder.Services.AddAuthorizationCore(Politicas.Configurar);
@@ -111,9 +94,6 @@ builder.Services.AddScoped<IClient>(sp =>
 {
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     var httpClient = factory.CreateClient("DocentesAPI");
-    // [Diana desde v4.0 OBSOLETO]
-    // return new Client("https://localhost:7270", httpClient);
-
     // El Client se crea en el scope del circuito, así que puede avisar los 401
     // al SessionExpirationService del mismo circuito.
     return new Client("https://localhost:7270", httpClient)
@@ -159,13 +139,11 @@ app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
         new AuthenticationProperties
         {
             IsPersistent = false,
-            // [Diana desde v4.0 OBSOLETO]
             // Fijaba la expiración de la cookie al vencimiento del JWT (tope absoluto).
             // Ahora la cookie usa ExpireTimeSpan (ventana de inactividad, deslizante) y el tope
             // absoluto del JWT lo hace cumplir OnValidatePrincipal. Pinchar ExpiresUtc acá
             // rompía el sliding: la ventana deslizante pasaba a ser la del JWT en vez de
             // Session:IdleTimeoutMinutes.
-            // ExpiresUtc = jwt.ValidTo
         });
 
     ctx.Response.Redirect("/");
@@ -186,13 +164,6 @@ app.MapPost("/auth/signout", async (HttpContext ctx) =>
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Ok();
 });
-
-// [Diana desde v4.0 OBSOLETO]
-// app.MapGet("/auth/signout", async (HttpContext ctx) =>
-// {
-//     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-//     ctx.Response.Redirect("/login");
-// });
 
 // Borra la cookie y redirige al login. Con ?expired=true (lo usa SessionExpirationWatcher)
 // el login muestra el mensaje de sesión expirada.
