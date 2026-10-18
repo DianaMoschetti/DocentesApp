@@ -67,6 +67,13 @@ namespace DocentesApp.Data.Auditoria
 
         public static ReglaAuditoria? Obtener(Type tipo) => Reglas.GetValueOrDefault(tipo);
 
+        // Al leer el historial: la clave guardada en HistorialCambio.Entidad -> tipo (null si no está registrada)
+        public static Type? TipoDeEntidad(string entidad) =>
+            Reglas.FirstOrDefault(kv => kv.Value.Entidad == entidad).Key;
+
+        // Claves de entidad registradas (para el filtro de la pantalla de auditoría)
+        public static IEnumerable<string> Entidades => Reglas.Values.Select(r => r.Entidad);
+
         private static ReglaAuditoria Regla<T>(
             string entidad,
             Func<T, string?> descripcion,

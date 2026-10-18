@@ -141,6 +141,7 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // gestión de usuarios (api/usuarios)
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>(); // lectura del historial de cambios (api/auditoria)
 
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
