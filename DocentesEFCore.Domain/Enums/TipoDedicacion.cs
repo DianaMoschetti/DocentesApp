@@ -5,8 +5,6 @@ namespace DocentesApp.Domain.Enums
     public enum TipoDedicacion
     {
         Simple = 1,
-        // [Diana desde v4.0 OBSOLETO] nombre institucional: DTP
-        //[Description("Semi exclusiva")]
         [Description("Semiexclusiva (DTP)")]
         SemiExclusiva = 2,
         Exclusiva = 3,

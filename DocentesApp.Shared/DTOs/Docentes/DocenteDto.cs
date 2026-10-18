@@ -7,8 +7,6 @@ namespace DocentesApp.Shared.DTOs.Docentes
     public class DocenteDto
     {
         public int Id { get; set; }
-        // [Diana desde v4.0 OBSOLETO] el legajo pasa a ser opcional (v5)
-        //public int Legajo { get; set; }
         public int? Legajo { get; set; }
         public string Nombre { get; set; } = null!;
         public string Apellido { get; set; } = null!;

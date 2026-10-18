@@ -12,8 +12,3 @@ namespace DocentesApp.Shared.DTOs.Docentes
         public string? Direccion { get; set; }
     }
 }
-//Solo actualizo lo que mando, si mando null no lo actualizo
-
-//CreateMap<UpdateDocenteContactoDto, Docente>()
-//    .ForAllMembers(opts =>
-//        opts.Condition((src, dest, srcMember) => srcMember != null));

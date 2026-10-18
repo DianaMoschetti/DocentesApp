@@ -6,8 +6,6 @@ namespace DocentesApp.Domain.Entities
     // Actividad de un cargo (v5): reemplaza los campos de actividad de DetalleDesignacion.
     // La dedicación NO se reparte entre actividades: solo se listan.
     // Qué datos lleva según la Especificacion: ver Domain.Services.ActividadReglas.
-    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría)
-    //public class Actividad
     public class Actividad : BaseDomainModel
     {
         public int Id { get; set; }

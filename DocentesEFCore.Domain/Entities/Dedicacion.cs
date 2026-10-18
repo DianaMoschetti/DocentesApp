@@ -4,8 +4,6 @@ using DocentesApp.Domain.Enums;
 namespace DocentesApp.Domain.Entities
 {
     [Obsolete("Entidad reemplazada en v4.0. Los atributos de dedicación pasan a DetalleDesignacion. No usar en código nuevo.")]
-    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría: DedicacionesController sigue ruteado)
-    //public class Dedicacion
     public class Dedicacion : BaseDomainModel
     {
         public int Id { get; set; }
