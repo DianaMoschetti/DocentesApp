@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace DocentesApp.Tests.Integration
 {
-    // Ahora: lecturas = cualquier rol (PuedeConsultar), escrituras = Administrador o Editor (PuedeEditar),
+    // Política de la API: lecturas = cualquier rol (PuedeConsultar), escrituras = Administrador o Editor (PuedeEditar),
     // gestión de usuarios = Administrador (EsAdministrador); el login sigue siendo el único endpoint anónimo.
     public class AutorizacionIntegrationTests : IntegrationTestBase
     {
