@@ -12,6 +12,8 @@ namespace DocentesApp.Application.Interfaces.Repositories
         Task AddAsync(Asignatura asignatura);
         void Update(Asignatura asignatura);
         void Delete(Asignatura asignatura);
+        // Carga los modulos (AsignaturaModulos) de la asignatura trackeada, antes de borrarla
+        Task CargarModulosAsync(Asignatura asignatura);
         Task SaveChangesAsync();
         Task<bool> HasDetallesDesignacionAsync(int asignaturaId);
     }

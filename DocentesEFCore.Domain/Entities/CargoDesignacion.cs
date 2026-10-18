@@ -1,10 +1,13 @@
+using DocentesApp.Domain.Base;
 using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
     // Un cargo dentro de una Designacion (v5). Los puntos pertenecen al cargo y se cuentan una sola vez,
     // aunque el cargo tenga varias actividades (asignaturas/cursos).
-    public class CargoDesignacion
+    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría)
+    //public class CargoDesignacion
+    public class CargoDesignacion : BaseDomainModel
     {
         public int Id { get; set; }
         public int DesignacionId { get; set; }

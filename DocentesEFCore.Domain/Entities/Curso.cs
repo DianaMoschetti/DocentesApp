@@ -1,8 +1,11 @@
-﻿using DocentesApp.Domain.Enums;
+﻿using DocentesApp.Domain.Base;
+using DocentesApp.Domain.Enums;
 
 namespace DocentesApp.Domain.Entities
 {
-    public class Curso //Comision
+    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría)
+    //public class Curso //Comision
+    public class Curso : BaseDomainModel //Comision
     {
         // Curso/Comision y Modulos (estructura de horarios)
 

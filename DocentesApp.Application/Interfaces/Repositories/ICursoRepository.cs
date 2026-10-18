@@ -11,6 +11,8 @@ namespace DocentesApp.Application.Interfaces.Repositories
         Task AddAsync(Curso curso);
         void Update(Curso curso);
         void Delete(Curso curso);
+        // Carga los módulos (AsignaturaModulos) del curso trackeado, antes de borrarlo
+        Task CargarModulosAsync(Curso curso);
         Task SaveChangesAsync();
         Task<bool> HasDependenciasAsync(int cursoId);
     }

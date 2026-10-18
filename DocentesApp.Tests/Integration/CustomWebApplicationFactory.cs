@@ -1,4 +1,5 @@
-﻿using DocentesApp.Data.Context;
+﻿using DocentesApp.Data.Auditoria;
+using DocentesApp.Data.Context;
 using DocentesApp.Domain.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -58,7 +59,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddDbContext<DocentesDbContext>((sp, options) =>
             {
                 var connection = sp.GetRequiredService<DbConnection>();
-                options.UseSqlite(connection);
+                // [Diana desde v4.0 OBSOLETO] sin interceptor de auditoría
+                //options.UseSqlite(connection);
+                // Mismo interceptor de auditoría que Program.cs (registrado allí como scoped)
+                options.UseSqlite(connection)
+                    .AddInterceptors(sp.GetRequiredService<AuditoriaInterceptor>());
             });
 
             var sp = services.BuildServiceProvider();

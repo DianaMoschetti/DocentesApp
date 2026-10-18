@@ -106,7 +106,8 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            _docenteRepository.Update(docente);
+            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
+            //_docenteRepository.Update(docente);
             try
             {
                 await _docenteRepository.SaveChangesAsync();
@@ -126,7 +127,8 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            _docenteRepository.Update(docente);
+            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
+            //_docenteRepository.Update(docente);
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -139,7 +141,8 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            _docenteRepository.Update(docente);
+            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
+            //_docenteRepository.Update(docente);
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -152,7 +155,8 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, docente);
 
-            _docenteRepository.Update(docente);
+            // [Diana desde v4.0 OBSOLETO] el docente ya está trackeado: Update() marcaba todas las columnas como modificadas
+            //_docenteRepository.Update(docente);
             await _docenteRepository.SaveChangesAsync();
         }
 
@@ -168,6 +172,8 @@ namespace DocentesApp.Application.Services
             if (tieneDesignaciones)
                 throw new ConflictException("No se puede eliminar el docente porque tiene designaciones asociadas.");
 
+            // Membresías a UDB cargadas: el borrado en cascada queda trackeado (y auditado), no solo en la base
+            await _docenteRepository.CargarMembresiasAsync(docente);
             _docenteRepository.Delete(docente);
             try
             {

@@ -54,7 +54,8 @@ namespace DocentesApp.Application.Services
             if (existe)
                 throw new BadRequestException("Ya existe una asignatura con esa combinación de nombre, nivel y UDB.");
             _mapper.Map(dto, asignatura);
-            _asignaturaRepository.Update(asignatura);
+            // [Diana desde v4.0 OBSOLETO] la asignatura ya está trackeada: Update() marcaba todas sus columnas como modificadas
+            //_asignaturaRepository.Update(asignatura);
             await _asignaturaRepository.SaveChangesAsync();
         }
         public async Task DeleteAsync(int id)
@@ -65,6 +66,8 @@ namespace DocentesApp.Application.Services
             var tieneDetalles = await _asignaturaRepository.HasDetallesDesignacionAsync(id);
             if (tieneDetalles)
                 throw new ConflictException("No se puede eliminar la asignatura porque tiene designaciones asociadas.");
+            // Módulos cargados: el borrado en cascada queda trackeado (y auditado), no solo en la base
+            await _asignaturaRepository.CargarModulosAsync(asignatura);
             _asignaturaRepository.Delete(asignatura);
             try
             {

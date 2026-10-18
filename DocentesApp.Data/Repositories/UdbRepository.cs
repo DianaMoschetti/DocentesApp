@@ -29,6 +29,25 @@ namespace DocentesApp.Data.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
+        public async Task<Udb?> GetByIdParaEditarAsync(int id)
+        {
+            return await _context.Udbs
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<Udb?> GetByIdConMembresiasAsync(int id)
+        {
+            return await _context.Udbs
+                .Include(u => u.DocenteUdbs)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<bool> ExisteDocenteAsync(int docenteId)
+        {
+            return await _context.Docentes
+                .AnyAsync(d => d.Id == docenteId);
+        }
+
         public async Task<bool> ExistsAsync(string nombre, int? excludeId = null)
         {
             return await _context.Udbs

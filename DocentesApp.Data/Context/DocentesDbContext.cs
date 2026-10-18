@@ -35,6 +35,9 @@ namespace DocentesApp.Data.Context
         public DbSet<CargoDesignacion> CargosDesignacion => Set<CargoDesignacion>();
         public DbSet<Actividad> Actividades => Set<Actividad>();
         public DbSet<PuntosPorCargo> PuntosPorCargo => Set<PuntosPorCargo>();
+        // Auditoría: historial de cambios (sin FKs a las tablas de negocio)
+        public DbSet<HistorialCambio> HistorialCambios => Set<HistorialCambio>();
+        public DbSet<HistorialCambioDetalle> HistorialCambioDetalles => Set<HistorialCambioDetalle>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

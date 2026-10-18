@@ -1,0 +1,174 @@
+@page "/auditoria"
+@using DocentesApp.Shared.DTOs.Auditoria
+@using DocentesApp.Shared.DTOs.Usuarios
+@using DocentesApp.Blazor.UI.Components.Auditoria
+@attribute [Authorize(Policy = Politicas.EsAdministrador)]
+@rendermode InteractiveServer
+@inject IClient Client
+
+@* Historial de cambios (auditoría): solo Administrador (atributo de la página, no solo el menú).
+   Los filtros se aplican con "Buscar"; desde/hasta son días de Argentina y viajan como fecha sola (yyyy-MM-dd). *@
+
+<PageTitle>Auditoría</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Auditoría</h2>
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-warning">@errorMessage</div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Usuario</label>
+                    <select class="form-select" @bind="usuarioId">
+                        <option value="">-- Todos --</option>
+                        <option value="@FiltroAuditoriaDto.UsuarioSistema">Sistema</option>
+                        @foreach (var usuario in usuarios)
+                        {
+                            <option value="@usuario.Id">@NombreUsuario(usuario)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Desde</label>
+                    <input type="date" class="form-control" @bind="desde" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" class="form-control" @bind="hasta" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Entidad</label>
+                    <select class="form-select" @bind="entidad">
+                        <option value="">-- Todas --</option>
+                        @foreach (var opcion in entidades)
+                        {
+                            <option value="@opcion.Entidad">@opcion.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Acción</label>
+                    <select class="form-select" @bind="accion">
+                        <option value="">-- Todas --</option>
+                        @foreach (var opcion in EnumHelper.GetOptions<AccionAuditoria>())
+                        {
+                            <option value="@opcion.Value">@opcion.Display</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-primary me-2" @onclick="Buscar">Buscar</button>
+                <button class="btn btn-outline-secondary" @onclick="Limpiar">Limpiar</button>
+            </div>
+            @if (filtroError != null)
+            {
+                <div class="alert alert-danger mt-3 mb-0">@filtroError</div>
+            }
+        </div>
+    </div>
+
+    @* [Diana desde v4.0 OBSOLETO] tamaño fijo de 50; ahora se elige en el selector de la tabla (20 por defecto)
+    <HistorialTabla @ref="tabla"
+                    CargarPagina="CargarPagina"
+                    TamanioPagina="50"
+                    MensajeVacio="No hay cambios que coincidan con los filtros." /> *@
+    <HistorialTabla @ref="tabla"
+                    CargarPagina="CargarPagina"
+                    MensajeVacio="No hay cambios que coincidan con los filtros." />
+</div>
+
+@code {
+    private HistorialTabla? tabla;
+    private List<UsuarioDto> usuarios = new();
+    private List<EntidadAuditoriaDto> entidades = new();
+    private string? errorMessage;
+    private string? filtroError;
+
+    // Lo que está en los controles
+    private string usuarioId = string.Empty;
+    private DateOnly? desde;
+    private DateOnly? hasta;
+    private string entidad = string.Empty;
+    private string accion = string.Empty;
+
+    // Lo que se aplicó con "Buscar" (la paginación sigue usando estos aunque se toquen los controles)
+    private string? usuarioAplicado;
+    private DateOnly? desdeAplicado;
+    private DateOnly? hastaAplicado;
+    private string? entidadAplicada;
+    private AccionAuditoria? accionAplicada;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Opciones de los filtros; si fallan, la tabla igual se muestra (sin esas opciones)
+        try
+        {
+            usuarios = (await Client.UsuariosAllAsync())
+                .OrderBy(u => u.Apellido).ThenBy(u => u.Nombre).ThenBy(u => u.UserName)
+                .ToList();
+            entidades = (await Client.EntidadesAsync()).ToList();
+        }
+        catch (ApiException)
+        {
+            errorMessage = "No se pudieron cargar las opciones de los filtros.";
+        }
+    }
+
+    private Task<PaginaHistorialCambioDto> CargarPagina(int pagina, int tamanioPagina) =>
+        Client.AuditoriaAsync(
+            usuarioAplicado,
+            FechaSola(desdeAplicado),
+            FechaSola(hastaAplicado),
+            entidadAplicada,
+            accionAplicada,
+            pagina,
+            tamanioPagina);
+
+    // El cliente NSwag tipa desde/hasta como DateTimeOffset pero manda solo "yyyy-MM-dd":
+    // el día elegido viaja tal cual (la API lo toma como día de Argentina), sin conversión de zona horaria
+    private static DateTimeOffset? FechaSola(DateOnly? dia) =>
+        dia.HasValue ? new DateTimeOffset(dia.Value.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero) : null;
+
+    private async Task Buscar()
+    {
+        filtroError = null;
+        if (desde.HasValue && hasta.HasValue && desde > hasta)
+        {
+            filtroError = "La fecha desde no puede ser posterior a la fecha hasta.";
+            return;
+        }
+
+        usuarioAplicado = string.IsNullOrEmpty(usuarioId) ? null : usuarioId;
+        desdeAplicado = desde;
+        hastaAplicado = hasta;
+        entidadAplicada = string.IsNullOrEmpty(entidad) ? null : entidad;
+        accionAplicada = Enum.TryParse<AccionAuditoria>(accion, out var a) ? a : null;
+
+        if (tabla != null)
+            await tabla.RecargarAsync();
+    }
+
+    private async Task Limpiar()
+    {
+        usuarioId = string.Empty;
+        desde = null;
+        hasta = null;
+        entidad = string.Empty;
+        accion = string.Empty;
+        await Buscar();
+    }
+
+    private static string NombreUsuario(UsuarioDto usuario)
+    {
+        var nombre = string.Join(", ", new[] { usuario.Apellido, usuario.Nombre }.Where(p => !string.IsNullOrWhiteSpace(p)));
+        return nombre.Length > 0 ? $"{nombre} ({usuario.UserName})" : usuario.UserName;
+    }
+}

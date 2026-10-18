@@ -1,7 +1,10 @@
-﻿using DocentesApp.Domain.Enums;
+﻿using DocentesApp.Domain.Base;
+using DocentesApp.Domain.Enums;
 namespace DocentesApp.Domain.Entities
 {
-    public class Asignatura
+    // [Diana desde v4.0 OBSOLETO] ahora hereda de BaseDomainModel (auditoría)
+    //public class Asignatura
+    public class Asignatura : BaseDomainModel
     {
         public int Id { get; set; }
         // [Diana desde v4.0 OBSOLETO] NombreAsignatura (enum Materia) reemplazado por Nombre (string)

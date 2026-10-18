@@ -54,6 +54,11 @@ namespace DocentesApp.Data.Repositories
         {
             _context.Asignaturas.Remove(asignatura);
         }
+
+        public async Task CargarModulosAsync(Asignatura asignatura)
+        {
+            await _context.Entry(asignatura).Collection(a => a.AsignaturaModulos).LoadAsync();
+        }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

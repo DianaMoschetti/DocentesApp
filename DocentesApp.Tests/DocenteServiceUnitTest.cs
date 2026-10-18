@@ -518,7 +518,9 @@ public class DocenteServiceUnitTests
         _docenteRepositoryMock.Verify(r => r.ExistsByLegajoAsync(dto.Legajo), Times.Once);
         _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(dto.Dni!, 1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
+        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -591,7 +593,9 @@ public class DocenteServiceUnitTests
 
         // Assert
         _docenteRepositoryMock.Verify(r => r.ExistsAnotherByDniAsync(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
-        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
+        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -654,7 +658,9 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
+        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -714,7 +720,9 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
+        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -774,7 +782,9 @@ public class DocenteServiceUnitTests
         // Assert
         _docenteRepositoryMock.Verify(r => r.GetByIdAsync(1), Times.Once);
         _mapperMock.Verify(m => m.Map(dto, docente), Times.Once);
-        _docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        // [Diana desde v4.0 OBSOLETO] el docente trackeado ya no se pasa por Update() (auditoría: solo columnas que cambian)
+        //_docenteRepositoryMock.Verify(r => r.Update(docente), Times.Once);
+        _docenteRepositoryMock.Verify(r => r.Update(It.IsAny<Docente>()), Times.Never);
         _docenteRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 

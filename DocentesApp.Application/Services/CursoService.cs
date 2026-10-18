@@ -66,7 +66,8 @@ namespace DocentesApp.Application.Services
 
             _mapper.Map(dto, curso);
 
-            _cursoRepository.Update(curso);
+            // [Diana desde v4.0 OBSOLETO] el curso ya está trackeado: Update() marcaba todas sus columnas como modificadas
+            //_cursoRepository.Update(curso);
             await _cursoRepository.SaveChangesAsync();
         }
 
@@ -82,6 +83,8 @@ namespace DocentesApp.Application.Services
             if (tieneDependencias)
                 throw new ConflictException("No se puede eliminar el curso porque tiene asignaturas o designaciones asociadas.");
 
+            // Módulos cargados: el borrado en cascada queda trackeado (y auditado), no solo en la base
+            await _cursoRepository.CargarModulosAsync(curso);
             _cursoRepository.Delete(curso);
             try
             {
