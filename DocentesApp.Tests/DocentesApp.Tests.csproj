@@ -26,6 +26,8 @@
   <ItemGroup>
     <ProjectReference Include="..\DocentesApp.API\DocentesApp.API.csproj" />
     <ProjectReference Include="..\DocentesApp.Application\DocentesApp.Application.csproj" />
+    <!-- Con alias: la API y Blazor tienen cada una su clase Program (WebApplicationFactory<Program> es la de la API) -->
+    <ProjectReference Include="..\DocentesApp.Blazor.UI\DocentesApp.Blazor.UI.csproj" Aliases="BlazorUI" />
     <ProjectReference Include="..\DocentesApp.Data\DocentesApp.Data.csproj" />
     <ProjectReference Include="..\DocentesEFCore.Domain\DocentesApp.Domain.csproj" />
   </ItemGroup>

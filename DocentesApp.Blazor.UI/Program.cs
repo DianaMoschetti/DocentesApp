@@ -1,4 +1,5 @@
 using DocentesApp.Blazor.UI.Components;
+using DocentesApp.Blazor.UI.Helpers;
 using DocentesApp.Blazor.UI.Services.Auth;
 using DocentesApp.Blazor.UI.Services.Base;
 using DocentesApp.Shared.Auth;
@@ -122,8 +123,8 @@ app.UseAuthorization();
 
 // Minimal API para manejar el login/logout, ya que Blazor Server no
 // tiene un mecanismo de navegaci�n tradicional para redirigir a una p�gina de logout
-// El endpoint setea la cookie y redirige a /
-app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
+// El endpoint setea la cookie y redirige a returnUrl si es una URL local (si no, a /)
+app.MapGet("/auth/signin", async (HttpContext ctx, string token, string? returnUrl) =>
 {
     var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
     var jwt = handler.ReadJwtToken(token);
@@ -146,7 +147,7 @@ app.MapGet("/auth/signin", async (HttpContext ctx, string token) =>
             // Session:IdleTimeoutMinutes.
         });
 
-    ctx.Response.Redirect("/");
+    ctx.Response.Redirect(RedireccionHelper.EsUrlLocal(returnUrl) ? returnUrl! : "/");
 });
 
 // Endpoint "latido": renueva la cookie deslizante mientras el usuario

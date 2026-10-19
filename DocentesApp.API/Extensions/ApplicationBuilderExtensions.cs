@@ -51,7 +51,7 @@ namespace DocentesApp.API.Extensions
                     adminPassword = "Admin123!"; // solo Development/Testing
                 }
 
-                await CrearUsuarioAsync(userManager, adminEmail, "admin", "Administrador", "Sistema", adminPassword, Roles.Administrador);
+                await CrearUsuarioAsync(userManager, adminEmail, "admin", "Administrador", "General", adminPassword, Roles.Administrador);
             }
 
             // 3) Usuarios de prueba: solo en Development y Testing
