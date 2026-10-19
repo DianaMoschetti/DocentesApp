@@ -17,8 +17,6 @@ namespace DocentesApp.API.Services
             ["AsignaturaModulo"] = "Módulo de asignatura",
             ["PuntosPorCargo"] = "Puntos por cargo",
             ["Laboratorio"] = "Laboratorio",
-            ["Cargo"] = "Cargo (obsoleto)",
-            ["Dedicacion"] = "Dedicación (obsoleta)",
             ["Usuario"] = "Usuario",
         };
 

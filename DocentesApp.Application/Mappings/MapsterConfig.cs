@@ -147,12 +147,6 @@ namespace DocentesApp.Application.Mappings
             config.NewConfig<Udb, ListUdbDto>();
             #endregion
 
-            #region Cargo
-            #endregion
-
-            #region Dedicacion
-            #endregion
-
             #region PuntosPorCargo
             config.NewConfig<CreatePuntosPorCargoDto, PuntosPorCargo>();
 

@@ -20,7 +20,6 @@ namespace DocentesApp.Data.Auditoria
     {
         private static readonly (int? DocenteId, int? DesignacionId) SinVinculo = (null, null);
 
-#pragma warning disable CS0618 // Cargo y Dedicacion son obsoletas pero siguen teniendo endpoints de escritura: se auditan
         private static readonly Dictionary<Type, ReglaAuditoria> Reglas = new()
         {
             [typeof(Docente)] = Regla<Docente>("Docente",
@@ -59,11 +58,8 @@ namespace DocentesApp.Data.Auditoria
                 am => am.Asignatura != null ? $"{am.Asignatura.Nombre} – {am.Modulo}" : am.Modulo.ToString()),
             [typeof(PuntosPorCargo)] = Regla<PuntosPorCargo>("PuntosPorCargo", p => p.Cargo.Descripcion()),
             [typeof(Laboratorio)] = Regla<Laboratorio>("Laboratorio", l => l.Nombre),
-            [typeof(Cargo)] = Regla<Cargo>("Cargo", c => $"{c.Denominacion.Descripcion()} {c.TipoCargo.Descripcion()}"),
-            [typeof(Dedicacion)] = Regla<Dedicacion>("Dedicacion", d => $"{d.DescTipo.Descripcion()} {d.CantidadDedicacion}"),
             [typeof(ApplicationUser)] = Regla<ApplicationUser>("Usuario", DescripcionUsuario),
         };
-#pragma warning restore CS0618
 
         public static ReglaAuditoria? Obtener(Type tipo) => Reglas.GetValueOrDefault(tipo);
 
