@@ -35,7 +35,7 @@ else
                 @foreach (var fila in pagina.Items)
                 {
                     <tr>
-                        <td class="text-nowrap">@fila.FechaArgentina.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-nowrap">@fila.FechaArgentina.ToString("dd/MM/yyyy")</td>
                         <td>@(fila.UsuarioId == null ? "Sistema" : fila.UsuarioNombre)</td>
                         <td>@fila.EntidadNombre</td>
                         <td><span class="badge @ClaseAccion(fila.Accion)">@fila.AccionNombre</span></td>
