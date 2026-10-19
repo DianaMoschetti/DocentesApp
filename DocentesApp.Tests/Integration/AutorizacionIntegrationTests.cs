@@ -28,6 +28,8 @@ namespace DocentesApp.Tests.Integration
         [InlineData("/api/cursos")]
         [InlineData("/api/puntosporcargo")]
         [InlineData("/api/reportes/planta/udb/1/por-asignatura")]
+        [InlineData("/api/reportes/docentes-por-curso")]
+        [InlineData("/api/reportes/docentes-por-asignatura/1")]
         public async Task Get_SinToken_Devuelve401(string url)
         {
             var response = await Client.GetAsync(url);
@@ -67,7 +69,8 @@ namespace DocentesApp.Tests.Integration
             var urls = new[]
             {
                 "/api/docentes", "/api/designaciones", "/api/designaciones/vigentes", "/api/udbs",
-                "/api/puntosporcargo", "/api/asignaturas", "/api/cursos", "/api/reportes/planta/udb/1/por-asignatura"
+                "/api/puntosporcargo", "/api/asignaturas", "/api/cursos", "/api/reportes/planta/udb/1/por-asignatura",
+                "/api/reportes/docentes-por-curso?carrera=4&anio=1", "/api/reportes/docentes-por-asignatura/1"
             };
             foreach (var rol in Roles.Todos)
                 foreach (var url in urls)

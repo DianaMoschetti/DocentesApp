@@ -36,5 +36,19 @@ namespace DocentesApp.Domain.Extensions
             CargoDocente.AyudanteSegunda => "Ay 2º",
             _ => cargo.ToString()
         };
+
+        /// <summary>
+        /// Orden jerárquico para listar docentes: PT, PAs, PAd, JTP, Ay 1º, Ay 2º (el valor del enum no sigue este orden).
+        /// </summary>
+        public static int OrdenJerarquia(this CargoDocente cargo) => cargo switch
+        {
+            CargoDocente.ProfesorTitular => 1,
+            CargoDocente.ProfesorAsociado => 2,
+            CargoDocente.ProfesorAdjunto => 3,
+            CargoDocente.JefeTrabajosPracticos => 4,
+            CargoDocente.AyudantePrimera => 5,
+            CargoDocente.AyudanteSegunda => 6,
+            _ => int.MaxValue
+        };
     }
 }
