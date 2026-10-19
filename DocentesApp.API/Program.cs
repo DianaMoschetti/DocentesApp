@@ -119,12 +119,6 @@ builder.Services.AddScoped<IAuditoriaService, AuditoriaService>(); // lectura de
 // DI Interfaces
 builder.Services.AddScoped<IDocenteService, DocenteService>();
 builder.Services.AddScoped<IDocenteRepository, DocenteRepository>();
-// [Diana desde v4.0 OBSOLETO] Cargo reemplazado por PuntosPorCargo
-builder.Services.AddScoped<ICargoService, CargoService>();
-builder.Services.AddScoped<ICargoRepository, CargoRepository>();
-// [Diana desde v4.0 OBSOLETO] Dedicacion reemplazada por atributos en DetalleDesignacion
-builder.Services.AddScoped<IDedicacionService, DedicacionService>();
-builder.Services.AddScoped<IDedicacionRepository, DedicacionRepository>();
 builder.Services.AddScoped<IPuntosPorCargoService, PuntosPorCargoService>();
 builder.Services.AddScoped<IPuntosPorCargoRepository, PuntosPorCargoRepository>();
 builder.Services.AddScoped<IUdbService, UdbService>();

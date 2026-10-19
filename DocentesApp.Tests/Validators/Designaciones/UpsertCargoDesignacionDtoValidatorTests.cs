@@ -56,12 +56,12 @@ public class UpsertCargoDesignacionDtoValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.CantidadDedicacion);
     }
 
-#pragma warning disable CS0618 // valores obsoletos usados a propósito
+    // 4 era LicenciaConHaberes (valor eliminado): un cliente viejo podría seguir enviándolo
     [Fact]
-    public void Should_Have_Error_When_Condicion_Is_Obsolete()
+    public void Should_Have_Error_When_Condicion_Is_Not_Defined()
     {
         var dto = BuildValidDto();
-        dto.Condicion = Condicion.LicenciaConHaberes;
+        dto.Condicion = (Condicion)4;
 
         var result = _validator.TestValidate(dto);
 
@@ -69,18 +69,18 @@ public class UpsertCargoDesignacionDtoValidatorTests
             .WithErrorMessage("La condición seleccionada no es válida.");
     }
 
+    // 4 era MediaSimple (valor eliminado)
     [Fact]
-    public void Should_Have_Error_When_TipoDedicacion_Is_Obsolete()
+    public void Should_Have_Error_When_TipoDedicacion_Is_Not_Defined()
     {
         var dto = BuildValidDto();
-        dto.TipoDedicacion = TipoDedicacion.MediaSimple;
+        dto.TipoDedicacion = (TipoDedicacion)4;
 
         var result = _validator.TestValidate(dto);
 
         result.ShouldHaveValidationErrorFor(x => x.TipoDedicacion)
             .WithErrorMessage("La dedicación seleccionada no es válida.");
     }
-#pragma warning restore CS0618
 
     // Suplencia (e): si reemplaza a otro cargo, la condición debe ser Suplente
     [Fact]

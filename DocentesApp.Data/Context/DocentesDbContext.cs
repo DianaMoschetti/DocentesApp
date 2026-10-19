@@ -15,12 +15,6 @@ namespace DocentesApp.Data.Context
         // DbContext using the Set<Docente>() method. It allows you to interact with the Docente table in your database.
         public DbSet<Docente> Docentes => Set<Docente>(); // It’s a shorthand for writing a property with only a getter.
 
-        // [Diana desde v4.0] Cargo reemplazado por atributos en DetalleDesignacion
-        [Obsolete("Cargo obsoleto desde v4.0. No usar en código nuevo.")]
-        public DbSet<Cargo> Cargos => Set<Cargo>();
-        // [Diana desde v4.0] Dedicacion reemplazada por atributos en DetalleDesignacion
-        [Obsolete("Dedicacion obsoleta desde v4.0. No usar en código nuevo.")]
-        public DbSet<Dedicacion> Dedicaciones => Set<Dedicacion>();
         public DbSet<Designacion> Designaciones => Set<Designacion>();
         public DbSet<Udb> Udbs => Set<Udb>();
         public DbSet<Asignatura> Asignaturas => Set<Asignatura>();

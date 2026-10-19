@@ -241,46 +241,6 @@ namespace DocentesApp.Data.Migrations
                     b.ToTable("AsignaturaModulos", (string)null);
                 });
 
-            modelBuilder.Entity("DocentesApp.Domain.Entities.Cargo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Condicion")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Denominacion")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ModifiedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Observaciones")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("PuntosBase")
-                        .HasColumnType("real");
-
-                    b.Property<int>("TipoCargo")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cargos");
-                });
-
             modelBuilder.Entity("DocentesApp.Domain.Entities.CargoDesignacion", b =>
                 {
                     b.Property<int>("Id")
@@ -385,40 +345,6 @@ namespace DocentesApp.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Cursos", (string)null);
-                });
-
-            modelBuilder.Entity("DocentesApp.Domain.Entities.Dedicacion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<float>("CantidadDedicacion")
-                        .HasColumnType("real");
-
-                    b.Property<float>("CantidadHoras")
-                        .HasColumnType("real");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("DescTipo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ModifiedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Dedicaciones");
                 });
 
             modelBuilder.Entity("DocentesApp.Domain.Entities.Designacion", b =>

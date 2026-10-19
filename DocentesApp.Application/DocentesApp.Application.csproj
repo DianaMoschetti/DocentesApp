@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="CasosDeUso\**" />
-    <EmbeddedResource Remove="CasosDeUso\**" />
-    <None Remove="CasosDeUso\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Interfaces\Auth\" />
   </ItemGroup>
 
