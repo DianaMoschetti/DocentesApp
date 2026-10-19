@@ -469,8 +469,9 @@ public class DocenteServiceIntegrationTests
         // Assert
         _context.Docentes.Should().BeEmpty();
     }
-        
-public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictException()
+
+    [Fact]
+    public async Task DeleteAsync_WhenDocenteHasDesignaciones_ThrowsConflictException()
     {
         // Arrange
         var docente = new Docente

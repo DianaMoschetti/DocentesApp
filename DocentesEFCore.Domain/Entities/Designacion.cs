@@ -5,7 +5,7 @@ namespace DocentesApp.Domain.Entities
 {
     public class Designacion : BaseDomainModel
     {
-        // Designacion (relaciona Docente + Cargo + Asignatura + Dedicacion)
+        // Cabecera de la designación de un docente; los cargos (con su dedicación y sus actividades) están en CargoDesignacion.
         // Esta entidad captura la designación histórica con fechas y observaciones.
         public int Id { get; set; }
         public int DocenteId { get; set; }
