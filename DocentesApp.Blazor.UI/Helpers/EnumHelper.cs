@@ -30,7 +30,7 @@ namespace DocentesApp.Blazor.UI.Helpers
         /// <summary>
         /// Devuelve todos los valores de un enum como lista de (valor, texto).
         /// Útil para construir dropdowns.
-        /// Los valores marcados con [Obsolete] no se ofrecen (ej. Condicion.Becario, las "Media ..." de TipoDedicacion).
+        /// Los valores marcados con [Obsolete] no se ofrecen.
         /// </summary>
         public static List<(T Value, string Display)> GetOptions<T>() where T : Enum
         {

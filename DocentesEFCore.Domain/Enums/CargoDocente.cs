@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace DocentesApp.Domain.Enums
 {
-    // Reemplaza a DenominacionCargo + TipoCargo (v5): un único valor identifica el cargo y sus puntos.
+    // Un único valor identifica el cargo y sus puntos.
     // "Auxiliar" no es un cargo: es la categoría de JTP y Ayudantes (ver CargoDocenteExtensions.EsAuxiliar).
     // Se persiste como int: los valores nuevos van siempre al final, nunca renumerar.
     public enum CargoDocente
