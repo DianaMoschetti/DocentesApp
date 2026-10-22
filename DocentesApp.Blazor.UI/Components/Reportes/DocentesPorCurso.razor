@@ -1,0 +1,297 @@
+﻿@page "/reportes/docentes-por-curso"
+@using DocentesApp.Shared.DTOs.Reportes
+@using DocentesApp.Shared.DTOs.Asignaturas
+@attribute [Authorize(Policy = Politicas.PuedeConsultar)]
+@rendermode InteractiveServer
+@inject IClient Client
+
+<PageTitle>Reporte — Docentes por curso</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Docentes por curso</h2>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == TabCurso ? "active" : "")" @onclick="() => CambiarTab(TabCurso)">
+                Por curso
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(tabActiva == TabAsignatura ? "active" : "")" @onclick="() => CambiarTab(TabAsignatura)">
+                Por asignatura
+            </button>
+        </li>
+    </ul>
+
+    <div class="card border-top-0 mb-4">
+        <div class="card-body">
+            @if (tabActiva == TabCurso)
+            {
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Carrera</label>
+                        <select class="form-select" @bind="carrera">
+                            <option value="">Todas</option>
+                            @foreach (var (value, display) in carreras)
+                            {
+                                <option value="@((int)value)">@display</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Año</label>
+                        <select class="form-select" @bind="anio">
+                            <option value="">Todos</option>
+                            @foreach (var (value, display) in niveles)
+                            {
+                                <option value="@((int)value)">@display</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" @onclick="BuscarPorCurso" disabled="@isLoading">
+                            @(isLoading ? "Cargando..." : "Buscar")
+                        </button>
+                    </div>
+                </div>
+
+                @if (cursos != null && cursos.Any())
+                {
+                    @* El curso filtra lo ya traído (con la carrera y el año elegidos) *@
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-7">
+                            <label class="form-label">Curso</label>
+                            <select class="form-select" @bind="cursoSeleccionado">
+                                <option value="">Todos los cursos</option>
+                                @foreach (var curso in cursos)
+                                {
+                                    <option value="@curso.CursoId">@curso.Descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-7">
+                        <label class="form-label">Asignatura</label>
+                        <select class="form-select" @bind="asignaturaSeleccionada">
+                            <option value="">-- Seleccionar asignatura --</option>
+                            @foreach (var asignatura in asignaturas)
+                            {
+                                <option value="@asignatura.Id">@asignatura.Nombre (@asignatura.NombreUdb)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" @onclick="BuscarPorAsignatura"
+                                disabled="@(asignaturaSeleccionada == null || isLoading)">
+                            @(isLoading ? "Cargando..." : "Ver cursos")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (tabActiva == TabCurso && cursos != null)
+    {
+        @if (!cursos.Any())
+        {
+            <div class="alert alert-info">No hay cursos con docentes de designaciones vigentes para ese filtro.</div>
+        }
+        @foreach (var curso in CursosVisibles)
+        {
+            <div class="card mb-3">
+                <div class="card-header"><strong>@curso.Descripcion</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-hover table-sm mb-0">
+                        @Encabezado
+                        <tbody>
+                            @foreach (var asignatura in curso.Asignaturas)
+                            {
+                                <tr class="table-secondary">
+                                    <td colspan="5">
+                                        <strong>@asignatura.Nombre</strong>
+                                        @LineaCatedra(asignatura.Catedra)
+                                    </td>
+                                </tr>
+                                @foreach (var docente in asignatura.Docentes)
+                                {
+                                    @FilaDocente(docente)
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+
+    @if (tabActiva == TabAsignatura && porAsignatura != null)
+    {
+        <div class="mb-3">
+            <h4 class="mb-1">@porAsignatura.Nombre <small class="text-muted">(@porAsignatura.NombreUdb)</small></h4>
+            @LineaCatedra(porAsignatura.Catedra)
+        </div>
+        @if (!porAsignatura.Cursos.Any())
+        {
+            <div class="alert alert-info">La asignatura no tiene cursos con docentes de designaciones vigentes.</div>
+        }
+        @foreach (var curso in porAsignatura.Cursos)
+        {
+            <div class="card mb-3">
+                <div class="card-header"><strong>@curso.Descripcion</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-hover table-sm mb-0">
+                        @Encabezado
+                        <tbody>
+                            @foreach (var docente in curso.Docentes)
+                            {
+                                @FilaDocente(docente)
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private const string TabCurso = "curso";
+    private const string TabAsignatura = "asignatura";
+    private string tabActiva = TabCurso;
+
+    private readonly List<(Especialidad Value, string Display)> carreras = EnumHelper.GetOptions<Especialidad>();
+    private readonly List<(Nivel Value, string Display)> niveles = EnumHelper.GetOptions<Nivel>();
+    private ICollection<ListAsignaturaDto> asignaturas = new List<ListAsignaturaDto>();
+
+    private int? carrera;
+    private int? anio;
+    private int? cursoSeleccionado;
+    private int? asignaturaSeleccionada;
+
+    private List<CursoDocentesDto>? cursos;
+    private AsignaturaDocentesDto? porAsignatura;
+    private bool isLoading;
+    private string? errorMessage;
+
+    private IEnumerable<CursoDocentesDto> CursosVisibles =>
+        cursos?.Where(c => cursoSeleccionado == null || c.CursoId == cursoSeleccionado) ?? Enumerable.Empty<CursoDocentesDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            asignaturas = (await Client.AsignaturasAllAsync()).OrderBy(a => a.Nombre).ToList();
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = ApiErrorHelper.GetMessage(ex, "Error al cargar las asignaturas.");
+        }
+    }
+
+    private void CambiarTab(string tab)
+    {
+        tabActiva = tab;
+        errorMessage = null;
+    }
+
+    private async Task BuscarPorCurso()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            cursoSeleccionado = null;
+            cursos = (await Client.DocentesPorCursoAsync((Especialidad?)carrera, (Nivel?)anio, null)).ToList();
+        }
+        catch (ApiException ex)
+        {
+            cursos = null;
+            errorMessage = ApiErrorHelper.GetMessage(ex, "Error al cargar los docentes por curso.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task BuscarPorAsignatura()
+    {
+        if (asignaturaSeleccionada is not int id) return;
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            porAsignatura = await Client.DocentesPorAsignaturaAsync(id);
+        }
+        catch (ApiException ex)
+        {
+            porAsignatura = null;
+            errorMessage = ex.StatusCode == 404
+                ? "No se encontró la asignatura seleccionada."
+                : ApiErrorHelper.GetMessage(ex, "Error al cargar los docentes de la asignatura.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private RenderFragment Encabezado =>
+        @<thead class="table-dark">
+            <tr>
+                <th>Docente</th>
+                <th>Cargo</th>
+                <th>Condición</th>
+                <th>Especificación</th>
+                <th>Horario</th>
+            </tr>
+        </thead>;
+
+    // Licencia y suplencia se marcan junto al cargo
+    private RenderFragment FilaDocente(DocenteActividadDto docente) =>
+        @<tr>
+            <td>@docente.Apellido, @docente.Nombre</td>
+            <td>
+                @docente.CargoTexto
+                @if (docente.EnLicencia)
+                {
+                    <span class="badge bg-warning text-dark">En licencia</span>
+                }
+                @if (docente.EsSuplente)
+                {
+                    <span class="badge bg-info text-dark">Suplente</span>
+                }
+                @if (docente.ReemplazaA != null)
+                {
+                    <div class="small text-muted">Reemplaza a @docente.ReemplazaA</div>
+                }
+            </td>
+            <td>@docente.CondicionTexto</td>
+            <td>@docente.EspecificacionTexto</td>
+            <td>@(docente.Horario ?? "—")</td>
+        </tr>;
+
+    // Jefe de Cátedra y Laboratorio: son de la asignatura, no de un curso
+    private RenderFragment LineaCatedra(List<DocenteActividadDto> catedra) =>
+        @<div class="small">
+            @if (catedra.Any())
+            {
+                <span class="text-muted">Cátedra:</span>
+                @string.Join("; ", catedra.Select(d => $"{d.Apellido}, {d.Nombre} – {d.CargoTexto} ({d.EspecificacionTexto})"))
+            }
+        </div>;
+}
