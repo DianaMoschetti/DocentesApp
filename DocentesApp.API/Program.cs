@@ -132,6 +132,8 @@ builder.Services.AddScoped<IDesignacionRepository, DesignacionRepository>();
 // Reportes
 builder.Services.AddScoped<IPlantaReporteService, PlantaReporteService>();
 builder.Services.AddScoped<IPlantaReporteRepository, PlantaReporteRepository>();
+builder.Services.AddScoped<IDocentesPorCursoService, DocentesPorCursoService>();
+builder.Services.AddScoped<IDocentesPorCursoRepository, DocentesPorCursoRepository>();
 
 // Fluent
 builder.Services.AddFluentValidationAutoValidation(config =>
